@@ -2,14 +2,14 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="fr_FR">
 <context>
-    <name>AboutDialog</name>
+    <name>AboutGuiDialog</name>
     <message>
-        <location filename="../../src/dialogs/aboutdialog.cpp" line="45"/>
+        <location filename="../../src/dialogs/aboutguidialog.cpp" line="45"/>
         <source>About &lt;AppName&gt;</source>
-        <translation>À propos de &lt;AppName&gt;</translation>
+        <translation type="unfinished">À propos de &lt;AppName&gt;</translation>
     </message>
     <message>
-        <location filename="../../src/dialogs/aboutdialog.cpp" line="59"/>
+        <location filename="../../src/dialogs/aboutguidialog.cpp" line="59"/>
         <source>Version</source>
         <translation>Version</translation>
     </message>
@@ -656,8 +656,8 @@
     </message>
     <message>
         <location filename="../../src/dialogs/settingsdialog.ui" line="175"/>
-        <source>Mupen64Plus-Qt will search for all .z64, .v64, .n64, and .zip files in these directories</source>
-        <translation>Mupen64Plus-Qt cherchera tous les fichiers z64, v64, n64 et zip dans ces dossiers</translation>
+        <source>Mupen64Plus will search for all .z64, .v64, .n64, and .zip files in these directories</source>
+        <translation>Mupen64Plus cherchera tous les fichiers z64, v64, n64 et zip dans ces dossiers</translation>
     </message>
     <message>
         <location filename="../../src/dialogs/settingsdialog.ui" line="225"/>

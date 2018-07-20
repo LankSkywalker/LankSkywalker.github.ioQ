@@ -82,10 +82,10 @@ QString getDataLocation()
 
 #if QT_VERSION >= 0x050000
     dataDir = QStandardPaths::writableLocation(QStandardPaths::DataLocation)
-                    .replace(ParentName+"/"+AppName,AppNameLower);
+                    .replace(AppName+"/"+AppName, AppNameLower);
 #else
     dataDir = QDesktopServices::storageLocation(QDesktopServices::DataLocation)
-                    .remove("data/").replace(ParentName+"/"+AppName,AppNameLower);
+                    .remove("data/").replace(AppName+"/"+AppName, AppNameLower);
 #endif
 
 #endif

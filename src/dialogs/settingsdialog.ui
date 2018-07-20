@@ -36,7 +36,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>7</number>
      </property>
      <widget class="QWidget" name="pathsWidget">
       <attribute name="title">
@@ -46,73 +46,56 @@
        <item row="0" column="0">
         <widget class="QGroupBox" name="paths">
          <property name="title">
-          <string>Mupen64Plus Files</string>
+          <string>Directories</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_4">
           <item row="0" column="0">
            <layout class="QGridLayout" name="pathsLayout">
-            <item row="2" column="1">
+            <item row="1" column="1">
              <widget class="QLineEdit" name="dataPath"/>
             </item>
             <item row="2" column="2">
-             <widget class="QPushButton" name="dataButton">
-              <property name="text">
-               <string>Browse...</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="2">
              <widget class="QPushButton" name="configButton">
               <property name="text">
                <string>Browse...</string>
               </property>
              </widget>
             </item>
-            <item row="1" column="1">
-             <widget class="QLineEdit" name="pluginPath"/>
-            </item>
-            <item row="3" column="1">
-             <widget class="QLineEdit" name="configPath"/>
-            </item>
-            <item row="3" column="0">
+            <item row="2" column="0">
              <widget class="QLabel" name="configPathLabel">
               <property name="text">
                <string>Config directory:</string>
               </property>
              </widget>
             </item>
-            <item row="0" column="2">
-             <widget class="QPushButton" name="emulatorButton">
-              <property name="text">
-               <string>Browse...</string>
-              </property>
-             </widget>
+            <item row="2" column="1">
+             <widget class="QLineEdit" name="configPath"/>
             </item>
-            <item row="1" column="0">
+            <item row="0" column="0">
              <widget class="QLabel" name="pluginPathLabel">
               <property name="text">
                <string>Plugins directory:</string>
               </property>
              </widget>
             </item>
-            <item row="1" column="2">
+            <item row="0" column="2">
              <widget class="QPushButton" name="pluginButton">
               <property name="text">
                <string>Browse...</string>
               </property>
              </widget>
             </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="emulatorPathLabel">
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="pluginPath"/>
+            </item>
+            <item row="1" column="2">
+             <widget class="QPushButton" name="dataButton">
               <property name="text">
-               <string>Mupen64Plus executable: </string>
+               <string>Browse...</string>
               </property>
              </widget>
             </item>
-            <item row="0" column="1">
-             <widget class="QLineEdit" name="emulatorPath"/>
-            </item>
-            <item row="2" column="0">
+            <item row="1" column="0">
              <widget class="QLabel" name="dataPathLabel">
               <property name="text">
                <string>Data directory:</string>
@@ -172,7 +155,7 @@
                </size>
               </property>
               <property name="toolTip">
-               <string>Mupen64Plus-Qt will search for all .z64, .v64, .n64, and .zip files in these directories</string>
+               <string>Mupen64Plus will search for all .z64, .v64, .n64, and .zip files in these directories</string>
               </property>
              </widget>
             </item>
@@ -1135,13 +1118,26 @@
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0">
-        <layout class="QGridLayout" name="otherLayout" columnminimumwidth="100,0,0">
+        <layout class="QGridLayout" name="otherLayout">
          <property name="leftMargin">
           <number>10</number>
          </property>
          <property name="topMargin">
           <number>10</number>
          </property>
+         <item row="0" column="0" colspan="2">
+          <widget class="QLabel" name="downloadLabel">
+           <property name="minimumSize">
+            <size>
+             <width>330</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Download Game Information (thegamesdb.net):</string>
+           </property>
+          </widget>
+         </item>
          <item row="0" column="2">
           <widget class="QCheckBox" name="downloadOption">
            <property name="text">
@@ -1156,32 +1152,6 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="parametersLabel">
-           <property name="minimumSize">
-            <size>
-             <width>150</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Additional Parameters:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0" colspan="2">
-          <widget class="QLabel" name="downloadLabel">
-           <property name="minimumSize">
-            <size>
-             <width>330</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Download Game Information (thegamesdb.net):</string>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="0" colspan="2">
           <widget class="QLabel" name="saveLabel">
            <property name="text">
@@ -1189,22 +1159,15 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="0">
+         <item row="2" column="0">
           <widget class="QLabel" name="languageLabel">
            <property name="text">
             <string>Language:</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="1" colspan="2">
-          <widget class="QComboBox" name="languageBox"/>
-         </item>
          <item row="2" column="1" colspan="2">
-          <widget class="QLineEdit" name="parametersLine">
-           <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use to pass additional parameters to Mupen64Plus (cheats, etc.). See &lt;a href=&quot;http://mupen64plus.org/wiki/index.php?title=UIConsoleUsage&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0057ae;&quot;&gt;http://mupen64plus.org/wiki/index.php?title=UIConsoleUsage&lt;/span&gt;&lt;/a&gt; for more information.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-          </widget>
+          <widget class="QComboBox" name="languageBox"/>
          </item>
         </layout>
        </item>
@@ -1255,11 +1218,9 @@
  </widget>
  <tabstops>
   <tabstop>tabWidget</tabstop>
-  <tabstop>emulatorPath</tabstop>
   <tabstop>pluginPath</tabstop>
   <tabstop>dataPath</tabstop>
   <tabstop>configPath</tabstop>
-  <tabstop>emulatorButton</tabstop>
   <tabstop>pluginButton</tabstop>
   <tabstop>dataButton</tabstop>
   <tabstop>configButton</tabstop>
@@ -1312,7 +1273,6 @@
   <tabstop>listDescendingOption</tabstop>
   <tabstop>downloadOption</tabstop>
   <tabstop>saveOption</tabstop>
-  <tabstop>parametersLine</tabstop>
   <tabstop>languageBox</tabstop>
  </tabstops>
  <resources/>

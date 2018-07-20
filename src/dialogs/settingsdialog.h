@@ -69,7 +69,6 @@ private slots:
     void addColumn(QListWidget *currentList, QListWidget *availableList);
     void addRomDirectory();
     void browseBackground();
-    void browseEmulator();
     void browsePlugin();
     void browseData();
     void browseConfig();

@@ -30,7 +30,7 @@
  ***/
 
 #include "romcollection.h"
-
+#include "../error.h"
 #include "../global.h"
 #include "../common.h"
 
@@ -39,7 +39,6 @@
 #include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QDir>
-#include <QMessageBox>
 #include <QProgressDialog>
 #include <QTime>
 
@@ -47,7 +46,8 @@
 #include <QtXml/QDomDocument>
 
 
-RomCollection::RomCollection(QStringList fileTypes, QStringList romPaths, QWidget *parent) : QObject(parent)
+RomCollection::RomCollection(QStringList fileTypes, QStringList romPaths, QWidget *parent)
+    : QObject(parent)
 {
     this->fileTypes = fileTypes;
     this->romPaths = romPaths;
@@ -186,13 +186,13 @@ int RomCollection::addRoms()
             }
 
             if (romCount == 0)
-                QMessageBox::warning(parent, tr("Warning"), tr("No ROMs found in ") + romPath + ".");
+                SHOW_W(tr("No ROMs found in ") + romPath + ".");
         }
 
         delete scraper;
         progress->close();
     } else if (romPaths.size() != 0) {
-        QMessageBox::warning(parent, tr("Warning"), tr("No ROMs found."));
+        SHOW_W(tr("No ROMs found."));
     }
 
     database.close();
@@ -399,7 +399,7 @@ void RomCollection::initializeRom(Rom *currentRom, bool cached)
 
         currentRom->releaseDate = game.firstChildElement("ReleaseDate").text();
 
-        //Fix missing 0's in date
+        // Fix missing 0's in date
         currentRom->releaseDate.replace(QRegExp("^(\\d)/(\\d{2})/(\\d{4})"), "0\\1/\\2/\\3");
         currentRom->releaseDate.replace(QRegExp("^(\\d{2})/(\\d)/(\\d{4})"), "\\1/0\\2/\\3");
         currentRom->releaseDate.replace(QRegExp("^(\\d)/(\\d)/(\\d{4})"), "0\\1/0\\2/\\3");
@@ -412,12 +412,12 @@ void RomCollection::initializeRom(Rom *currentRom, bool cached)
 
         int count = 0;
         QDomNode genreNode = game.firstChildElement("Genres").firstChild();
-        while(!genreNode.isNull())
-        {
-            if (count != 0)
+        while (!genreNode.isNull()) {
+            if (count != 0) {
                 currentRom->genre += "/" + genreNode.toElement().text();
-            else
+            } else {
                 currentRom->genre = genreNode.toElement().text();
+            }
 
             genreNode = genreNode.nextSibling();
             count++;
@@ -427,8 +427,7 @@ void RomCollection::initializeRom(Rom *currentRom, bool cached)
         currentRom->developer = game.firstChildElement("Developer").text();
         currentRom->rating = game.firstChildElement("Rating").text();
 
-        foreach (QString ext, QStringList() << "jpg" << "png")
-        {
+        foreach (QString ext, QStringList() << "jpg" << "png") {
             QString imageFile = getDataLocation() + "/cache/"
                                 + currentRom->romMD5.toLower() + "/boxart-front." + ext;
             QFile cover(imageFile);
@@ -467,14 +466,15 @@ void RomCollection::setupDatabase()
     database = QSqlDatabase::addDatabase("QSQLITE");
     database.setDatabaseName(getDataLocation() + "/"+AppNameLower+".sqlite");
 
-    if (!database.open())
-        QMessageBox::warning(parent, tr("Database Not Loaded"),
-                             tr("Could not connect to Sqlite database. Application may misbehave."));
+    if (!database.open()) {
+        SHOW_W(tr("Could not connect to Sqlite database. Application may misbehave."));
+    }
 
     QSqlQuery version = database.exec("PRAGMA user_version");
     version.next();
 
-    if (version.value(0).toInt() != dbVersion) { //old database version, reset rom_collection
+    // Old database version, reset rom_collection
+    if (version.value(0).toInt() != dbVersion) {
         version.finish();
 
         database.exec("DROP TABLE rom_collection");

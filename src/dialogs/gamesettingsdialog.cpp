@@ -87,7 +87,6 @@ GameSettingsDialog::GameSettingsDialog(QString fileName, QWidget *parent)
     if (rspIndex >= 0) ui->rspBox->setCurrentIndex(rspIndex + 1);
 
     ui->configPath->setText(SETTINGS.value(fileName+"/config", "").toString());
-    ui->parameters->setText(SETTINGS.value(fileName+"/parameters", "").toString());
 
     connect(ui->configButton, SIGNAL(clicked()), this, SLOT(browseConfig()));
 
@@ -133,7 +132,6 @@ void GameSettingsDialog::editGameSettings()
         SETTINGS.setValue(fileName+"/rsp", "");
 
     SETTINGS.setValue(fileName+"/config", ui->configPath->text());
-    SETTINGS.setValue(fileName+"/parameters", ui->parameters->text());
 
 
     // Clean up game settings if they are empty

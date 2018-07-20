@@ -33,8 +33,9 @@
 
 #include "global.h"
 #include "common.h"
+#include "error.h"
 
-#include "dialogs/aboutdialog.h"
+#include "dialogs/aboutguidialog.h"
 #include "dialogs/configeditor.h"
 #include "dialogs/downloaddialog.h"
 #include "dialogs/gamesettingsdialog.h"
@@ -61,16 +62,14 @@
 #include <QMessageBox>
 #include <QTimer>
 #include <QVBoxLayout>
-
-#if defined(Q_OS_WIN) || defined(Q_OS_OSX)
 #include <QCoreApplication>
-#endif
 
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
 {
     setWindowTitle(AppName);
-    setWindowIcon(QIcon(":/images/"+ParentNameLower+".png"));
+    setWindowIcon(QIcon(":/images/"+AppNameLower+".png"));
     installEventFilter(this);
 
     autoloadSettings();
@@ -100,8 +99,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
                       SETTINGS.value("Geometry/width", 900).toInt(),
                       SETTINGS.value("Geometry/height", 600).toInt()));
 
-    if (SETTINGS.value("View/fullscreen", "").toString() == "true")
+    if (SETTINGS.value("View/fullscreen", "").toString() == "true") {
         updateFullScreenMode();
+    }
 
     mainLayout = new QVBoxLayout(mainWidget);
     mainLayout->setMenuBar(menuBar);
@@ -123,12 +123,13 @@ void MainWindow::addToView(Rom *currentRom, int count)
 {
     QString visibleLayout = SETTINGS.value("View/layout", "none").toString();
 
-    if (visibleLayout == "table")
+    if (visibleLayout == "table") {
         tableView->addToTableView(currentRom);
-    else if (visibleLayout == "grid")
+    } else if (visibleLayout == "grid") {
         gridView->addToGridView(currentRom, count, false);
-    else if (visibleLayout == "list")
+    } else if (visibleLayout == "list") {
         listView->addToListView(currentRom, count, false);
+    }
 }
 
 
@@ -140,7 +141,7 @@ void MainWindow::autoloadSettings()
 
     if (emulatorPath == "" && dataPath == "" && pluginPath == "") {
 #ifdef OS_LINUX_OR_BSD
-        //If user has not entered any settings, check common locations for them
+        // If user has not entered any settings, check common locations for them
         QStringList emulatorCheck, dataCheck, pluginCheck;
 
         emulatorCheck << "/usr/bin/mupen64plus"
@@ -160,37 +161,46 @@ void MainWindow::autoloadSettings()
                      << "/usr/local/share/mupen64plus";
 
 
-        foreach (QString check, emulatorCheck)
-            if (QFileInfo(check).exists())
+        foreach (QString check, emulatorCheck) {
+            if (QFileInfo(check).exists()) {
                 SETTINGS.setValue("Paths/mupen64plus", check);
+            }
+        }
 
-        foreach (QString check, pluginCheck)
-            if (QFileInfo(check+"/mupen64plus-video-rice.so").exists())
+        foreach (QString check, pluginCheck) {
+            if (QFileInfo(check+"/mupen64plus-video-rice.so").exists()) {
                 SETTINGS.setValue("Paths/plugins", check);
+            }
+        }
 
-        foreach (QString check, dataCheck)
-            if (QFileInfo(check+"/mupen64plus.ini").exists())
+        foreach (QString check, dataCheck) {
+            if (QFileInfo(check+"/mupen64plus.ini").exists()) {
                 SETTINGS.setValue("Paths/data", check);
+            }
+        }
 #endif
 
 #ifdef Q_OS_WIN
-        //Check for Mupen64Plus within the same directory
+        // Check for Mupen64Plus within the same directory
         QString currentDir = QCoreApplication::applicationDirPath();
 
-        if (QFileInfo(currentDir+"/mupen64plus-ui-console.exe").exists())
+        if (QFileInfo(currentDir+"/mupen64plus-ui-console.exe").exists()) {
             SETTINGS.setValue("Paths/mupen64plus", currentDir+"/mupen64plus-ui-console.exe");
-        else if (QFileInfo(currentDir+"/mupen64plus.exe").exists())
+        } else if (QFileInfo(currentDir+"/mupen64plus.exe").exists()) {
             SETTINGS.setValue("Paths/mupen64plus", currentDir+"/mupen64plus.exe");
+        }
 
-        if (QFileInfo(currentDir+"/mupen64plus-video-rice.dll").exists())
+        if (QFileInfo(currentDir+"/mupen64plus-video-rice.dll").exists()) {
             SETTINGS.setValue("Paths/plugins", currentDir);
+        }
 
-        if (QFileInfo(currentDir+"/mupen64plus.ini").exists())
+        if (QFileInfo(currentDir+"/mupen64plus.ini").exists()) {
             SETTINGS.setValue("Paths/data", currentDir);
+        }
 #endif
 
 #ifdef Q_OS_OSX
-        //Check for Mupen64Plus App within the same directory
+        // Check for Mupen64Plus App within the same directory
         QString currentDir = QCoreApplication::applicationDirPath();
 
         QString mupen64App = currentDir+"/mupen64plus.app/Contents";
@@ -202,7 +212,7 @@ void MainWindow::autoloadSettings()
 #endif
     }
 
-    //Check default location for mupen64plus.cfg in case user wants to use editor
+    // Check default location for mupen64plus.cfg in case user wants to use editor
     QString configPath = SETTINGS.value("Paths/config", "").toString();
 
     if (configPath == "") {
@@ -218,8 +228,9 @@ void MainWindow::autoloadSettings()
         QString configCheck = homeDir + "/.config/mupen64plus";
 #endif
 
-        if (QFileInfo(configCheck+"/mupen64plus.cfg").exists())
+        if (QFileInfo(configCheck+"/mupen64plus.cfg").exists()) {
             SETTINGS.setValue("Paths/config", configCheck);
+        }
     }
 }
 
@@ -230,10 +241,11 @@ void MainWindow::closeEvent(QCloseEvent *event)
     SETTINGS.setValue("Geometry/windowy", geometry().y());
     SETTINGS.setValue("Geometry/width", geometry().width());
     SETTINGS.setValue("Geometry/height", geometry().height());
-    if (isMaximized())
+    if (isMaximized()) {
         SETTINGS.setValue("Geometry/maximized", true);
-    else
+    } else {
         SETTINGS.setValue("Geometry/maximized", "");
+    }
 
     tableView->saveColumnWidths();
 
@@ -246,14 +258,15 @@ void MainWindow::createMenu()
     menuBar = new QMenuBar(this);
 
 
-    //File
+    // File
     fileMenu = new QMenu(tr("&File"), this);
     openAction = fileMenu->addAction(tr("&Open ROM..."));
     fileMenu->addSeparator();
     refreshAction = fileMenu->addAction(tr("&Refresh List"));
     downloadAction = fileMenu->addAction(tr("&Download/Update Info..."));
     deleteAction = fileMenu->addAction(tr("D&elete Current Info..."));
-#ifndef Q_OS_OSX //OSX does not show the quit action so the separator is unneeded
+#ifndef Q_OS_OSX
+    // OSX does not show the quit action so the separator is unneeded
     fileMenu->addSeparator();
 #endif
     quitAction = fileMenu->addAction(tr("&Quit"));
@@ -274,7 +287,7 @@ void MainWindow::createMenu()
     connect(quitAction, SIGNAL(triggered()), this, SLOT(close()));
 
 
-    //Emulation
+    // Emulation
     emulationMenu = new QMenu(tr("&Emulation"), this);
     startAction = emulationMenu->addAction(tr("&Start"));
     stopAction = emulationMenu->addAction(tr("St&op"));
@@ -294,12 +307,13 @@ void MainWindow::createMenu()
     connect(logAction, SIGNAL(triggered()), this, SLOT(openLog()));
 
 
-    //Settings
+    // Settings
     settingsMenu = new QMenu(tr("&Settings"), this);
     editorAction = settingsMenu->addAction(tr("Edit mupen64plus.cfg..."));
     settingsMenu->addSeparator();
     configureGameAction = settingsMenu->addAction(tr("Configure &Game..."));
-#ifndef Q_OS_OSX //OSX does not show the quit action so the separator is unneeded
+#ifndef Q_OS_OSX
+    // OSX does not show the quit action so the separator is unneeded
     settingsMenu->addSeparator();
 #endif
     configureAction = settingsMenu->addAction(tr("&Configure..."));
@@ -314,7 +328,7 @@ void MainWindow::createMenu()
     connect(configureAction, SIGNAL(triggered()), this, SLOT(openSettings()));
 
 
-    //View
+    // View
     viewMenu = new QMenu(tr("&View"), this);
     layoutMenu = viewMenu->addMenu(tr("&Layout"));
     layoutGroup = new QActionGroup(this);
@@ -327,35 +341,38 @@ void MainWindow::createMenu()
 
     QString layoutValue = SETTINGS.value("View/layout", "none").toString();
 
-    foreach (QStringList layoutName, layouts)
-    {
+    foreach (QStringList layoutName, layouts) {
         QAction *layoutItem = layoutMenu->addAction(layoutName.at(0));
         layoutItem->setData(layoutName.at(1));
         layoutItem->setCheckable(true);
         layoutGroup->addAction(layoutItem);
 
-        //Only enable layout changes when emulator is not running
+        // Only enable layout changes when emulator is not running
         menuEnable << layoutItem;
 
-        if(layoutValue == layoutName.at(1))
+        if (layoutValue == layoutName.at(1)) {
             layoutItem->setChecked(true);
+        }
     }
 
     viewMenu->addSeparator();
 
 #if QT_VERSION >= 0x050000
-    //OSX El Capitan adds it's own full-screen option
-    if (QSysInfo::macVersion() < QSysInfo::MV_ELCAPITAN || QSysInfo::macVersion() == QSysInfo::MV_None)
+    // OSX El Capitan adds it's own full-screen option
+    if (QSysInfo::macVersion() < QSysInfo::MV_ELCAPITAN
+            || QSysInfo::macVersion() == QSysInfo::MV_None) {
         fullScreenAction = viewMenu->addAction(tr("&Full-screen"));
-    else
+    } else {
         fullScreenAction = new QAction(this);
+    }
 #else
     fullScreenAction = viewMenu->addAction(tr("&Full-screen"));
 #endif
     fullScreenAction->setCheckable(true);
 
-    if (SETTINGS.value("View/fullscreen", "") == "true")
+    if (SETTINGS.value("View/fullscreen", "") == "true") {
         fullScreenAction->setChecked(true);
+    }
 
     menuBar->addMenu(viewMenu);
 
@@ -363,16 +380,16 @@ void MainWindow::createMenu()
     connect(fullScreenAction, SIGNAL(triggered()), this, SLOT(updateFullScreenMode()));
 
 
-    //Help
+    // Help
     helpMenu = new QMenu(tr("&Help"), this);
-    aboutAction = helpMenu->addAction(tr("&About"));
+    aboutAction = helpMenu->addAction(tr("&About the GUI"));
     aboutAction->setIcon(QIcon::fromTheme("help-about"));
     menuBar->addMenu(helpMenu);
 
-    connect(aboutAction, SIGNAL(triggered()), this, SLOT(openAbout()));
+    connect(aboutAction, SIGNAL(triggered()), this, SLOT(openAboutGui()));
 
 
-    //Create list of actions that are enabled only when emulator is not running
+    // Create list of actions that are enabled only when emulator is not running
     menuEnable << startAction
                << logAction
                << openAction
@@ -384,10 +401,10 @@ void MainWindow::createMenu()
                << editorAction
                << quitAction;
 
-    //Create list of actions that are disabled when emulator is not running
+    // Create list of actions that are disabled when emulator is not running
     menuDisable << stopAction;
 
-    //Create list of actions that are only active when a ROM is selected
+    // Create list of actions that are only active when a ROM is selected
     menuRomSelected << startAction
                     << deleteAction
                     << downloadAction
@@ -397,7 +414,7 @@ void MainWindow::createMenu()
 
 void MainWindow::createRomView()
 {
-    //Create empty view
+    // Create empty view
     emptyView = new QScrollArea(this);
     emptyView->setStyleSheet("QScrollArea { border: none; }");
     emptyView->setBackgroundRole(QPalette::Base);
@@ -407,7 +424,7 @@ void MainWindow::createRomView()
     emptyLayout = new QGridLayout(emptyView);
 
     emptyIcon = new QLabel(emptyView);
-    emptyIcon->setPixmap(QPixmap(":/images/"+ParentNameLower+".png"));
+    emptyIcon->setPixmap(QPixmap(":/images/"+AppNameLower+".png"));
 
     emptyLayout->addWidget(emptyIcon, 1, 1);
     emptyLayout->setColumnStretch(0, 1);
@@ -418,7 +435,7 @@ void MainWindow::createRomView()
     emptyView->setLayout(emptyLayout);
 
 
-    //Create table view
+    // Create table view
     tableView = new TableView(this);
     connect(tableView, SIGNAL(clicked(QModelIndex)), this, SLOT(enableButtons()));
     connect(tableView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(launchRomFromTable()));
@@ -426,17 +443,17 @@ void MainWindow::createRomView()
     connect(tableView, SIGNAL(enterPressed()), this, SLOT(launchRomFromTable()));
 
 
-    //Create grid view
+    // Create grid view
     gridView = new GridView(this);
     connect(gridView, SIGNAL(gridItemSelected(bool)), this, SLOT(toggleMenus(bool)));
 
 
-    //Create list view
+    // Create list view
     listView = new ListView(this);
     connect(listView, SIGNAL(listItemSelected(bool)), this, SLOT(toggleMenus(bool)));
 
 
-    //Create disabled view
+    // Create disabled view
     disabledView = new QWidget(this);
     disabledView->setHidden(true);
     disabledView->setDisabled(true);
@@ -467,13 +484,14 @@ void MainWindow::disableViews(bool imageUpdated)
 {
     QString visibleLayout = SETTINGS.value("View/layout", "none").toString();
 
-    //Save position in current layout
-    if (visibleLayout == "table")
+    // Save position in current layout
+    if (visibleLayout == "table") {
         tableView->saveTablePosition();
-    else if (visibleLayout == "grid")
+    } else if (visibleLayout == "grid") {
         gridView->saveGridPosition();
-    else if (visibleLayout == "list")
+    } else if (visibleLayout == "list") {
         listView->saveListPosition();
+    }
 
     resetLayouts(imageUpdated);
     tableView->clear();
@@ -482,8 +500,9 @@ void MainWindow::disableViews(bool imageUpdated)
     gridView->setEnabled(false);
     listView->setEnabled(false);
 
-    foreach (QAction *next, menuRomSelected)
+    foreach (QAction *next, menuRomSelected) {
         next->setEnabled(false);
+    }
 }
 
 
@@ -497,23 +516,26 @@ void MainWindow::enableViews(int romCount, bool cached)
 {
     QString visibleLayout = SETTINGS.value("View/layout", "none").toString();
 
-    if (romCount != 0) { //else no ROMs, so leave views disabled
+    // Else no ROMs, so leave views disabled
+    if (romCount != 0) {
         QStringList tableVisible = SETTINGS.value("Table/columns", "Filename|Size").toString().split("|");
 
-        if (tableVisible.join("") != "")
+        if (tableVisible.join("") != "") {
             tableView->setEnabled(true);
+        }
 
         gridView->setEnabled(true);
         listView->setEnabled(true);
 
-        if (visibleLayout == "table")
+        if (visibleLayout == "table") {
             tableView->setFocus();
-        else if (visibleLayout == "grid")
+        } else if (visibleLayout == "grid") {
             gridView->setFocus();
-        else if (visibleLayout == "list")
+        } else if (visibleLayout == "list") {
             listView->setFocus();
+        }
 
-        //Check if disabled view is showing. If it is, re-enabled the selected view
+        // Check if disabled view is showing. If it is, re-enabled the selected view
         if (!disabledView->isHidden()) {
             disabledView->setHidden(true);
             showActiveView();
@@ -525,12 +547,13 @@ void MainWindow::enableViews(int romCount, bool cached)
             timer->setInterval(0);
             timer->start();
 
-            if (visibleLayout == "table")
+            if (visibleLayout == "table") {
                 connect(timer, SIGNAL(timeout()), tableView, SLOT(setTablePosition()));
-            else if (visibleLayout == "grid")
+            } else if (visibleLayout == "grid") {
                 connect(timer, SIGNAL(timeout()), gridView, SLOT(setGridPosition()));
-            else if (visibleLayout == "list")
+            } else if (visibleLayout == "list") {
                 connect(timer, SIGNAL(timeout()), listView, SLOT(setListPosition()));
+            }
         }
     } else {
         if (visibleLayout != "none") {
@@ -545,33 +568,36 @@ void MainWindow::enableViews(int romCount, bool cached)
 
 bool MainWindow::eventFilter(QObject*, QEvent *event)
 {
-    //Show menu bar if mouse is at top of screen in full-screen mode
+    // Show menu bar if mouse is at top of screen in full-screen mode
     if (event->type() == QEvent::HoverMove && isFullScreen()) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
 
-        //x and y axis are reversed in Qt4
+        // x and y axis are reversed in Qt4
 #if QT_VERSION >= 0x050000
         int mousePos = mouseEvent->pos().y();
 #else
         int mousePos = mouseEvent->pos().x();
 #endif
 
-        if (mousePos < 5)
+        if (mousePos < 5) {
             showMenuBar(true);
-        if (mousePos > 30)
+        }
+        if (mousePos > 30) {
             showMenuBar(false);
+        }
     }
 
     if (event->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
 
-        //Exit fullscreen mode if Esc key is pressed
-        if (keyEvent->key() == Qt::Key_Escape && isFullScreen())
+        // Exit fullscreen mode if Esc key is pressed
+        if (keyEvent->key() == Qt::Key_Escape && isFullScreen()) {
             updateFullScreenMode();
+        }
     }
 
 #if QT_VERSION >= 0x050000
-    //OSX El Capitan adds it's own full-screen option, so handle the event change here
+    // OSX El Capitan adds it's own full-screen option, so handle the event change here
     if (QSysInfo::macVersion() >= QSysInfo::MV_ELCAPITAN && QSysInfo::macVersion() != QSysInfo::MV_None) {
         if (event->type() == QEvent::WindowStateChange) {
             QWindowStateChangeEvent *windowEvent = static_cast<QWindowStateChangeEvent*>(event);
@@ -599,12 +625,13 @@ QString MainWindow::getCurrentRomInfoFromView(QString infoName)
 {
     QString visibleLayout = SETTINGS.value("View/layout", "none").toString();
 
-    if (visibleLayout == "table")
+    if (visibleLayout == "table") {
         return tableView->getCurrentRomInfo(infoName);
-    else if (visibleLayout == "grid" && gridView->hasSelectedRom())
+    } else if (visibleLayout == "grid" && gridView->hasSelectedRom()) {
         return gridView->getCurrentRomInfo(infoName);
-    else if (visibleLayout == "list" && listView->hasSelectedRom())
+    } else if (visibleLayout == "list" && listView->hasSelectedRom()) {
         return listView->getCurrentRomInfo(infoName);
+    }
 
     return "";
 }
@@ -614,12 +641,13 @@ void MainWindow::launchRomFromMenu()
 {
     QString visibleLayout = layoutGroup->checkedAction()->data().toString();
 
-    if (visibleLayout == "table")
+    if (visibleLayout == "table") {
         launchRomFromTable();
-    else if (visibleLayout == "grid")
+    } else if (visibleLayout == "grid") {
         launchRomFromWidget(gridView->getCurrentRomWidget());
-    else if (visibleLayout == "list")
+    } else if (visibleLayout == "list") {
         launchRomFromWidget(listView->getCurrentRomWidget());
+    }
 }
 
 
@@ -628,7 +656,7 @@ void MainWindow::launchRomFromTable()
     QString romFileName = tableView->getCurrentRomInfo("fileName");
     QString romDirName = tableView->getCurrentRomInfo("dirName");
     QString zipFileName = tableView->getCurrentRomInfo("zipFile");
-    emulation->startEmulator(QDir(romDirName), romFileName, zipFileName);
+    emulation->startGame(QDir(romDirName), romFileName, zipFileName);
 }
 
 
@@ -637,7 +665,7 @@ void MainWindow::launchRomFromWidget(QWidget *current)
     QString romFileName = current->property("fileName").toString();
     QString romDirName = current->property("directory").toString();
     QString zipFileName = current->property("zipFile").toString();
-    emulation->startEmulator(QDir(romDirName), romFileName, zipFileName);
+    emulation->startGame(QDir(romDirName), romFileName, zipFileName);
 }
 
 
@@ -646,14 +674,14 @@ void MainWindow::launchRomFromZip()
     QString fileName = zipList->currentItem()->text();
     zipDialog->close();
 
-    emulation->startEmulator(QDir(), fileName, openPath);
+    emulation->startGame(QDir(), fileName, openPath);
 }
 
 
-void MainWindow::openAbout()
+void MainWindow::openAboutGui()
 {
-    AboutDialog aboutDialog(this);
-    aboutDialog.exec();
+    AboutGuiDialog aboutGuiDialog(this);
+    aboutGuiDialog.exec();
 }
 
 
@@ -708,14 +736,8 @@ void MainWindow::openGameSettings()
 
 void MainWindow::openLog()
 {
-    if (emulation->lastOutput == "") {
-        QMessageBox::information(this, tr("No Output"),
-            tr("There is no log. Either <ParentName> has not yet run or there was no output from the last run.")
-            .replace("<ParentName>",ParentName));
-    } else {
-        LogDialog logDialog(emulation->lastOutput, this);
-        logDialog.exec();
-    }
+    LogDialog logDialog("TODO: do something", this);
+    logDialog.exec();
 }
 
 
@@ -732,7 +754,7 @@ void MainWindow::openSettings()
     QString columnsAfter = SETTINGS.value("Table/columns", "Filename|Size").toString();
     QString downloadAfter = SETTINGS.value("Other/downloadinfo", "").toString();
 
-    //Reset columns widths if user has selected different columns to display
+    // Reset columns widths if user has selected different columns to display
     if (columnsBefore != columnsAfter) {
         SETTINGS.setValue("Table/width", "");
         tableView->setColumnCount(3);
@@ -746,10 +768,11 @@ void MainWindow::openSettings()
     } else if (downloadBefore == "" && downloadAfter == "true") {
         romCollection->addRoms();
     } else {
-        if (tableImageBefore != tableImageAfter)
+        if (tableImageBefore != tableImageAfter) {
             romCollection->cachedRoms(true);
-        else
+        } else {
             romCollection->cachedRoms(false);
+        }
     }
 
     gridView->setGridBackground();
@@ -761,7 +784,9 @@ void MainWindow::openSettings()
 void MainWindow::openRom()
 {
     QString filter = "N64 ROMs (";
-    foreach (QString type, romCollection->getFileTypes(true)) filter += type + " ";
+    foreach (QString type, romCollection->getFileTypes(true)) {
+        filter += type + " ";
+    }
     filter += ");;" + tr("All Files") + " (*)";
 
 #if QT_VERSION >= 0x050000
@@ -769,8 +794,9 @@ void MainWindow::openRom()
 #else
     QString searchPath = QDesktopServices::storageLocation(QDesktopServices::HomeLocation);
 #endif
-    if (romCollection->romPaths.count() > 0)
+    if (romCollection->romPaths.count() > 0) {
         searchPath = romCollection->romPaths.at(0);
+    }
 
     openPath = QFileDialog::getOpenFileName(this, tr("Open ROM File"), searchPath, filter);
     if (openPath != "") {
@@ -789,15 +815,17 @@ void MainWindow::openRom()
                 }
             }
 
-            if (count == 0)
+            if (count == 0) {
                 QMessageBox::information(this, tr("No ROMs"), tr("No ROMs found in ZIP file."));
-            else if (count == 1)
-                emulation->startEmulator(QDir(QFileInfo(openPath).dir()), last, openPath);
-            else { //More than one ROM in zip file, so let user select
+            } else if (count == 1) {
+                emulation->startGame(QDir(QFileInfo(openPath).dir()), last, openPath);
+            } else {
+                // More than one ROM in zip file, so let user select
                 openZipDialog(zippedFiles);
             }
-        } else
-            emulation->startEmulator(QDir(QFileInfo(openPath).dir()), openPath);
+        } else {
+            emulation->startGame(QDir(QFileInfo(openPath).dir()), openPath);
+        }
     }
 }
 
@@ -816,8 +844,9 @@ void MainWindow::openZipDialog(QStringList zippedFiles)
     foreach (QString file, zippedFiles) {
         QString ext = file.right(4);
 
-        if (romCollection->getFileTypes().contains("*" + ext))
+        if (romCollection->getFileTypes().contains("*" + ext)) {
             zipList->addItem(file);
+        }
     }
     zipList->setCurrentRow(0);
 
@@ -850,14 +879,15 @@ void MainWindow::showActiveView()
 {
     QString visibleLayout = SETTINGS.value("View/layout", "none").toString();
 
-    if (visibleLayout == "table")
+    if (visibleLayout == "table") {
         tableView->setHidden(false);
-    else if (visibleLayout == "grid")
+    } else if (visibleLayout == "grid") {
         gridView->setHidden(false);
-    else if (visibleLayout == "list")
+    } else if (visibleLayout == "list") {
         listView->setHidden(false);
-    else
+    } else {
         emptyView->setHidden(false);
+    }
 }
 
 
@@ -893,12 +923,13 @@ void MainWindow::showRomMenu(const QPoint &pos)
     QWidget *activeWidget = new QWidget(this);
     QString visibleLayout = SETTINGS.value("View/layout", "none").toString();
 
-    if (visibleLayout == "table")
+    if (visibleLayout == "table") {
         activeWidget = tableView->viewport();
-    else if (visibleLayout == "grid")
+    } else if (visibleLayout == "grid") {
         activeWidget = gridView->getCurrentRomWidget();
-    else if (visibleLayout == "list")
+    } else if (visibleLayout == "list") {
         activeWidget = listView->getCurrentRomWidget();
+    }
 
     contextMenu->exec(activeWidget->mapToGlobal(pos));
 }
@@ -906,17 +937,19 @@ void MainWindow::showRomMenu(const QPoint &pos)
 
 void MainWindow::stopEmulator()
 {
-    emulation->stopEmulator();
+    emulation->stopGame();
 }
 
 
 void MainWindow::toggleMenus(bool active)
 {
-    foreach (QAction *next, menuEnable)
+    foreach (QAction *next, menuEnable) {
         next->setEnabled(active);
+    }
 
-    foreach (QAction *next, menuDisable)
+    foreach (QAction *next, menuDisable) {
         next->setEnabled(!active);
+    }
 
     tableView->setEnabled(active);
     gridView->setEnabled(active);
@@ -926,8 +959,9 @@ void MainWindow::toggleMenus(bool active)
         !gridView->hasSelectedRom() &&
         !listView->hasSelectedRom()
     ) {
-        foreach (QAction *next, menuRomSelected)
+        foreach (QAction *next, menuRomSelected) {
             next->setEnabled(false);
+        }
     }
 
     if (SETTINGS.value("Other/downloadinfo", "").toString() == "") {
@@ -974,10 +1008,12 @@ void MainWindow::updateLayoutSetting()
 
     int romCount = romCollection->cachedRoms();
 
-    if (romCount > 0 || visibleLayout == "none")
+    if (romCount > 0 || visibleLayout == "none") {
         showActiveView();
+    }
 
-    //View was updated so no ROM will be selected. Update menu items accordingly
-    foreach (QAction *next, menuRomSelected)
+    // View was updated so no ROM will be selected. Update menu items accordingly
+    foreach (QAction *next, menuRomSelected) {
         next->setEnabled(false);
+    }
 }

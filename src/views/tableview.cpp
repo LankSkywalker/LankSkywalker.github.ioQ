@@ -46,7 +46,7 @@
 
 
 TableView::TableView(QWidget *parent) : QTreeWidget(parent)
-{ 
+{
     this->parent = parent;
 
     setWordWrap(false);

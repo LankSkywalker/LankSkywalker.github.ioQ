@@ -32,6 +32,7 @@
 #include "global.h"
 #include "common.h"
 #include "mainwindow.h"
+#include "core.h"
 
 #include <QApplication>
 #include <QDesktopWidget>
@@ -54,11 +55,10 @@ int main(int argc, char *argv[])
         }
     }
 
-    QCoreApplication::setOrganizationName(ParentName);
+    QCoreApplication::setOrganizationName(AppName);
     QCoreApplication::setApplicationName(AppName);
 
     MainWindow window;
-
 
     QString maximized = SETTINGS.value("Geometry/maximized", "").toString();
     QString windowx = SETTINGS.value("Geometry/windowx", "").toString();
@@ -71,8 +71,12 @@ int main(int argc, char *argv[])
     }
 
     if (windowx == "" && windowy == "") {
-        window.move(QApplication::desktop()->screen()->rect().center() - window.rect().center());
+        window.move(QApplication::desktop()->screen()->rect().center()
+                - window.rect().center());
     }
+
+    Core core;
+    core.init();
 
     return application.exec();
 }

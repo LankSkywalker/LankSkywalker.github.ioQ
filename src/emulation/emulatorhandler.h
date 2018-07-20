@@ -32,10 +32,11 @@
 #ifndef EMULATORHANDLER_H
 #define EMULATORHANDLER_H
 
+#include <m64p_types.h>
+
 #include <QObject>
 
 class QDir;
-class QProcess;
 
 
 class EmulatorHandler : public QObject
@@ -43,10 +44,8 @@ class EmulatorHandler : public QObject
     Q_OBJECT
 public:
     explicit EmulatorHandler(QWidget *parent = 0);
-    void startEmulator(QDir romDir, QString romFileName, QString zipFileName = "");
-    void stopEmulator();
-
-    QString lastOutput;
+    void startGame(QDir romDir, QString romFileName, QString zipFileName = "");
+    void stopGame();
 
 signals:
     void finished();
@@ -54,16 +53,17 @@ signals:
     void started();
 
 private:
-    QStringList parseArgString(QString argString);
+    bool attach_plugin(m64p_plugin_type type,
+            m64p_dynlib_handle plugin, const QString &name, char *typestr);
+    bool detach_plugins();
+    bool start_rom(void *romdata, int length);
+    bool attach_plugins();
 
-    QProcess *emulatorProc;
     QWidget *parent;
+    m64p_dynlib_handle plugin_rsp, plugin_gfx, plugin_audio, plugin_input;
 
 private slots:
-    void checkStatus(int status);
-    void cleanTemp();
     void emitFinished();
-    void readOutput();
 };
 
 #endif // EMULATORHANDLER_H

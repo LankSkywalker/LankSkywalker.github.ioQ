@@ -48,7 +48,6 @@ SettingsDialog::SettingsDialog(QWidget *parent, int activeTab) : QDialog(parent)
 
 
     //Populate Paths tab
-    ui->emulatorPath->setText(SETTINGS.value("Paths/mupen64plus", "").toString());
     ui->pluginPath->setText(SETTINGS.value("Paths/plugins", "").toString());
     ui->dataPath->setText(SETTINGS.value("Paths/data", "").toString());
     ui->configPath->setText(SETTINGS.value("Paths/config", "").toString());
@@ -58,7 +57,6 @@ SettingsDialog::SettingsDialog(QWidget *parent, int activeTab) : QDialog(parent)
     foreach (QString directory, romDirectories)
         ui->romList->addItem(directory);
 
-    connect(ui->emulatorButton, SIGNAL(clicked()), this, SLOT(browseEmulator()));
     connect(ui->pluginButton, SIGNAL(clicked()), this, SLOT(browsePlugin()));
     connect(ui->dataButton, SIGNAL(clicked()), this, SLOT(browseData()));
     connect(ui->configButton, SIGNAL(clicked()), this, SLOT(browseConfig()));
@@ -376,8 +374,6 @@ SettingsDialog::SettingsDialog(QWidget *parent, int activeTab) : QDialog(parent)
     if (SETTINGS.value("saveoptions", "").toString() == "true")
         ui->saveOption->setChecked(true);
 
-    ui->parametersLine->setText(SETTINGS.value("Other/parameters", "").toString());
-
     for (int i = 0; i < languages.length(); i++)
     {
         ui->languageBox->insertItem(i, languages.at(i).at(0), languages.at(i).at(1));
@@ -437,24 +433,6 @@ void SettingsDialog::browseBackground()
 }
 
 
-void SettingsDialog::browseEmulator()
-{
-    QString path = QFileDialog::getOpenFileName(this, tr("<ParentName> Executable")
-                                                .replace("<ParentName>",ParentName));
-    if (path != "")
-        ui->emulatorPath->setText(path);
-
-#ifdef Q_OS_OSX
-    //Allow OSX users to just select the .app directory and auto-populate for them
-    if (path.right(15) == "mupen64plus.app") {
-        ui->emulatorPath->setText(path+"/Contents/MacOS/mupen64plus");
-        ui->pluginPath->setText(path+"/Contents/MacOS");
-        ui->dataPath->setText(path+"/Contents/Resources");
-    }
-#endif
-}
-
-
 void SettingsDialog::browsePlugin()
 {
     QString path = QFileDialog::getExistingDirectory(this, tr("Plugin Directory"));
@@ -493,7 +471,6 @@ void SettingsDialog::editSettings()
 
 
     //Paths tab
-    SETTINGS.setValue("Paths/mupen64plus", ui->emulatorPath->text());
     SETTINGS.setValue("Paths/plugins", ui->pluginPath->text());
     SETTINGS.setValue("Paths/data", ui->dataPath->text());
     SETTINGS.setValue("Paths/config", ui->configPath->text());
@@ -618,7 +595,6 @@ void SettingsDialog::editSettings()
     else
         SETTINGS.setValue("saveoptions", "");
 
-    SETTINGS.setValue("Other/parameters", ui->parametersLine->text());
     SETTINGS.setValue("language", ui->languageBox->itemData(ui->languageBox->currentIndex()));
 
     close();

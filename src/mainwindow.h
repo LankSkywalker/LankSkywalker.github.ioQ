@@ -132,7 +132,7 @@ private slots:
     void launchRomFromTable();
     void launchRomFromWidget(QWidget *current);
     void launchRomFromZip();
-    void openAbout();
+    void openAboutGui();
     void openDeleteDialog();
     void openDownloader();
     void openEditor();

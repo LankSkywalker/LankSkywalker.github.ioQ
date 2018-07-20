@@ -1,11 +1,11 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=Mupen64Plus-Qt
+Name=Mupen64Plus
 GenericName=Mupen64Plus Launcher
-Comment=A basic launcher for Mupen64plus
-Exec=mupen64plus-qt
-Icon=mupen64plus-qt
+Comment=An emulator for Nintendo 64
+Exec=mupen64plus
+Icon=mupen64plus
 Terminal=false
 Categories=Game;Emulator;
 Keywords=emulator;mupen;mupen64plus;Nintendo;64;

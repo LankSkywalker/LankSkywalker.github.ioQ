@@ -29,7 +29,7 @@
  *
  ***/
 
-#include "aboutdialog.h"
+#include "aboutguidialog.h"
 
 #include "../global.h"
 #include "../common.h"
@@ -40,15 +40,15 @@
 #include <QPlainTextEdit>
 
 
-AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
+AboutGuiDialog::AboutGuiDialog(QWidget *parent) : QDialog(parent)
 {
-    setWindowTitle(tr("About <AppName>").replace("<AppName>",AppName));
+    setWindowTitle(tr("About <AppName> GUI").replace("<AppName>", AppName));
     setMinimumSize(600, 300);
 
     aboutLayout = new QGridLayout(this);
 
     icon = new QLabel(this);
-    icon->setPixmap(QPixmap(":/images/"+ParentNameLower+".png"));
+    icon->setPixmap(QPixmap(":/images/"+AppNameLower+".png"));
 
     QFile licenseFile(":/other/LICENSE");
     licenseFile.open(QIODevice::ReadOnly);
@@ -56,8 +56,9 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
     license->setReadOnly(true);
     licenseFile.close();
 
-    QString description = "<b>"+AppName+"</b><br />" + tr("Version") + " " + getVersion() + "<br /><br />";
-    description += Description;
+    QString description = "<b>"+AppName+" GUI</b><br />"
+        + tr("Version") + " " + getVersion() + "<br /><br />"
+        + tr("The graphical user interface of ")+AppName;
 
     descriptionLabel = new QLabel(description, this);
     copyrightLabel = new QLabel(Copyright, this);

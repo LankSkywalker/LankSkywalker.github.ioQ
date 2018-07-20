@@ -30,14 +30,15 @@
  ***/
 
 #include "emulatorhandler.h"
-
+#include "../plugin.h"
 #include "../global.h"
 #include "../common.h"
+#include "../core.h"
+#include "../error.h"
 
 #include <QDir>
 #include <QFile>
-#include <QMessageBox>
-#include <QProcess>
+#include <QWidget>
 
 #if QT_VERSION >= 0x050000
 #include <quazip5/quazip.h>
@@ -48,33 +49,10 @@
 #endif
 
 
-EmulatorHandler::EmulatorHandler(QWidget *parent) : QObject(parent)
+EmulatorHandler::EmulatorHandler(QWidget *parent)
+    : QObject(parent)
 {
     this->parent = parent;
-
-    lastOutput = "";
-}
-
-void EmulatorHandler::checkStatus(int status)
-{
-    if (status > 0) {
-        QMessageBox exitDialog(parent);
-        exitDialog.setWindowTitle(tr("Warning"));
-        exitDialog.setText(tr("<ParentName> quit unexpectedly. Check the log for more information.")
-                           .replace("<ParentName>",ParentName));
-        exitDialog.setIcon(QMessageBox::Warning);
-        exitDialog.addButton(QMessageBox::Ok);
-        exitDialog.addButton(tr("View Log..."), QMessageBox::HelpRole);
-
-        int ret = exitDialog.exec();
-        if (ret == 0) emit showLog();
-    }
-}
-
-
-void EmulatorHandler::cleanTemp()
-{
-    QFile::remove(QDir::tempPath() + "/" + AppNameLower + "/" + qgetenv("USER") + "/temp.z64");
 }
 
 
@@ -84,59 +62,12 @@ void EmulatorHandler::emitFinished()
 }
 
 
-QStringList EmulatorHandler::parseArgString(QString argString)
-{
-    QStringList result;
-    QString arg;
-    bool inQuote = false;
-    bool inApos = false;
-
-    for (int i = 0; i < argString.size(); i++)
-    {
-        // Check if inside of a quote
-        if (argString.at(i) == QLatin1Char('"')) {
-            inQuote = !inQuote;
-
-            // Only continue if outside of both quotes and apostrophes
-            if (arg.isEmpty() || (!inQuote && !inApos)) continue;
-        }
-
-        // Same check for apostrophes
-        if (argString.at(i) == QLatin1Char('\'')) {
-            inApos = !inApos;
-            if (arg.isEmpty() || (!inQuote && !inApos)) continue;
-        }
-
-        if (!inQuote && !inApos && argString.at(i).isSpace()) {
-            if (!arg.isEmpty()) {
-                result += arg;
-                arg.clear();
-            }
-        } else
-            arg += argString.at(i);
-    }
-
-    if (!arg.isEmpty())
-        result += arg;
-
-    return result;
-}
-
-
-void EmulatorHandler::readOutput()
-{
-    lastOutput.append(emulatorProc->readAllStandardOutput());
-}
-
-
-void EmulatorHandler::startEmulator(QDir romDir, QString romFileName, QString zipFileName)
+void EmulatorHandler::startGame(QDir romDir, QString romFileName, QString zipFileName)
 {
     QString completeRomPath;
-    bool zip = false;
 
-    if (zipFileName != "") { //If zipped file, extract and write to temp location for loading
-        zip = true;
-
+    // If zipped file, extract and write to temp location for loading
+    if (zipFileName != "") {
         QString zipFile = romDir.absoluteFilePath(zipFileName);
         QuaZipFile zippedFile(zipFile, romFileName);
 
@@ -153,164 +84,127 @@ void EmulatorHandler::startEmulator(QDir romDir, QString romFileName, QString zi
         tempRom.open(QIODevice::WriteOnly);
         tempRom.write(romData);
         tempRom.close();
-    } else
+    } else {
         completeRomPath = romDir.absoluteFilePath(romFileName);
-
-    QString emulatorPath = SETTINGS.value("Paths/mupen64plus", "").toString();
-    QString dataPath = SETTINGS.value("Paths/data", "").toString();
-    QString configPath = SETTINGS.value("Paths/config", "").toString();
-    QString pluginPath = SETTINGS.value("Paths/plugins", "").toString();
-    QDir dataDir(dataPath);
-    QDir configDir(configPath);
-    QDir pluginDir(pluginPath);
-
-    QString emuMode = SETTINGS.value("Emulation/mode", "").toString();
-
-    QString resolution = SETTINGS.value("Graphics/resolution", "").toString();
-
-    QString videoPlugin = SETTINGS.value("Plugins/video", "").toString();
-    QString audioPlugin = SETTINGS.value("Plugins/audio", "").toString();
-    QString inputPlugin = SETTINGS.value("Plugins/input", "").toString();
-    QString rspPlugin = SETTINGS.value("Plugins/rsp", "").toString();
-
-    QFile emulatorFile(emulatorPath);
-    QFile romFile(completeRomPath);
-
-    QString gameVideoPlugin = SETTINGS.value(romFileName+"/video", "").toString();
-    QString gameAudioPlugin = SETTINGS.value(romFileName+"/audio", "").toString();
-    QString gameInputPlugin = SETTINGS.value(romFileName+"/input", "").toString();
-    QString gameRSPPlugin = SETTINGS.value(romFileName+"/rsp", "").toString();
-
-    QString gameConfigPath = SETTINGS.value(romFileName+"/config", "").toString();
-    QDir gameConfigDir(gameConfigPath);
-
-
-    //Sanity checks
-    if(!emulatorFile.exists() || QFileInfo(emulatorFile).isDir() || !QFileInfo(emulatorFile).isExecutable()) {
-        QMessageBox::warning(parent, tr("Warning"),
-                             tr("<ParentName> executable not found.").replace("<ParentName>",ParentName));
-        if (zip) cleanTemp();
-        return;
     }
 
-    if(!romFile.exists() || QFileInfo(romFile).isDir()) {
-        QMessageBox::warning(parent, tr("Warning"), tr("ROM file not found."));
-        if (zip) cleanTemp();
+    QFile romFile(completeRomPath);
+
+    if (!romFile.exists() || QFileInfo(romFile).isDir()) {
+        SHOW_W(TR("ROM file not found."));
         return;
     }
 
     romFile.open(QIODevice::ReadOnly);
-    QByteArray romCheck = romFile.read(4);
+    QByteArray contents = romFile.readAll();
     romFile.close();
 
-    if (romCheck.toHex() != "80371240" && romCheck.toHex() != "37804012") {
-        QMessageBox::warning(parent, tr("Warning"), tr("Not a valid ROM File."));
-        if (zip) cleanTemp();
+    if (contents.isEmpty()) {
+        SHOW_W(TR("Could not read ROM file."));
         return;
     }
 
-
-    QStringList args;
-
-    if (SETTINGS.value("saveoptions", "").toString() == "true")
-        args << "--saveoptions";
-    else
-        args << "--nosaveoptions";
-
-    if (dataPath != "" && dataDir.exists())
-        args << "--datadir" << dataPath;
-    if (gameConfigPath != "" && gameConfigDir.exists())
-        args << "--configdir" << gameConfigPath;
-    else if (configPath != "" && configDir.exists())
-        args << "--configdir" << configPath;
-    if (pluginPath != "" && pluginDir.exists())
-        args << "--plugindir" << pluginPath;
-
-    if (emuMode != "")
-        args << "--emumode" << emuMode;
-
-    if (SETTINGS.value("Graphics/osd", "").toString() == "true")
-        args << "--osd";
-    else
-        args << "--noosd";
-
-    if (SETTINGS.value("Graphics/fullscreen", "").toString() == "true")
-        args << "--fullscreen";
-    else
-        args << "--windowed";
-
-    if (resolution != "")
-        args << "--resolution" << resolution;
-
-    if (gameVideoPlugin != "")
-        args << "--gfx" << gameVideoPlugin;
-    else if (videoPlugin != "")
-        args << "--gfx" << videoPlugin;
-    if (gameAudioPlugin != "")
-        args << "--audio" << gameAudioPlugin;
-    else if (audioPlugin != "")
-        args << "--audio" << audioPlugin;
-    if (gameInputPlugin != "")
-        args << "--input" << gameInputPlugin;
-    else if (inputPlugin != "")
-        args << "--input" << inputPlugin;
-    if (gameRSPPlugin != "")
-        args << "--rsp" << gameRSPPlugin;
-    else if (rspPlugin != "")
-        args << "--rsp" << rspPlugin;
-
-    QString otherParameters = SETTINGS.value("Other/parameters", "").toString();
-    if (otherParameters != "")
-        args.append(parseArgString(otherParameters));
-
-    QString gameParameters = SETTINGS.value(romFileName+"/parameters").toString();
-    if (gameParameters != "")
-        args.append(parseArgString(gameParameters));
-
-    args << completeRomPath;
-
-    emulatorProc = new QProcess(this);
-    connect(emulatorProc, SIGNAL(finished(int)), this, SLOT(readOutput()));
-    connect(emulatorProc, SIGNAL(finished(int)), this, SLOT(emitFinished()));
-    connect(emulatorProc, SIGNAL(finished(int)), this, SLOT(checkStatus(int)));
-
-    if (zip)
-        connect(emulatorProc, SIGNAL(finished(int)), this, SLOT(cleanTemp()));
-
-    // GLideN64 workaround. Can be removed if workaround is no longer needed
-    // See: https://github.com/gonetz/GLideN64/issues/454#issuecomment-126853972
-    if (SETTINGS.value("Other/forcegl33", "").toString() == "true") {
-        QProcessEnvironment emulatorEnv = QProcessEnvironment::systemEnvironment();
-        emulatorEnv.insert("MESA_GL_VERSION_OVERRIDE", "3.3COMPAT");
-        emulatorProc->setProcessEnvironment(emulatorEnv);
+    if (!contents.startsWith("\x80\x37\x12\x40")
+            && !contents.startsWith("\x37\x80\x40\x12")) {
+        SHOW_W(TR("Not a valid ROM File."));
+        return;
     }
-
-    emulatorProc->setWorkingDirectory(QFileInfo(emulatorFile).dir().canonicalPath());
-    emulatorProc->setProcessChannelMode(QProcess::MergedChannels);
-    emulatorProc->start(emulatorPath, args);
-
-    //Add command to log
-    QString executable = emulatorPath;
-    if (executable.contains(" "))
-        executable = '"' + executable + '"';
-
-    QString argString;
-    foreach(QString arg, args)
-    {
-        if (arg.contains(" "))
-            argString += " \"" + arg + "\"";
-        else
-            argString += " " + arg;
-    }
-
-    lastOutput = executable + argString + "\n\n";
-
 
     emit started();
+
+    if (!start_rom(contents.data(), contents.length())) {
+        return;
+    }
+
+    emit finished();
 }
 
 
-void EmulatorHandler::stopEmulator()
+bool EmulatorHandler::start_rom(void *romdata, int length)
 {
-    emulatorProc->terminate();
+    m64p_error rval;
+    rval = CoreDoCommand(M64CMD_ROM_OPEN, length, romdata);
+    if (rval != M64ERR_SUCCESS) {
+        SHOW_W(TR("Could not load the ROM.") + m64errstr(rval));
+        return false;
+    }
+
+    if (!attach_plugins()) {
+        return false;
+    }
+
+    rval = CoreDoCommand(M64CMD_EXECUTE, 0, NULL);
+    if (rval != M64ERR_SUCCESS) {
+        CoreDoCommand(M64CMD_ROM_CLOSE, 0, NULL);
+        SHOW_W(TR("Could not start the ROM.") + m64errstr(rval));
+        return false;
+    }
+
+    return true;
+}
+
+
+bool EmulatorHandler::attach_plugin(m64p_plugin_type type,
+        m64p_dynlib_handle plugin, const QString &name, char *typestr)
+{
+    LOG_I(TR("Starting <Type> plugin...").replace("<Type>", typestr));
+    m64p_error rval;
+    bool ok;
+    ok = open_plugin(plugin, name.toUtf8().data(), typestr);
+    if (!ok) {
+        SHOW_W(TR("Failed to open <Type> plugin.").replace("<Type>", typestr));
+        return false;
+    }
+
+    rval = CoreAttachPlugin(type, plugin);
+    if (rval != M64ERR_SUCCESS) {
+        SHOW_W(TR("Failed to attach <Type> plugin: ").replace("<Type>", typestr)
+                + m64errstr(rval));
+        return false;
+    }
+    return true;
+}
+
+
+bool EmulatorHandler::attach_plugins()
+{
+    QString name;
+    name = SETTINGS.value("Plugins/video", "").toString();
+    if (!attach_plugin(M64PLUGIN_GFX, plugin_gfx, name, (char *)"video")) {
+        return false;
+    }
+    name = SETTINGS.value("Plugins/audio", "").toString();
+    if (!attach_plugin(M64PLUGIN_AUDIO, plugin_audio, name, (char *)"audio")) {
+        return false;
+    }
+    name = SETTINGS.value("Plugins/input", "").toString();
+    if (!attach_plugin(M64PLUGIN_INPUT, plugin_input, name, (char *)"input")) {
+        return false;
+    }
+    name = SETTINGS.value("Plugins/rsp", "").toString();
+    if (!attach_plugin(M64PLUGIN_RSP, plugin_rsp, name, (char *)"RSP")) {
+        return false;
+    }
+
+    return true;
+}
+
+
+bool EmulatorHandler::detach_plugins()
+{
+    CoreDetachPlugin(M64PLUGIN_RSP);
+    close_plugin(plugin_rsp);
+    CoreDetachPlugin(M64PLUGIN_INPUT);
+    close_plugin(plugin_input);
+    CoreDetachPlugin(M64PLUGIN_AUDIO);
+    close_plugin(plugin_audio);
+    CoreDetachPlugin(M64PLUGIN_GFX);
+    close_plugin(plugin_gfx);
+    return true;
+}
+
+
+void EmulatorHandler::stopGame()
+{
+    detach_plugins();
 }

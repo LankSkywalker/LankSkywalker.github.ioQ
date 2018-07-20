@@ -29,8 +29,8 @@
  *
  ***/
 
-#ifndef ABOUTDIALOG_H
-#define ABOUTDIALOG_H
+#ifndef ABOUTGUIDIALOG_H
+#define ABOUTGUIDIALOG_H
 
 #include <QDialog>
 
@@ -40,12 +40,12 @@ class QLabel;
 class QPlainTextEdit;
 
 
-class AboutDialog : public QDialog
+class AboutGuiDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit AboutDialog(QWidget *parent = 0);
+    explicit AboutGuiDialog(QWidget *parent = 0);
 
 private:
     QDialogButtonBox *buttonBox;
@@ -58,4 +58,4 @@ private:
     QPlainTextEdit *license;
 };
 
-#endif // ABOUTDIALOG_H
+#endif // ABOUTGUIDIALOG_H

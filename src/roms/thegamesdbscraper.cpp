@@ -155,11 +155,10 @@ void TheGamesDBScraper::downloadGameInfo(QString identifier, QString searchName,
 
             int count = 0, found = 0;
 
-            while(!node.isNull())
-            {
+            while (!node.isNull()) {
                 QDomElement element = node.firstChildElement("GameTitle").toElement();
 
-                if (force) { //from user dialog
+                if (force) { // from user dialog
                     QDomElement date = node.firstChildElement("ReleaseDate").toElement();
 
                     QString check = "Game: " + element.text();
@@ -177,10 +176,11 @@ void TheGamesDBScraper::downloadGameInfo(QString identifier, QString searchName,
                         break;
                     }
                 } else {
-                    //We only want one game, so search for a perfect match in the GameTitle element.
-                    //Otherwise this will default to 0 (the first game found)
-                    if(element.text() == searchName)
+                    // We only want one game, so search for a perfect match in the GameTitle element.
+                    // Otherwise this will default to 0 (the first game found)
+                    if (element.text() == searchName) {
                         found = count;
+                    }
                 }
 
                 node = node.nextSibling();
@@ -210,7 +210,7 @@ void TheGamesDBScraper::downloadGameInfo(QString identifier, QString searchName,
         }
 
 
-        //Get front cover
+        // Get front cover
         QString boxartURL = "";
         QString boxartExt = "";
         QString coverFile = gameCache + "/boxart-front.";
@@ -227,11 +227,11 @@ void TheGamesDBScraper::downloadGameInfo(QString identifier, QString searchName,
             xml.setContent(dom);
             QDomNode node = xml.elementsByTagName("Game").at(0).firstChildElement("Images").firstChild();
 
-            while(!node.isNull())
-            {
+            while (!node.isNull()) {
                 QDomElement element = node.toElement();
-                if(element.tagName() == "boxart" && element.attribute("side") == "front")
+                if (element.tagName() == "boxart" && element.attribute("side") == "front") {
                     boxartURL = element.attribute("thumb");
+                }
 
                 node = node.nextSibling();
             }
@@ -239,11 +239,11 @@ void TheGamesDBScraper::downloadGameInfo(QString identifier, QString searchName,
             if (boxartURL != "") {
                 QUrl url("http://legacy.thegamesdb.net/banners/" + boxartURL);
 
-                //Delete current box art
+                // Delete current box art
                 QFile::remove(coverFile + "jpg");
                 QFile::remove(coverFile + "png");
 
-                //Check to save as JPG or PNG
+                // Check to save as JPG or PNG
                 boxartExt = QFileInfo(boxartURL).completeSuffix().toLower();
                 QFile cover(coverFile + boxartExt);
 
@@ -253,11 +253,14 @@ void TheGamesDBScraper::downloadGameInfo(QString identifier, QString searchName,
             }
         }
 
-        if (updated)
+        if (updated) {
             QMessageBox::information(parent, QObject::tr("Game Information Download"),
                                      QObject::tr("Download Complete!"));
+        }
 
-        if (force) parent->setEnabled(true);
+        if (force) {
+            parent->setEnabled(true);
+        }
     }
 }
 
@@ -279,22 +282,26 @@ QByteArray TheGamesDBScraper::getUrlContents(QUrl url)
     connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
 
     int time = SETTINGS.value("Other/networktimeout", 10).toInt();
-    if (time == 0) time = 10;
+    if (time == 0) {
+        time = 10;
+    }
     time *= 1000;
 
     timer.start(time);
     loop.exec();
 
-    if(timer.isActive()) { //Got reply
+    if (timer.isActive()) { // Got reply
         timer.stop();
 
-        if(reply->error() > 0)
+        if (reply->error() > 0) {
             showError(reply->errorString());
-        else
+        } else {
             return reply->readAll();
+        }
 
-    } else //Request timed out
+    } else { // Request timed out
         showError(tr("Request timed out. Check your network settings."));
+    }
 
     return QByteArray();
 }

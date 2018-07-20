@@ -35,6 +35,7 @@
 #include <QGraphicsDropShadowEffect>
 #include <QString>
 #include <QPixmap>
+#include <QObject>
 
 class QColor;
 class QSize;
@@ -91,5 +92,7 @@ QSize getImageSize(QString view);
 QString getDataLocation();
 QString getRomInfo(QString identifier, const Rom *rom, bool removeWarn = false, bool sort = false);
 QString getVersion();
+
+#define TR(s) QObject::tr(s)
 
 #endif // COMMON_H

@@ -46,7 +46,7 @@ ConfigEditor::ConfigEditor(QString configFile, QWidget *parent) : QDialog(parent
 {
     config.setFileName(configFile);
 
-    setWindowTitle(tr("<ParentName> Config Editor").replace("<ParentName>",ParentName));
+    setWindowTitle(tr("<AppName> Config Editor").replace("<AppName>", AppName));
     setMinimumSize(600, 400);
 
     editorLayout = new QGridLayout(this);

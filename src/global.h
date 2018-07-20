@@ -32,28 +32,28 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
+#include "common.h"
+
 #include <QObject>
 #include <QSettings>
 
 
-const QString AppName           = "Mupen64Plus-Qt";
-const QString AppNameLower      = "mupen64plus-qt";
-const QString ParentName        = "Mupen64Plus";
-const QString ParentNameLower   = "mupen64plus";
+const QString AppName      = "Mupen64Plus";
+const QString AppNameLower = "mupen64plus";
 
-const QString Description = QObject::tr("A basic launcher for <ParentName> using Qt.").replace("<ParentName>",ParentName);
+const QString Description = TR("An emulator for Nintendo 64.");
 const QString Copyright = "";
 const QString Website = "<a href=\"http://www.mupen64plus.org/\">"
-        + QObject::tr("<ParentName> website").replace("<ParentName>",ParentName)
+        + TR("<AppName> website").replace("<AppName>", AppName)
         + "</a>";
-const QString GitHub = "<a href=\"https://github.com/dh4/mupen64plus-qt\">"
-        + QObject::tr("GitHub repository")
+const QString GitHub = "<a href=\"https://github.com/robalni/mupen64plus-ui\">"
+        + TR("GitHub repository")
         + "</a>";
 
 #ifdef Q_OS_WIN
-    #define SETTINGS    QSettings(AppNameLower+".ini", QSettings::IniFormat)
+    #define SETTINGS    QSettings(AppNameLower+"-ui.ini", QSettings::IniFormat)
 #else
-    #define SETTINGS    QSettings(ParentNameLower, AppNameLower)
+    #define SETTINGS    QSettings(AppNameLower, AppNameLower+"-ui")
 #endif
 
 #if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD) || defined(Q_OS_NETBSD)

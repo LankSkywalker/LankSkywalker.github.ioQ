@@ -7,9 +7,9 @@ lessThan(QT_MAJOR_VERSION, 5) {
 }
 
 macx {
-    TARGET = Mupen64Plus-Qt
+    TARGET = Mupen64Plus
 } else {
-    TARGET = mupen64plus-qt
+    TARGET = mupen64plus
 }
 
 TEMPLATE = app
@@ -19,14 +19,18 @@ win32:RC_FILE = dist/windows/icon.rc
 
 SOURCES += src/main.cpp \
     src/common.cpp \
+    src/core.cpp \
     src/mainwindow.cpp \
-    src/dialogs/aboutdialog.cpp \
+    src/error.cpp \
+    src/plugin.cpp \
+    src/dialogs/aboutguidialog.cpp \
     src/dialogs/configeditor.cpp \
     src/dialogs/downloaddialog.cpp \
     src/dialogs/gamesettingsdialog.cpp \
     src/dialogs/logdialog.cpp \
     src/dialogs/settingsdialog.cpp \
     src/emulation/emulatorhandler.cpp \
+    src/osal/osal_dynamiclib.c \
     src/roms/romcollection.cpp \
     src/roms/thegamesdbscraper.cpp \
     src/views/gridview.cpp \
@@ -37,14 +41,18 @@ SOURCES += src/main.cpp \
 
 HEADERS += src/global.h \
     src/common.h \
+    src/core.h \
     src/mainwindow.h \
-    src/dialogs/aboutdialog.h \
+    src/error.h \
+    src/plugin.h \
+    src/dialogs/aboutguidialog.h \
     src/dialogs/configeditor.h \
     src/dialogs/downloaddialog.h \
     src/dialogs/gamesettingsdialog.h \
     src/dialogs/logdialog.h \
     src/dialogs/settingsdialog.h \
     src/emulation/emulatorhandler.h \
+    src/osal/osal_dynamiclib.h \
     src/roms/romcollection.h \
     src/roms/thegamesdbscraper.h \
     src/views/gridview.h \
@@ -53,12 +61,12 @@ HEADERS += src/global.h \
     src/views/widgets/clickablewidget.h \
     src/views/widgets/treewidgetitem.h
 
-RESOURCES += resources/mupen64plusqt.qrc
+RESOURCES += resources/mupen64plus.qrc
 
 FORMS += src/dialogs/gamesettingsdialog.ui \
     src/dialogs/settingsdialog.ui
 
-TRANSLATIONS += resources/locale/mupen64plus-qt_fr.ts
+TRANSLATIONS += resources/locale/fr.ts
 
 win32|macx|linux_quazip_static {
     CONFIG += staticlib
@@ -85,3 +93,7 @@ win32|macx|linux_quazip_static {
         }
     }
 }
+
+INCLUDEPATH += /usr/local/include/mupen64plus
+LIBS += -lmupen64plus
+LIBS += -ldl

@@ -1,1 +1,4 @@
-*.user*
+*.o
+*.swp
+/mupen64plus
+/Mupen64Plus

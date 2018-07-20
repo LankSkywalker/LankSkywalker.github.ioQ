@@ -44,7 +44,7 @@
 
 LogDialog::LogDialog(QString lastOutput, QWidget *parent) : QDialog(parent)
 {
-    setWindowTitle(tr("<ParentName> Log").replace("<ParentName>",ParentName));
+    setWindowTitle(tr("<AppName> Log").replace("<AppName>", AppName));
     setMinimumSize(600, 400);
 
     logLayout = new QGridLayout(this);
