@@ -42,7 +42,8 @@
 #include "dialogs/logdialog.h"
 #include "dialogs/settingsdialog.h"
 
-#include "emulation/emulatorhandler.h"
+#include "emulation/glwindow.h"
+#include "emulation/emucontroller.h"
 
 #include "roms/romcollection.h"
 #include "roms/thegamesdbscraper.h"
@@ -64,6 +65,8 @@
 #include <QVBoxLayout>
 #include <QCoreApplication>
 
+extern EmuController emulation;
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -74,16 +77,20 @@ MainWindow::MainWindow(QWidget *parent)
 
     autoloadSettings();
 
-    emulation = new EmulatorHandler(this);
     romCollection = new RomCollection(QStringList() << "*.z64" << "*.v64" << "*.n64" << "*.zip",
                                       QStringList() << SETTINGS.value("Paths/roms","").toString().split("|"),
                                       this);
     createMenu();
     createRomView();
 
-    connect(emulation, SIGNAL(started()), this, SLOT(disableButtons()));
-    connect(emulation, SIGNAL(finished()), this, SLOT(enableButtons()));
-    connect(emulation, SIGNAL(showLog()), this, SLOT(openLog()));
+    connect(&emulation, SIGNAL(started()), this, SLOT(disableButtons()));
+    connect(&emulation, SIGNAL(finished()), this, SLOT(enableButtons()));
+    connect(&emulation, SIGNAL(createGlWindow(QSurfaceFormat*)),
+            this, SLOT(createGlWindow(QSurfaceFormat*)),
+            Qt::BlockingQueuedConnection);
+    connect(&emulation, SIGNAL(resize(int, int)),
+            this, SLOT(resizeWindow(int, int)),
+            Qt::BlockingQueuedConnection);
 
     connect(romCollection, SIGNAL(updateStarted(bool)), this, SLOT(disableViews(bool)));
     connect(romCollection, SIGNAL(romAdded(Rom*, int)), this, SLOT(addToView(Rom*, int)));
@@ -91,6 +98,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     romCollection->cachedRoms();
 
+
+    setMenuBar(menuBar);
 
     mainWidget = new QWidget(this);
     setCentralWidget(mainWidget);
@@ -104,7 +113,6 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     mainLayout = new QVBoxLayout(mainWidget);
-    mainLayout->setMenuBar(menuBar);
 
     mainLayout->addWidget(emptyView);
     mainLayout->addWidget(tableView);
@@ -116,6 +124,31 @@ MainWindow::MainWindow(QWidget *parent)
 
     mainWidget->setLayout(mainLayout);
     mainWidget->setMinimumSize(300, 200);
+}
+
+
+void MainWindow::createGlWindow(QSurfaceFormat *format)
+{
+    extern GlWindow *glWindow;
+    glWindow = new GlWindow;
+    QWidget *container = QWidget::createWindowContainer(glWindow);
+    container->setFocusPolicy(Qt::StrongFocus);
+    glWindow->setCursor(Qt::BlankCursor);
+    glWindow->setFormat(*format);
+    setCentralWidget(container);
+    while (!glWindow->isValid()) {
+        QCoreApplication::processEvents();
+    }
+}
+
+
+void MainWindow::resizeWindow(int width, int height)
+{
+    int h = height;
+    if (!menuBar->isNativeMenuBar()) {
+        h += menuBar->height();
+    }
+    resize(width, h);
 }
 
 
@@ -656,7 +689,12 @@ void MainWindow::launchRomFromTable()
     QString romFileName = tableView->getCurrentRomInfo("fileName");
     QString romDirName = tableView->getCurrentRomInfo("dirName");
     QString zipFileName = tableView->getCurrentRomInfo("zipFile");
-    emulation->startGame(QDir(romDirName), romFileName, zipFileName);
+    if (zipFileName == "") {
+        QString path = QDir(romDirName).absoluteFilePath(romFileName);
+        emulation.startGame(path, zipFileName);
+    } else {
+        emulation.startGame(romFileName, zipFileName);
+    }
 }
 
 
@@ -665,7 +703,12 @@ void MainWindow::launchRomFromWidget(QWidget *current)
     QString romFileName = current->property("fileName").toString();
     QString romDirName = current->property("directory").toString();
     QString zipFileName = current->property("zipFile").toString();
-    emulation->startGame(QDir(romDirName), romFileName, zipFileName);
+    if (zipFileName == "") {
+        QString path = QDir(romDirName).absoluteFilePath(romFileName);
+        emulation.startGame(path, zipFileName);
+    } else {
+        emulation.startGame(romFileName, zipFileName);
+    }
 }
 
 
@@ -674,7 +717,7 @@ void MainWindow::launchRomFromZip()
     QString fileName = zipList->currentItem()->text();
     zipDialog->close();
 
-    emulation->startGame(QDir(), fileName, openPath);
+    emulation.startGame(fileName, openPath);
 }
 
 
@@ -818,13 +861,13 @@ void MainWindow::openRom()
             if (count == 0) {
                 QMessageBox::information(this, tr("No ROMs"), tr("No ROMs found in ZIP file."));
             } else if (count == 1) {
-                emulation->startGame(QDir(QFileInfo(openPath).dir()), last, openPath);
+                emulation.startGame(last, openPath);
             } else {
                 // More than one ROM in zip file, so let user select
                 openZipDialog(zippedFiles);
             }
         } else {
-            emulation->startGame(QDir(QFileInfo(openPath).dir()), openPath);
+            emulation.startGame(openPath);
         }
     }
 }
@@ -937,7 +980,7 @@ void MainWindow::showRomMenu(const QPoint &pos)
 
 void MainWindow::stopEmulator()
 {
-    emulation->stopGame();
+    emulation.stopGame();
 }
 
 

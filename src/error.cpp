@@ -2,9 +2,9 @@
 
 #include <QMessageBox>
 
-const char *m64errstr(m64p_error error_value)
+const char *m64errstr(m64p_error errorValue)
 {
-    switch (error_value) {
+    switch (errorValue) {
     case M64ERR_SUCCESS:         return "success";
     case M64ERR_NOT_INIT:        return "not_init";
     case M64ERR_ALREADY_INIT:    return "already_init";
@@ -24,7 +24,7 @@ const char *m64errstr(m64p_error error_value)
     }
 }
 
-enum log_level level_from_m64(m64p_msg_level level)
+LogLevel levelFromM64(m64p_msg_level level)
 {
     switch (level) {
     case M64MSG_ERROR:   return L_ERR;
@@ -34,9 +34,9 @@ enum log_level level_from_m64(m64p_msg_level level)
 }
 
 static const char *
-error_level_to_name(enum log_level level, bool short_name = false)
+errorLevelToName(LogLevel level, bool shortName = false)
 {
-    if (short_name) {
+    if (shortName) {
         switch (level) {
         case L_ERR:  return "ERROR";
         case L_WARN: return "Warn";
@@ -53,36 +53,36 @@ error_level_to_name(enum log_level level, bool short_name = false)
     }
 }
 
-static void log_to_console(enum log_level level, const char *from,
+static void logToConsole(LogLevel level, const char *from,
         const char *msg, const char *details)
 {
-    bool do_color = true;
+    bool doColor = true;
     const char *color = "";
     switch (level) {
     case L_ERR:  color = "91"; break;
     case L_WARN: color = "93"; break;
     }
-    if (do_color) {
+    if (doColor) {
         printf("\x1b[%sm", color);
     }
-    const char *level_str = error_level_to_name(level, true);
-    printf("[%s] %s: %s", from, level_str, msg);
+    const char *levelStr = errorLevelToName(level, true);
+    printf("[%s] %s: %s", from, levelStr, msg);
     if (details) {
         printf(" (%s)", details);
     }
-    if (do_color) {
+    if (doColor) {
         printf("\x1b[m");
     }
     printf("\n");
 }
 
-void log_error(enum log_level level, const char *from,
+void logError(LogLevel level, const char *from,
         const char *msg, const char *details)
 {
-    log_to_console(level, from, msg, details);
+    logToConsole(level, from, msg, details);
 }
 
-static QMessageBox::Icon error_level_to_qt_icon(enum log_level level)
+static QMessageBox::Icon errorLevelToQtIcon(LogLevel level)
 {
     switch (level) {
     case L_ERR: return QMessageBox::Critical;
@@ -92,12 +92,12 @@ static QMessageBox::Icon error_level_to_qt_icon(enum log_level level)
     }
 }
 
-void show_error(enum log_level level, const char *from,
+void showError(LogLevel level, const char *from,
         const char *msg, const char *details)
 {
     QMessageBox msgbox;
-    msgbox.setIcon(error_level_to_qt_icon(level));
-    msgbox.setWindowTitle(error_level_to_name(level));
+    msgbox.setIcon(errorLevelToQtIcon(level));
+    msgbox.setWindowTitle(errorLevelToName(level));
     QString qmsg(msg);
     if (details) {
         qmsg = qmsg + "\n\nDetails:\n" + details;
@@ -106,9 +106,9 @@ void show_error(enum log_level level, const char *from,
     msgbox.exec();
 }
 
-void log_and_show_error(enum log_level level, const char *from,
+void logAndShowError(LogLevel level, const char *from,
         const char *msg, const char *details)
 {
-    log_error(level, from, msg, details);
-    show_error(level, from, msg, details);
+    logError(level, from, msg, details);
+    showError(level, from, msg, details);
 }

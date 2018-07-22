@@ -15,15 +15,15 @@
 
 #include <m64p_common.h>
 
-static QString find_plugin(const char *name)
+static QString findPlugin(const char *name)
 {
     QString dir = SETTINGS.value("Paths/plugins", "").toString();
     return dir + "/" + name + FILENAME_EXTENSION;
 }
 
-bool open_plugin(m64p_dynlib_handle &plugin, const char *name, char *type)
+bool openPlugin(m64p_dynlib_handle &plugin, const char *name, char *type)
 {
-    QByteArray qfilename = find_plugin(name).toUtf8();
+    QByteArray qfilename = findPlugin(name).toUtf8();
     const char *filename = qfilename.data();
     m64p_error rval;
 
@@ -42,8 +42,8 @@ bool open_plugin(m64p_dynlib_handle &plugin, const char *name, char *type)
         return false;
     }
 
-    void debug_callback(void*, int, const char*);
-    rval = pluginStartup(Core::get().get_libhandle(), type, debug_callback);
+    void debugCallback(void*, int, const char*);
+    rval = pluginStartup(Core::get().getLibhandle(), type, debugCallback);
     if (rval != M64ERR_SUCCESS) {
         SHOW_E(TR("Plugin <PluginName> could not be started: ")
                 .replace("<PluginName>", filename) + m64errstr(rval));
@@ -53,6 +53,6 @@ bool open_plugin(m64p_dynlib_handle &plugin, const char *name, char *type)
     return true;
 }
 
-bool close_plugin(m64p_dynlib_handle &lib)
+bool closePlugin(m64p_dynlib_handle &lib)
 {
 }

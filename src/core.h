@@ -13,11 +13,12 @@ public:
     ~Core();
     bool init();
     static Core &get();
-    m64p_dynlib_handle get_libhandle() const;
+    m64p_dynlib_handle getLibhandle() const;
 
 private:
     Core(const Core &other);
     Core &operator=(const Core &other);
+
     static Core *instance;
     m64p_dynlib_handle libhandle;
 };

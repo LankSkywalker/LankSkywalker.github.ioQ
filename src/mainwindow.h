@@ -34,6 +34,7 @@
 
 
 #include <QMainWindow>
+#include <QSurfaceFormat>
 
 class QActionGroup;
 class QDialogButtonBox;
@@ -114,7 +115,6 @@ private:
     QWidget *disabledView;
     QWidget *mainWidget;
 
-    EmulatorHandler *emulation;
     GridView *gridView;
     ListView *listView;
     RomCollection *romCollection;
@@ -140,6 +140,8 @@ private slots:
     void openLog();
     void openSettings();
     void openRom();
+    void createGlWindow(QSurfaceFormat *format);
+    void resizeWindow(int width, int height);
     void showMenuBar(bool mouseAtTop);
     void showRomMenu(const QPoint &);
     void stopEmulator();

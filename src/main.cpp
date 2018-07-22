@@ -33,11 +33,14 @@
 #include "common.h"
 #include "mainwindow.h"
 #include "core.h"
+#include "emulation/emucontroller.h"
 
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QFileInfo>
 #include <QTranslator>
+
+EmuController emulation;
 
 
 int main(int argc, char *argv[])

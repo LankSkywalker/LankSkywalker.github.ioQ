@@ -10,43 +10,43 @@
 #define TO_STR_(x) TO_STR(x)
 #define MY__LINE__ TO_STR_(__LINE__)
 
-enum log_level {
-    L_ERR, L_WARN, L_INFO,
+enum LogLevel {
+    L_ERR, L_WARN, L_INFO, L_VERB,
 };
 
-const char *m64errstr(m64p_error error_value);
+const char *m64errstr(m64p_error errorValue);
 
-enum log_level level_from_m64(m64p_msg_level level);
+LogLevel levelFromM64(m64p_msg_level level);
 
-void log_error(enum log_level level, const char *from,
+void logError(LogLevel level, const char *from,
         const char *msg, const char *details = NULL);
-void show_error(enum log_level level, const char *from,
+void showError(LogLevel level, const char *from,
         const char *msg, const char *details = NULL);
-void log_and_show_error(enum log_level level, const char *from,
+void logAndShowError(LogLevel level, const char *from,
         const char *msg, const char *details = NULL);
 
 #define FROM_UI "ui"
 
-static inline std::string to_string(const char *s)
+static inline std::string toString(const char *s)
 {
     return std::string(s);
 }
-static inline std::string to_string(const QString &s)
+static inline std::string toString(const QString &s)
 {
     return std::string(s.toUtf8().data());
 }
 
 #define LOG(level, from, msg) \
-    log_error(level, from, to_string(msg).data());
+    logError(level, from, toString(msg).data());
 
 #define SHOW(level, from, msg) \
-    log_and_show_error(level, from, to_string(msg).data());
+    logAndShowError(level, from, toString(msg).data());
 
 #define LOG_DBG(level, from, msg) \
-    log_error(level, from, to_string(msg).data(), __FILE__ ":" MY__LINE__);
+    logError(level, from, toString(msg).data(), __FILE__ ":" MY__LINE__);
 
 #define SHOW_DBG(level, from, msg) \
-    log_and_show_error(level, from, to_string(msg).data(), __FILE__ ":" MY__LINE__);
+    logAndShowError(level, from, toString(msg).data(), __FILE__ ":" MY__LINE__);
 
 
 #define LOG_E(msg)     LOG(L_ERR, FROM_UI, msg)
@@ -55,6 +55,8 @@ static inline std::string to_string(const QString &s)
 #define LOG_W_DBG(msg) LOG_DBG(L_WARN, FROM_UI, msg)
 #define LOG_I(msg)     LOG(L_INFO, FROM_UI, msg)
 #define LOG_I_DBG(msg) LOG_DBG(L_INFO, FROM_UI, msg)
+#define LOG_V(msg)     LOG(L_VERB, FROM_UI, msg)
+#define LOG_V_DBG(msg) LOG_DBG(L_VERB, FROM_UI, msg)
 
 #define SHOW_E(msg)     SHOW(L_ERR, FROM_UI, msg)
 #define SHOW_E_DBG(msg) SHOW_DBG(L_ERR, FROM_UI, msg)
@@ -62,5 +64,7 @@ static inline std::string to_string(const QString &s)
 #define SHOW_W_DBG(msg) SHOW_DBG(L_WARN, FROM_UI, msg)
 #define SHOW_I(msg)     SHOW(L_INFO, FROM_UI, msg)
 #define SHOW_I_DBG(msg) SHOW_DBG(L_INFO, FROM_UI, msg)
+#define SHOW_V(msg)     SHOW(L_VERB, FROM_UI, msg)
+#define SHOW_V_DBG(msg) SHOW_DBG(L_VERB, FROM_UI, msg)
 
 #endif // ERROR_H
