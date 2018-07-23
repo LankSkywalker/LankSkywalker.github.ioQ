@@ -2,3 +2,8 @@
 *.swp
 /mupen64plus
 /Mupen64Plus
+moc_*
+qrc_*
+ui_*
+.qmake.stash
+Makefile
