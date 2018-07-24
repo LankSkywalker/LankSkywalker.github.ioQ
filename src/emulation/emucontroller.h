@@ -14,6 +14,7 @@ public:
     EmuController();
     void startGame(const QString &romFileName, const QString &zipFileName = "");
     void stopGame();
+    bool isExecuting();
 
 signals:
     void createGlWindow(QSurfaceFormat *format);

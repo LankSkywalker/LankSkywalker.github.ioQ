@@ -1,6 +1,7 @@
 #include "emucontroller.h"
 #include "emuthread.h"
 #include "emu.h"
+#include "../core.h"
 
 EmuThread *emuthread = NULL;
 
@@ -14,6 +15,15 @@ void EmuController::startGame(const QString &romFileName, const QString &zipFile
 {
     emuthread = new EmuThread(romFileName, zipFileName);
     emuthread->start();
+}
+
+
+bool EmuController::isExecuting()
+{
+    m64p_error rval;
+    int state;
+    rval = CoreDoCommand(M64CMD_CORE_STATE_QUERY, M64CORE_EMU_STATE, &state);
+    return state != M64EMU_STOPPED;
 }
 
 

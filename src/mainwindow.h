@@ -121,6 +121,8 @@ private:
     TableView *tableView;
     TheGamesDBScraper *scraper;
     TreeWidgetItem *fileItem;
+    // Saved when a game is started so we can restore the window.
+    QByteArray mainGeometry;
 
 private slots:
     void addToView(Rom *currentRom, int count);

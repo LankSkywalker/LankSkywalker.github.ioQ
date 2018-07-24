@@ -134,6 +134,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::createGlWindow(QSurfaceFormat *format)
 {
+    mainGeometry = saveGeometry();
     extern GlWindow *glWindow;
     glWindow = new GlWindow;
     QWidget *container = QWidget::createWindowContainer(glWindow);
@@ -154,6 +155,7 @@ void MainWindow::destroyGlWindow()
     glWindow->destroy();
     glWindow = NULL;
     setCentralWidget(mainWidget);
+    restoreGeometry(mainGeometry);
 }
 
 
@@ -285,6 +287,13 @@ void MainWindow::autoloadSettings()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    if (emulation.isExecuting()) {
+        emulation.stopGame();
+        while (emulation.isExecuting()) {
+            QCoreApplication::processEvents();
+        }
+        restoreGeometry(mainGeometry);
+    }
     SETTINGS.setValue("Geometry/windowx", geometry().x());
     SETTINGS.setValue("Geometry/windowy", geometry().y());
     SETTINGS.setValue("Geometry/width", geometry().width());
