@@ -55,4 +55,20 @@ bool openPlugin(m64p_dynlib_handle &plugin, const char *name, char *type)
 
 bool closePlugin(m64p_dynlib_handle &lib)
 {
+    m64p_error rval;
+    ptr_PluginShutdown pluginShutdown
+        = (ptr_PluginShutdown)osal_dynlib_getproc(lib, "PluginShutdown");
+    if (pluginShutdown == NULL) {
+        SHOW_W(TR("Could not shut down plugin (function not found)."));
+    } else {
+        rval = pluginShutdown();
+        if (rval != M64ERR_SUCCESS) {
+            SHOW_W(TR("Could not shut down plugin."));
+            return false;
+        }
+    }
+
+    osal_dynlib_close(lib);
+
+    return true;
 }

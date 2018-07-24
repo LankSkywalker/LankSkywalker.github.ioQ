@@ -17,6 +17,7 @@ public:
 
 signals:
     void createGlWindow(QSurfaceFormat *format);
+    void destroyGlWindow();
     void resize(int width, int height);
     void started();
     void finished();

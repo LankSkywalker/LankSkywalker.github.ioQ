@@ -12,5 +12,5 @@ EmuThread::EmuThread(QString romFileName, QString zipFileName)
 
 void EmuThread::run()
 {
-    Emu::startGame(romFileName, zipFileName);
+    Emu::runGame(romFileName, zipFileName);
 }

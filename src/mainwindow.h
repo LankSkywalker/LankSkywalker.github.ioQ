@@ -141,6 +141,7 @@ private slots:
     void openSettings();
     void openRom();
     void createGlWindow(QSurfaceFormat *format);
+    void destroyGlWindow();
     void resizeWindow(int width, int height);
     void showMenuBar(bool mouseAtTop);
     void showRomMenu(const QPoint &);

@@ -5,7 +5,7 @@ class QString;
 
 namespace Emu
 {
-    void startGame(const QString &romFileName, const QString &zipFileName);
+    void runGame(const QString &romFileName, const QString &zipFileName);
     void stopGame();
 }
 

@@ -5,8 +5,7 @@
 #include "../common.h"
 
 #include <m64p_types.h>
-#include <QSurfaceFormat>
-#include <QCoreApplication>
+#include <QApplication>
 
 #define FROM "vidext"
 
@@ -28,6 +27,9 @@ static m64p_error init()
 static m64p_error quit()
 {
     LOG(L_VERB, FROM, "quit");
+    glWindow->doneCurrent();
+    glWindow->context()->moveToThread(QApplication::instance()->thread());
+    emulation.destroyGlWindow();
 }
 
 static m64p_error listModes(m64p_2d_size *sizes, int *nSizes)

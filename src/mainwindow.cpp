@@ -83,7 +83,12 @@ MainWindow::MainWindow(QWidget *parent)
     createMenu();
     createRomView();
 
-    connect(&emulation, SIGNAL(started()), this, SLOT(disableButtons()));
+    connect(&emulation, SIGNAL(started()),
+            this, SLOT(disableButtons()),
+            Qt::BlockingQueuedConnection);
+    connect(&emulation, SIGNAL(destroyGlWindow()),
+            this, SLOT(destroyGlWindow()),
+            Qt::BlockingQueuedConnection);
     connect(&emulation, SIGNAL(finished()), this, SLOT(enableButtons()));
     connect(&emulation, SIGNAL(createGlWindow(QSurfaceFormat*)),
             this, SLOT(createGlWindow(QSurfaceFormat*)),
@@ -135,10 +140,20 @@ void MainWindow::createGlWindow(QSurfaceFormat *format)
     container->setFocusPolicy(Qt::StrongFocus);
     glWindow->setCursor(Qt::BlankCursor);
     glWindow->setFormat(*format);
+    mainWidget = takeCentralWidget();
     setCentralWidget(container);
     while (!glWindow->isValid()) {
         QCoreApplication::processEvents();
     }
+}
+
+
+void MainWindow::destroyGlWindow()
+{
+    extern GlWindow *glWindow;
+    glWindow->destroy();
+    glWindow = NULL;
+    setCentralWidget(mainWidget);
 }
 
 

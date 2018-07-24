@@ -15,14 +15,14 @@ extern EmuController emulation;
 
 static m64p_dynlib_handle pluginRsp, pluginGfx, pluginAudio, pluginInput;
 
-static bool startRom(void *romData, int length);
+static bool runRom(void *romData, int length);
 static bool attachPlugin(m64p_plugin_type type,
-        m64p_dynlib_handle plugin, const QString &name, char *typestr);
+        m64p_dynlib_handle &plugin, const QString &name, char *typestr);
 static bool attachPlugins();
 static void detachPlugins();
 
 
-void Emu::startGame(const QString &romFileName, const QString &zipFileName)
+void Emu::runGame(const QString &romFileName, const QString &zipFileName)
 {
     QByteArray romData;
     readRomFile(romData, romFileName, zipFileName);
@@ -40,21 +40,13 @@ void Emu::startGame(const QString &romFileName, const QString &zipFileName)
 
     emit emulation.started();
 
-    startRom(romData.data(), romData.length());
-
-    m64p_error rval;
-    rval = CoreDoCommand(M64CMD_ROM_CLOSE, 0, NULL);
-    if (rval != M64ERR_SUCCESS) {
-        SHOW_W(TR("Could not close the ROM: ") + m64errstr(rval));
-        return;
-    }
-    detachPlugins();
+    runRom(romData.data(), romData.length());
 
     emit emulation.finished();
 }
 
 
-static bool startRom(void *romData, int length)
+static bool runRom(void *romData, int length)
 {
     m64p_error rval;
     rval = CoreDoCommand(M64CMD_ROM_OPEN, length, romData);
@@ -67,19 +59,28 @@ static bool startRom(void *romData, int length)
         return false;
     }
 
+    // This is where the game actually runs.
     rval = CoreDoCommand(M64CMD_EXECUTE, 0, NULL);
     if (rval != M64ERR_SUCCESS) {
-        CoreDoCommand(M64CMD_ROM_CLOSE, 0, NULL);
         SHOW_W(TR("Could not start the ROM: ") + m64errstr(rval));
+        CoreDoCommand(M64CMD_ROM_CLOSE, 0, NULL);
+        detachPlugins();
         return false;
     }
+
+    rval = CoreDoCommand(M64CMD_ROM_CLOSE, 0, NULL);
+    if (rval != M64ERR_SUCCESS) {
+        SHOW_W(TR("Could not close the ROM: ") + m64errstr(rval));
+        return false;
+    }
+    detachPlugins();
 
     return true;
 }
 
 
 static bool attachPlugin(m64p_plugin_type type,
-        m64p_dynlib_handle plugin, const QString &name, char *typestr)
+        m64p_dynlib_handle &plugin, const QString &name, char *typestr)
 {
     LOG_I(TR("Starting <Type> plugin...").replace("<Type>", typestr));
     m64p_error rval;
