@@ -446,8 +446,7 @@ void MainWindow::createMenu()
                << deleteAction
                << configureAction
                << configureGameAction
-               << editorAction
-               << quitAction;
+               << editorAction;
 
     // Create list of actions that are disabled when emulator is not running
     menuDisable << stopAction;
