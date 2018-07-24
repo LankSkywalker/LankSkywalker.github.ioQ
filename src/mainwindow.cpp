@@ -141,7 +141,10 @@ void MainWindow::createGlWindow(QSurfaceFormat *format)
     glWindow = new GlWindow;
     QWidget *container = QWidget::createWindowContainer(glWindow);
     container->setFocusPolicy(Qt::StrongFocus);
-    glWindow->setCursor(Qt::BlankCursor);
+    bool hide = SETTINGS.value("Graphics/hideCursor", "false").toString() == "true";
+    if (hide) {
+        glWindow->setCursor(Qt::BlankCursor);
+    }
     glWindow->setFormat(*format);
     mainWidget = takeCentralWidget();
     setCentralWidget(container);
