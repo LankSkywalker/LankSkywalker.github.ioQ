@@ -64,6 +64,8 @@
 #include <QTimer>
 #include <QVBoxLayout>
 #include <QCoreApplication>
+#include <QApplication>
+#include <QDesktopWidget>
 
 extern EmuController emulation;
 
@@ -143,6 +145,17 @@ void MainWindow::createGlWindow(QSurfaceFormat *format)
     glWindow->setFormat(*format);
     mainWidget = takeCentralWidget();
     setCentralWidget(container);
+    int x = SETTINGS.value("Geometry/gameWindowx", -1).toInt();
+    int y = SETTINGS.value("Geometry/gameWindowy", -1).toInt();
+    if (x != -1 && y != -1) {
+        QRect r = geometry();
+        r.setX(x);
+        r.setY(y);
+        setGeometry(r);
+    } else {
+        move(QApplication::desktop()->availableGeometry().center()
+                - rect().center());
+    }
     while (!glWindow->isValid()) {
         QCoreApplication::processEvents();
     }
@@ -155,6 +168,8 @@ void MainWindow::destroyGlWindow()
     glWindow->destroy();
     glWindow = NULL;
     setCentralWidget(mainWidget);
+    SETTINGS.setValue("Geometry/gameWindowx", geometry().x());
+    SETTINGS.setValue("Geometry/gameWindowy", geometry().y());
     restoreGeometry(mainGeometry);
 }
 
