@@ -708,7 +708,8 @@ void MainWindow::launchRomFromTable()
         QString path = QDir(romDirName).absoluteFilePath(romFileName);
         emulation.startGame(path, zipFileName);
     } else {
-        emulation.startGame(romFileName, zipFileName);
+        QString zipPath = QDir(romDirName).absoluteFilePath(zipFileName);
+        emulation.startGame(romFileName, zipPath);
     }
 }
 
@@ -722,7 +723,8 @@ void MainWindow::launchRomFromWidget(QWidget *current)
         QString path = QDir(romDirName).absoluteFilePath(romFileName);
         emulation.startGame(path, zipFileName);
     } else {
-        emulation.startGame(romFileName, zipFileName);
+        QString zipPath = QDir(romDirName).absoluteFilePath(zipFileName);
+        emulation.startGame(romFileName, zipPath);
     }
 }
 
