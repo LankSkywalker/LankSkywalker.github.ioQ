@@ -53,6 +53,7 @@ LogDialog::LogDialog(QWidget *parent)
 
     logArea = new QTextEdit(this);
     logArea->setWordWrapMode(QTextOption::NoWrap);
+    logArea->setReadOnly(true);
 
 #if QT_VERSION >= 0x050200
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
