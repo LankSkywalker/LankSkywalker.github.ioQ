@@ -90,6 +90,8 @@ private:
     QAction *quitAction;
     QAction *refreshAction;
     QAction *startAction;
+    QAction *resumeAction;
+    QAction *pauseAction;
     QAction *stopAction;
     QActionGroup *layoutGroup;
     QDialog *zipDialog;
@@ -151,6 +153,8 @@ private slots:
     void toggleMenus(bool active);
     void updateFullScreenMode();
     void updateLayoutSetting();
+    void emulationResumed();
+    void emulationPaused();
 
 };
 

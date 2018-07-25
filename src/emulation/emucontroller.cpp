@@ -27,7 +27,31 @@ bool EmuController::isExecuting()
 }
 
 
+void EmuController::emitResumed()
+{
+    emit resumed();
+}
+
+
+void EmuController::emitPaused()
+{
+    emit paused();
+}
+
+
 void EmuController::stopGame()
 {
     Emu::stopGame();
+}
+
+
+void EmuController::play()
+{
+    Emu::play();
+}
+
+
+void EmuController::pause()
+{
+    Emu::pause();
 }

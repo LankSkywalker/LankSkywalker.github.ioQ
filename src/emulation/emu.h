@@ -7,6 +7,8 @@ namespace Emu
 {
     void runGame(const QString &romFileName, const QString &zipFileName);
     void stopGame();
+    void play();
+    void pause();
 }
 
 #endif // EMU_H

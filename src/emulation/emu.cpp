@@ -147,3 +147,17 @@ void Emu::stopGame()
         return;
     }
 }
+
+
+void Emu::play()
+{
+    m64p_error rval;
+    rval = CoreDoCommand(M64CMD_RESUME, 0, NULL);
+}
+
+
+void Emu::pause()
+{
+    m64p_error rval;
+    rval = CoreDoCommand(M64CMD_PAUSE, 0, NULL);
+}

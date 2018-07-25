@@ -15,12 +15,20 @@ public:
     void startGame(const QString &romFileName, const QString &zipFileName = "");
     void stopGame();
     bool isExecuting();
+    void emitResumed();
+    void emitPaused();
+
+public slots:
+    void play();
+    void pause();
 
 signals:
     void createGlWindow(QSurfaceFormat *format);
     void destroyGlWindow();
     void resize(int width, int height);
     void started();
+    void resumed();
+    void paused();
     void finished();
 };
 

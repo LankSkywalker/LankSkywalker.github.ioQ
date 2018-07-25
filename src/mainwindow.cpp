@@ -88,6 +88,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&emulation, SIGNAL(started()),
             this, SLOT(disableButtons()),
             Qt::BlockingQueuedConnection);
+    connect(&emulation, SIGNAL(resumed()), this, SLOT(emulationResumed()));
+    connect(&emulation, SIGNAL(paused()), this, SLOT(emulationPaused()));
     connect(&emulation, SIGNAL(destroyGlWindow()),
             this, SLOT(destroyGlWindow()),
             Qt::BlockingQueuedConnection);
@@ -159,6 +161,9 @@ void MainWindow::createGlWindow(QSurfaceFormat *format)
         move(QApplication::desktop()->availableGeometry().center()
                 - rect().center());
     }
+    pauseAction->setVisible(true);
+    resumeAction->setVisible(false);
+    startAction->setVisible(false);
     while (!glWindow->isValid()) {
         QCoreApplication::processEvents();
     }
@@ -174,6 +179,9 @@ void MainWindow::destroyGlWindow()
     SETTINGS.setValue("Geometry/gameWindowx", geometry().x());
     SETTINGS.setValue("Geometry/gameWindowy", geometry().y());
     restoreGeometry(mainGeometry);
+    pauseAction->setVisible(false);
+    resumeAction->setVisible(false);
+    startAction->setVisible(true);
 }
 
 
@@ -370,19 +378,32 @@ void MainWindow::createMenu()
     // Emulation
     emulationMenu = new QMenu(tr("&Emulation"), this);
     startAction = emulationMenu->addAction(tr("&Start"));
+    resumeAction = emulationMenu->addAction(tr("Re&sume"));
+    pauseAction = emulationMenu->addAction(tr("Pau&se"));
     stopAction = emulationMenu->addAction(tr("St&op"));
     emulationMenu->addSeparator();
     logAction = emulationMenu->addAction(tr("View Log..."));
 
+    QList<QKeySequence> seq;
+    seq << Qt::Key_P << Qt::Key_F2;
+    resumeAction->setShortcuts(seq);
+    pauseAction->setShortcuts(seq);
+
     startAction->setIcon(QIcon::fromTheme("media-playback-start"));
+    resumeAction->setIcon(QIcon::fromTheme("media-playback-start"));
+    pauseAction->setIcon(QIcon::fromTheme("media-playback-pause"));
     stopAction->setIcon(QIcon::fromTheme("media-playback-stop"));
 
     startAction->setEnabled(false);
+    resumeAction->setVisible(false);
+    pauseAction->setVisible(false);
     stopAction->setEnabled(false);
 
     menuBar->addMenu(emulationMenu);
 
     connect(startAction, SIGNAL(triggered()), this, SLOT(launchRomFromMenu()));
+    connect(resumeAction, SIGNAL(triggered()), &emulation, SLOT(play()));
+    connect(pauseAction, SIGNAL(triggered()), &emulation, SLOT(pause()));
     connect(stopAction, SIGNAL(triggered()), this, SLOT(stopEmulator()));
     connect(logAction, SIGNAL(triggered()), this, SLOT(openLog()));
 
@@ -481,7 +502,9 @@ void MainWindow::createMenu()
                << editorAction;
 
     // Create list of actions that are disabled when emulator is not running
-    menuDisable << stopAction;
+    menuDisable << stopAction
+                << resumeAction
+                << pauseAction;
 
     // Create list of actions that are only active when a ROM is selected
     menuRomSelected << startAction
@@ -1107,4 +1130,18 @@ void MainWindow::updateLayoutSetting()
     foreach (QAction *next, menuRomSelected) {
         next->setEnabled(false);
     }
+}
+
+
+void MainWindow::emulationResumed()
+{
+    resumeAction->setVisible(false);
+    pauseAction->setVisible(true);
+}
+
+
+void MainWindow::emulationPaused()
+{
+    resumeAction->setVisible(true);
+    pauseAction->setVisible(false);
 }
