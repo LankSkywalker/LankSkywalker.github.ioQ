@@ -44,6 +44,7 @@
 
 #include "emulation/glwindow.h"
 #include "emulation/emucontroller.h"
+#include "emulation/emu.h"
 
 #include "roms/romcollection.h"
 #include "roms/thegamesdbscraper.h"
@@ -161,6 +162,11 @@ void MainWindow::createGlWindow(QSurfaceFormat *format)
         move(QApplication::desktop()->availableGeometry().center()
                 - rect().center());
     }
+
+    m64p_rom_settings romSettings;
+    Emu::getRomSettings(sizeof romSettings, &romSettings);
+    setWindowTitle(QString(romSettings.goodname) + " - " + AppName);
+
     pauseAction->setVisible(true);
     resumeAction->setVisible(false);
     startAction->setVisible(false);
@@ -179,6 +185,7 @@ void MainWindow::destroyGlWindow()
     SETTINGS.setValue("Geometry/gameWindowx", geometry().x());
     SETTINGS.setValue("Geometry/gameWindowy", geometry().y());
     restoreGeometry(mainGeometry);
+    setWindowTitle(AppName);
     pauseAction->setVisible(false);
     resumeAction->setVisible(false);
     startAction->setVisible(true);

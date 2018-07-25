@@ -207,3 +207,13 @@ void Emu::reset(bool hard)
         LOG_W(TR("Could not reset: ") + m64errstr(rval));
     }
 }
+
+
+bool Emu::getRomSettings(size_t size, m64p_rom_settings *romSettings)
+{
+    m64p_error rval;
+    rval = CoreDoCommand(M64CMD_ROM_GET_SETTINGS, size, romSettings);
+    if (rval != M64ERR_SUCCESS) {
+        LOG_W(TR("Could not get ROM settings: ") + m64errstr(rval));
+    }
+}
