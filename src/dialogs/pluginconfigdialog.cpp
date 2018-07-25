@@ -16,6 +16,55 @@
 #include <string>
 
 
+static QString camelSpaced(const QString &s)
+{
+    QString ret;
+    bool lastUpper = false;
+    for (int i = 0; i < s.length(); i++) {
+        bool isUpper = s[i] >= 'A' && s[i] <= 'Z';
+        // Two upper in a row, so not a new word.
+        if (isUpper && lastUpper) {
+            continue;
+        }
+        // A new word!
+        if (isUpper && i > 0) {
+            ret += " ";
+            ret += s[i].toLower();
+        } else {
+            ret += s[i];
+        }
+        if (isUpper) {
+            lastUpper = true;
+        } else {
+            lastUpper = false;
+        }
+    }
+    return ret;
+}
+
+static QString toReadableName(QString name, QString help)
+{
+    QString niceName;
+    if (name.toUpper() == name) {
+        name = name.toLower();
+    }
+    name[0] = name[0].toUpper();
+    QStringList nameWords = name.split("_");
+    if (nameWords.length() == 1) {
+        niceName = camelSpaced(name);
+    } else {
+        niceName = nameWords.join(" ");
+    }
+    QString firstPart = help.split(":")[0].split(" -- ")[0].split(" (")[0];
+
+    if (firstPart.length() < 35 && firstPart.length() > niceName.length()) {
+        return firstPart;
+    } else {
+        return niceName;
+    }
+}
+
+
 static QString toSectionName(const QString &name)
 {
     return QString(name).remove("mupen64plus-");
@@ -67,13 +116,17 @@ PluginConfigDialog::PluginConfigDialog(const QString &name, QWidget *parent)
         const char *name_cp = name_ba.data();
         QString name = p.name;
         QString help_string = ConfigGetParameterHelp(configHandle, name_cp);
-        QString help = "<p>" + help_string.replace(": ", ":</p><p>") + "</p>";
+        QString help = "<p>[" + name + "]</p>"
+            + "<p>"
+            + QString(help_string).replace(": ", ":</p><p>")
+            + "</p>";
+        QString desc = toReadableName(name, help_string);
 
         switch (p.type) {
         case M64TYPE_INT:
             {
                 int value = ConfigGetParamInt(configHandle, name_cp);
-                QLabel *label = new QLabel(name);
+                QLabel *label = new QLabel(desc);
                 label->setToolTip(help);
                 gridLayout->addWidget(label, col1row, 0, Qt::AlignRight);
                 QSpinBox *input = new QSpinBox();
@@ -92,7 +145,7 @@ PluginConfigDialog::PluginConfigDialog(const QString &name, QWidget *parent)
         case M64TYPE_BOOL:
             {
                 bool value = ConfigGetParamBool(configHandle, name_cp);
-                QCheckBox *cb = new QCheckBox(name);
+                QCheckBox *cb = new QCheckBox(desc);
                 cb->setToolTip(help);
                 cb->setCheckState(value ? Qt::Checked : Qt::Unchecked);
                 gridLayout->addWidget(cb, col2row, 2, Qt::AlignLeft);
@@ -103,7 +156,7 @@ PluginConfigDialog::PluginConfigDialog(const QString &name, QWidget *parent)
         case M64TYPE_STRING:
             {
                 const char *value = ConfigGetParamString(configHandle, name_cp);
-                QLabel *label = new QLabel(name);
+                QLabel *label = new QLabel(desc);
                 label->setToolTip(help);
                 gridLayout->addWidget(label, col1row, 0, Qt::AlignRight);
                 QLineEdit *input = new QLineEdit();
