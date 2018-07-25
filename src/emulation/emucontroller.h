@@ -21,6 +21,9 @@ public:
 public slots:
     void play();
     void pause();
+    void saveState();
+    void loadState();
+    void setSaveSlot(int n);
 
 signals:
     void createGlWindow(QSurfaceFormat *format);

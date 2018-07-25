@@ -161,3 +161,33 @@ void Emu::pause()
     m64p_error rval;
     rval = CoreDoCommand(M64CMD_PAUSE, 0, NULL);
 }
+
+
+void Emu::saveState()
+{
+    m64p_error rval;
+    rval = CoreDoCommand(M64CMD_STATE_SAVE, 0, NULL);
+    if (rval != M64ERR_SUCCESS) {
+        LOG_W(TR("Could not save state: ") + m64errstr(rval));
+    }
+}
+
+
+void Emu::loadState()
+{
+    m64p_error rval;
+    rval = CoreDoCommand(M64CMD_STATE_LOAD, 0, NULL);
+    if (rval != M64ERR_SUCCESS) {
+        LOG_W(TR("Could not load state: ") + m64errstr(rval));
+    }
+}
+
+
+void Emu::setSaveSlot(int n)
+{
+    m64p_error rval;
+    rval = CoreDoCommand(M64CMD_STATE_SET_SLOT, n, NULL);
+    if (rval != M64ERR_SUCCESS) {
+        LOG_W(TR("Could not set save slot: ") + m64errstr(rval));
+    }
+}

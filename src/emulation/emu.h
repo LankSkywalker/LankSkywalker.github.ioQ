@@ -9,6 +9,9 @@ namespace Emu
     void stopGame();
     void play();
     void pause();
+    void saveState();
+    void loadState();
+    void setSaveSlot(int n);
 }
 
 #endif // EMU_H

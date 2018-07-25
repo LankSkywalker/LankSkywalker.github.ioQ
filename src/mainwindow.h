@@ -92,6 +92,8 @@ private:
     QAction *startAction;
     QAction *resumeAction;
     QAction *pauseAction;
+    QAction *saveStateAction;
+    QAction *loadStateAction;
     QAction *stopAction;
     QActionGroup *layoutGroup;
     QDialog *zipDialog;

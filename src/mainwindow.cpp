@@ -382,12 +382,19 @@ void MainWindow::createMenu()
     pauseAction = emulationMenu->addAction(tr("Pau&se"));
     stopAction = emulationMenu->addAction(tr("St&op"));
     emulationMenu->addSeparator();
+    saveStateAction = emulationMenu->addAction(tr("S&ave state"));
+    loadStateAction = emulationMenu->addAction(tr("&Load state"));
+    emulationMenu->addSeparator();
     logAction = emulationMenu->addAction(tr("View Log..."));
 
-    QList<QKeySequence> seq;
-    seq << Qt::Key_P << Qt::Key_F2;
-    resumeAction->setShortcuts(seq);
-    pauseAction->setShortcuts(seq);
+    {
+        QList<QKeySequence> seq;
+        seq << Qt::Key_P << Qt::Key_F2;
+        resumeAction->setShortcuts(seq);
+        pauseAction->setShortcuts(seq);
+    }
+    saveStateAction->setShortcut(Qt::Key_F5);
+    loadStateAction->setShortcut(Qt::Key_F7);
 
     startAction->setIcon(QIcon::fromTheme("media-playback-start"));
     resumeAction->setIcon(QIcon::fromTheme("media-playback-start"));
@@ -398,12 +405,16 @@ void MainWindow::createMenu()
     resumeAction->setVisible(false);
     pauseAction->setVisible(false);
     stopAction->setEnabled(false);
+    saveStateAction->setEnabled(false);
+    loadStateAction->setEnabled(false);
 
     menuBar->addMenu(emulationMenu);
 
     connect(startAction, SIGNAL(triggered()), this, SLOT(launchRomFromMenu()));
     connect(resumeAction, SIGNAL(triggered()), &emulation, SLOT(play()));
     connect(pauseAction, SIGNAL(triggered()), &emulation, SLOT(pause()));
+    connect(saveStateAction, SIGNAL(triggered()), &emulation, SLOT(saveState()));
+    connect(loadStateAction, SIGNAL(triggered()), &emulation, SLOT(loadState()));
     connect(stopAction, SIGNAL(triggered()), this, SLOT(stopEmulator()));
     connect(logAction, SIGNAL(triggered()), this, SLOT(openLog()));
 
@@ -504,7 +515,9 @@ void MainWindow::createMenu()
     // Create list of actions that are disabled when emulator is not running
     menuDisable << stopAction
                 << resumeAction
-                << pauseAction;
+                << pauseAction
+                << saveStateAction
+                << loadStateAction;
 
     // Create list of actions that are only active when a ROM is selected
     menuRomSelected << startAction

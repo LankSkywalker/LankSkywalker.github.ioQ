@@ -55,3 +55,21 @@ void EmuController::pause()
 {
     Emu::pause();
 }
+
+
+void EmuController::saveState()
+{
+    Emu::saveState();
+}
+
+
+void EmuController::loadState()
+{
+    Emu::loadState();
+}
+
+
+void EmuController::setSaveSlot(int n)
+{
+    Emu::setSaveSlot(n);
+}
