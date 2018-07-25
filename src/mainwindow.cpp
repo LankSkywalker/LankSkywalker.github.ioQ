@@ -346,6 +346,11 @@ void MainWindow::createMenu()
 #endif
     quitAction = fileMenu->addAction(tr("&Quit"));
 
+    openAction->setShortcut(Qt::CTRL + Qt::Key_O);
+#ifdef OS_LINUX_OR_BSD
+    quitAction->setShortcut(Qt::CTRL + Qt::Key_Q);
+#endif
+
     openAction->setIcon(QIcon::fromTheme("document-open"));
     refreshAction->setIcon(QIcon::fromTheme("view-refresh"));
     quitAction->setIcon(QIcon::fromTheme("application-exit"));
