@@ -21,23 +21,20 @@ static QString camelSpaced(const QString &s)
     QString ret;
     bool lastUpper = false;
     for (int i = 0; i < s.length(); i++) {
+        bool isLast = i == s.length() - 1;
         bool isUpper = s[i] >= 'A' && s[i] <= 'Z';
-        // Two upper in a row, so not a new word.
-        if (isUpper && lastUpper) {
-            continue;
-        }
-        // A new word!
-        if (isUpper && i > 0) {
+        bool nextUpper = !isLast && s[i+1] >= 'A' && s[i+1] <= 'Z';
+        if (isUpper && (!lastUpper || !nextUpper) && i > 0 && !isLast) {
             ret += " ";
-            ret += s[i].toLower();
-        } else {
+        }
+        if (i == 0) {
+            ret += s[i].toUpper();
+        } else if (isUpper && (nextUpper || (isLast && lastUpper))) {
             ret += s[i];
-        }
-        if (isUpper) {
-            lastUpper = true;
         } else {
-            lastUpper = false;
+            ret += s[i].toLower();
         }
+        lastUpper = isUpper;
     }
     return ret;
 }
@@ -55,7 +52,14 @@ static QString toReadableName(QString name, QString help)
     } else {
         niceName = nameWords.join(" ");
     }
-    QString firstPart = help.split(":")[0].split(" -- ")[0].split(" (")[0];
+    QString firstPart = help
+        .split(":")[0]
+        .split(" -- ")[0]
+        .split(" (")[0]
+        .split(". ")[0];
+    if (firstPart.length() > 0 && firstPart[firstPart.length() - 1] == '.') {
+        firstPart.truncate(firstPart.length() - 1);
+    }
 
     if (firstPart.length() < 35 && firstPart.length() > niceName.length()) {
         return firstPart;
