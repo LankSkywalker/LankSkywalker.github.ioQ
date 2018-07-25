@@ -30,7 +30,7 @@
  ***/
 
 #include "logdialog.h"
-
+#include "../error.h"
 #include "../global.h"
 
 #include <QDialogButtonBox>
@@ -42,7 +42,8 @@
 #endif
 
 
-LogDialog::LogDialog(QString lastOutput, QWidget *parent) : QDialog(parent)
+LogDialog::LogDialog(QWidget *parent)
+    : QDialog(parent)
 {
     setWindowTitle(tr("<AppName> Log").replace("<AppName>", AppName));
     setMinimumSize(600, 400);
@@ -61,7 +62,24 @@ LogDialog::LogDialog(QString lastOutput, QWidget *parent) : QDialog(parent)
 #endif
     logArea->setFont(font);
 
-    logArea->setPlainText(lastOutput);
+    const std::vector<LogLine> &logLines = getLogLines();
+    QString output;
+    for (size_t i = 0; i < logLines.size(); i++) {
+        const LogLine &l = logLines[i];
+        QString color;
+        switch (l.level) {
+        case L_ERR: color = "<span style=\"color:#990000\">"; break;
+        case L_WARN: color = "<span style=\"color:#999900\">"; break;
+        default: color = "<span>"; break;
+        }
+        QString endColor = "</span>";
+        output += color
+            + "[" + l.from + "] "
+            + errorLevelToName(l.level, true) + ": "
+            + l.msg.toHtmlEscaped() + "<br>"
+            + endColor;
+    }
+    logArea->setHtml(output);
 
     logButtonBox = new QDialogButtonBox(Qt::Horizontal, this);
     logButtonBox->addButton(tr("Close"), QDialogButtonBox::AcceptRole);

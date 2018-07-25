@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <QString>
 #include <string>
+#include <vector>
 
 #define TO_STR(x)  #x
 #define TO_STR_(x) TO_STR(x)
@@ -13,6 +14,21 @@
 enum LogLevel {
     L_ERR, L_WARN, L_INFO, L_VERB,
 };
+
+struct LogLine
+{
+    LogLine(LogLevel level, const char *from, const char *msg, const char *details)
+        : level(level), from(from), msg(msg), details(details)
+    {}
+    const LogLevel level;
+    const QString from;
+    const QString msg;
+    const QString details;
+};
+
+const std::vector<LogLine> &getLogLines();
+
+const char *errorLevelToName(LogLevel level, bool shortName = false);
 
 const char *m64errstr(m64p_error errorValue);
 

@@ -43,7 +43,7 @@ class LogDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit LogDialog(QString lastOutput, QWidget *parent = 0);
+    explicit LogDialog(QWidget *parent = 0);
 
 private:
     QDialogButtonBox *logButtonBox;

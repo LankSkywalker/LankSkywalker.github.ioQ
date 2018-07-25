@@ -394,7 +394,6 @@ void MainWindow::createMenu()
     saveStateAction = emulationMenu->addAction(tr("S&ave state"));
     loadStateAction = emulationMenu->addAction(tr("&Load state"));
     emulationMenu->addSeparator();
-    logAction = emulationMenu->addAction(tr("View Log..."));
 
     {
         QList<QKeySequence> seq;
@@ -436,7 +435,6 @@ void MainWindow::createMenu()
     connect(saveStateAction, SIGNAL(triggered()), &emulation, SLOT(saveState()));
     connect(loadStateAction, SIGNAL(triggered()), &emulation, SLOT(loadState()));
     connect(stopAction, SIGNAL(triggered()), this, SLOT(stopEmulator()));
-    connect(logAction, SIGNAL(triggered()), this, SLOT(openLog()));
 
 
     // Settings
@@ -464,6 +462,7 @@ void MainWindow::createMenu()
     viewMenu = new QMenu(tr("&View"), this);
     layoutMenu = viewMenu->addMenu(tr("&Layout"));
     layoutGroup = new QActionGroup(this);
+    logAction = viewMenu->addAction(tr("View Log..."));
 
     QList<QStringList> layouts;
     layouts << (QStringList() << tr("None")       << "none")
@@ -510,6 +509,7 @@ void MainWindow::createMenu()
 
     connect(layoutGroup, SIGNAL(triggered(QAction*)), this, SLOT(updateLayoutSetting()));
     connect(fullScreenAction, SIGNAL(triggered()), this, SLOT(updateFullScreenMode()));
+    connect(logAction, SIGNAL(triggered()), this, SLOT(openLog()));
 
 
     // Help
@@ -523,7 +523,6 @@ void MainWindow::createMenu()
 
     // Create list of actions that are enabled only when emulator is not running
     menuEnable << startAction
-               << logAction
                << openAction
                << refreshAction
                << downloadAction
@@ -885,7 +884,7 @@ void MainWindow::openGameSettings()
 
 void MainWindow::openLog()
 {
-    LogDialog logDialog("TODO: do something", this);
+    LogDialog logDialog(this);
     logDialog.exec();
 }
 

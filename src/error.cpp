@@ -2,6 +2,14 @@
 
 #include <QMessageBox>
 
+static std::vector<LogLine> logLines;
+
+
+const std::vector<LogLine> &getLogLines()
+{
+    return logLines;
+}
+
 const char *m64errstr(m64p_error errorValue)
 {
     switch (errorValue) {
@@ -33,8 +41,7 @@ LogLevel levelFromM64(m64p_msg_level level)
     }
 }
 
-static const char *
-errorLevelToName(LogLevel level, bool shortName = false)
+const char *errorLevelToName(LogLevel level, bool shortName)
 {
     if (shortName) {
         switch (level) {
@@ -76,10 +83,17 @@ static void logToConsole(LogLevel level, const char *from,
     printf("\n");
 }
 
+static void logToMemory(LogLevel level, const char *from,
+        const char *msg, const char *details)
+{
+    logLines.push_back(LogLine(level, from, msg, details));
+}
+
 void logError(LogLevel level, const char *from,
         const char *msg, const char *details)
 {
     logToConsole(level, from, msg, details);
+    logToMemory(level, from, msg, details);
 }
 
 static QMessageBox::Icon errorLevelToQtIcon(LogLevel level)
