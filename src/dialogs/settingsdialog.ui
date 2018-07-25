@@ -36,7 +36,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="pathsWidget">
       <attribute name="title">
@@ -1187,28 +1187,14 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="2">
-          <widget class="QCheckBox" name="saveOption">
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0" colspan="2">
-          <widget class="QLabel" name="saveLabel">
-           <property name="text">
-            <string>Save Options:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
+         <item row="1" column="0">
           <widget class="QLabel" name="languageLabel">
            <property name="text">
             <string>Language:</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="1" colspan="2">
+         <item row="1" column="1" colspan="2">
           <widget class="QComboBox" name="languageBox"/>
          </item>
         </layout>
@@ -1314,7 +1300,6 @@
   <tabstop>listSortBox</tabstop>
   <tabstop>listDescendingOption</tabstop>
   <tabstop>downloadOption</tabstop>
-  <tabstop>saveOption</tabstop>
   <tabstop>languageBox</tabstop>
  </tabstops>
  <resources/>

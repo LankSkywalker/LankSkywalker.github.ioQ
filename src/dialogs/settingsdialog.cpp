@@ -383,9 +383,6 @@ SettingsDialog::SettingsDialog(QWidget *parent, int activeTab) : QDialog(parent)
     } else
         toggleDownload(false);
 
-    if (SETTINGS.value("saveoptions", "").toString() == "true")
-        ui->saveOption->setChecked(true);
-
     for (int i = 0; i < languages.length(); i++)
     {
         ui->languageBox->insertItem(i, languages.at(i).at(0), languages.at(i).at(1));
@@ -605,12 +602,6 @@ void SettingsDialog::editSettings()
     else
         SETTINGS.setValue("List/sortdirection", "ascending");
 
-
-    //Other tab
-    if (ui->saveOption->isChecked())
-        SETTINGS.setValue("saveoptions", true);
-    else
-        SETTINGS.setValue("saveoptions", "");
 
     SETTINGS.setValue("language", ui->languageBox->itemData(ui->languageBox->currentIndex()));
 
