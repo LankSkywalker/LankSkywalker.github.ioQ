@@ -439,6 +439,7 @@ void MainWindow::createMenu()
 
     // Settings
     settingsMenu = new QMenu(tr("&Settings"), this);
+    pluginsAction = settingsMenu->addAction(tr("Plugins..."));
     editorAction = settingsMenu->addAction(tr("Edit mupen64plus.cfg..."));
     settingsMenu->addSeparator();
     configureGameAction = settingsMenu->addAction(tr("Configure &Game..."));
@@ -453,6 +454,7 @@ void MainWindow::createMenu()
 
     menuBar->addMenu(settingsMenu);
 
+    connect(pluginsAction, SIGNAL(triggered()), this, SLOT(openPlugins()));
     connect(editorAction, SIGNAL(triggered()), this, SLOT(openEditor()));
     connect(configureGameAction, SIGNAL(triggered()), this, SLOT(openGameSettings()));
     connect(configureAction, SIGNAL(triggered()), this, SLOT(openSettings()));
@@ -855,6 +857,12 @@ void MainWindow::openDownloader()
 }
 
 
+void MainWindow::openPlugins()
+{
+    openSettings(3);
+}
+
+
 void MainWindow::openEditor()
 {
     QString configPath = SETTINGS.value("Paths/config", "").toString();
@@ -891,11 +899,17 @@ void MainWindow::openLog()
 
 void MainWindow::openSettings()
 {
+    openSettings(0);
+}
+
+
+void MainWindow::openSettings(int tab)
+{
     QString tableImageBefore = SETTINGS.value("Table/imagesize", "Medium").toString();
     QString columnsBefore = SETTINGS.value("Table/columns", "Filename|Size").toString();
     QString downloadBefore = SETTINGS.value("Other/downloadinfo", "").toString();
 
-    SettingsDialog settingsDialog(this, 0);
+    SettingsDialog settingsDialog(this, tab);
     settingsDialog.exec();
 
     QString tableImageAfter = SETTINGS.value("Table/imagesize", "Medium").toString();

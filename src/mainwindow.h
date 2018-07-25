@@ -74,6 +74,7 @@ private:
     void openZipDialog(QStringList zippedFiles);
     void resetLayouts(bool imageUpdated = false);
     void showActiveView();
+    void openSettings(int tab);
 
     QString getCurrentRomInfoFromView(QString infoName);
     QString openPath;
@@ -83,6 +84,7 @@ private:
     QAction *configureGameAction;
     QAction *deleteAction;
     QAction *downloadAction;
+    QAction *pluginsAction;
     QAction *editorAction;
     QAction *fullScreenAction;
     QAction *logAction;
@@ -143,6 +145,7 @@ private slots:
     void openAboutGui();
     void openDeleteDialog();
     void openDownloader();
+    void openPlugins();
     void openEditor();
     void openGameSettings();
     void openLog();
