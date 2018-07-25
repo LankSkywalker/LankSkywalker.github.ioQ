@@ -380,6 +380,7 @@ void MainWindow::createMenu()
     startAction = emulationMenu->addAction(tr("&Start"));
     resumeAction = emulationMenu->addAction(tr("Re&sume"));
     pauseAction = emulationMenu->addAction(tr("Pau&se"));
+    frameAction = emulationMenu->addAction(tr("Advance &frame"));
     resetAction = emulationMenu->addAction(tr("&Reset"));
     stopAction = emulationMenu->addAction(tr("St&op"));
     emulationMenu->addSeparator();
@@ -399,17 +400,20 @@ void MainWindow::createMenu()
         seq << Qt::Key_F9 << Qt::Key_F1;
         resetAction->setShortcuts(seq);
     }
+    frameAction->setShortcut(Qt::Key_Period);
     saveStateAction->setShortcut(Qt::Key_F5);
     loadStateAction->setShortcut(Qt::Key_F7);
 
     startAction->setIcon(QIcon::fromTheme("media-playback-start"));
     resumeAction->setIcon(QIcon::fromTheme("media-playback-start"));
     pauseAction->setIcon(QIcon::fromTheme("media-playback-pause"));
+    frameAction->setIcon(QIcon::fromTheme("go-next"));
     stopAction->setIcon(QIcon::fromTheme("media-playback-stop"));
 
     startAction->setEnabled(false);
     resumeAction->setVisible(false);
     pauseAction->setVisible(false);
+    frameAction->setEnabled(false);
     resetAction->setEnabled(false);
     stopAction->setEnabled(false);
     saveStateAction->setEnabled(false);
@@ -420,6 +424,7 @@ void MainWindow::createMenu()
     connect(startAction, SIGNAL(triggered()), this, SLOT(launchRomFromMenu()));
     connect(resumeAction, SIGNAL(triggered()), &emulation, SLOT(play()));
     connect(pauseAction, SIGNAL(triggered()), &emulation, SLOT(pause()));
+    connect(frameAction, SIGNAL(triggered()), &emulation, SLOT(advanceFrame()));
     connect(resetAction, SIGNAL(triggered()), &emulation, SLOT(resetSoft()));
     connect(saveStateAction, SIGNAL(triggered()), &emulation, SLOT(saveState()));
     connect(loadStateAction, SIGNAL(triggered()), &emulation, SLOT(loadState()));
@@ -524,6 +529,7 @@ void MainWindow::createMenu()
     menuDisable << stopAction
                 << resumeAction
                 << pauseAction
+                << frameAction
                 << resetAction
                 << saveStateAction
                 << loadStateAction;

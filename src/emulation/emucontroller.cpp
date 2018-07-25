@@ -57,6 +57,12 @@ void EmuController::pause()
 }
 
 
+void EmuController::advanceFrame()
+{
+    Emu::advanceFrame();
+}
+
+
 void EmuController::saveState()
 {
     Emu::saveState();

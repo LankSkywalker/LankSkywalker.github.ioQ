@@ -163,6 +163,12 @@ void Emu::pause()
 }
 
 
+void Emu::advanceFrame()
+{
+    CoreDoCommand(M64CMD_ADVANCE_FRAME, 0, NULL);
+}
+
+
 void Emu::saveState()
 {
     m64p_error rval;

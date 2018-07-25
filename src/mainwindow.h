@@ -92,6 +92,7 @@ private:
     QAction *startAction;
     QAction *resumeAction;
     QAction *pauseAction;
+    QAction *frameAction;
     QAction *resetAction;
     QAction *saveStateAction;
     QAction *loadStateAction;

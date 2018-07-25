@@ -21,6 +21,7 @@ public:
 public slots:
     void play();
     void pause();
+    void advanceFrame();
     void saveState();
     void loadState();
     void setSaveSlot(int n);
