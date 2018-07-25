@@ -6,6 +6,8 @@
 #include "osal/osal_dynamiclib.h"
 #include "osal/osal_preproc.h"
 
+#include <m64p_config.h>
+
 #include <cassert>
 #include <QObject>
 #include <QMessageBox>

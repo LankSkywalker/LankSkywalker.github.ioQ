@@ -31,6 +31,7 @@
 
 #include "settingsdialog.h"
 #include "ui_settingsdialog.h"
+#include "pluginconfigdialog.h"
 
 #include "../global.h"
 #include "../common.h"
@@ -154,6 +155,15 @@ SettingsDialog::SettingsDialog(QWidget *parent, int activeTab) : QDialog(parent)
     ui->audioBox->insertItems(0, audioPlugins);
     ui->inputBox->insertItems(0, inputPlugins);
     ui->rspBox->insertItems(0, rspPlugins);
+
+    connect(ui->videoConfigure, SIGNAL(clicked()),
+            this, SLOT(openVideoPluginConfig()));
+    connect(ui->audioConfigure, SIGNAL(clicked()),
+            this, SLOT(openAudioPluginConfig()));
+    connect(ui->inputConfigure, SIGNAL(clicked()),
+            this, SLOT(openInputPluginConfig()));
+    connect(ui->rspConfigure, SIGNAL(clicked()),
+            this, SLOT(openRspPluginConfig()));
 
     //Set Rice as default
     QString videoDefault = "";
@@ -929,4 +939,28 @@ void SettingsDialog::updateLanguageInfo()
         ui->languageInfoLabel->setText(translator.translate("SettingsDialog", sourceText));
     } else
         ui->languageInfoLabel->setText(sourceText);
+}
+
+
+void SettingsDialog::openVideoPluginConfig()
+{
+    PluginConfigDialog(ui->videoBox->currentText(), this).exec();
+}
+
+
+void SettingsDialog::openAudioPluginConfig()
+{
+    PluginConfigDialog(ui->audioBox->currentText(), this).exec();
+}
+
+
+void SettingsDialog::openInputPluginConfig()
+{
+    PluginConfigDialog(ui->inputBox->currentText(), this).exec();
+}
+
+
+void SettingsDialog::openRspPluginConfig()
+{
+    PluginConfigDialog(ui->rspBox->currentText(), this).exec();
 }

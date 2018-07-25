@@ -92,6 +92,11 @@ private slots:
     void toggleLabel(bool active);
     void toggleListCover(bool active);
     void updateLanguageInfo();
+
+    void openVideoPluginConfig();
+    void openAudioPluginConfig();
+    void openInputPluginConfig();
+    void openRspPluginConfig();
 };
 
 #endif // SETTINGSDIALOG_H

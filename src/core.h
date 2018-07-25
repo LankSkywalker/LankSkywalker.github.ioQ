@@ -5,6 +5,7 @@
 #include <m64p_common.h>
 #include <m64p_frontend.h>
 #include <m64p_types.h>
+#include <m64p_config.h>
 
 class Core
 {
@@ -22,5 +23,6 @@ private:
     static Core *instance;
     m64p_dynlib_handle libhandle;
 };
+
 
 #endif // CORE_H

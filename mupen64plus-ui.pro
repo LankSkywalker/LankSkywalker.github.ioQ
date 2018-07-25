@@ -28,6 +28,7 @@ SOURCES += src/main.cpp \
     src/dialogs/downloaddialog.cpp \
     src/dialogs/gamesettingsdialog.cpp \
     src/dialogs/logdialog.cpp \
+    src/dialogs/pluginconfigdialog.cpp \
     src/dialogs/settingsdialog.cpp \
     src/emulation/emu.cpp \
     src/emulation/emucontroller.cpp \
@@ -55,6 +56,7 @@ HEADERS += src/global.h \
     src/dialogs/downloaddialog.h \
     src/dialogs/gamesettingsdialog.h \
     src/dialogs/logdialog.h \
+    src/dialogs/pluginconfigdialog.h \
     src/dialogs/settingsdialog.h \
     src/emulation/emu.h \
     src/emulation/emucontroller.h \
