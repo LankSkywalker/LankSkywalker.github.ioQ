@@ -191,3 +191,13 @@ void Emu::setSaveSlot(int n)
         LOG_W(TR("Could not set save slot: ") + m64errstr(rval));
     }
 }
+
+
+void Emu::reset(bool hard)
+{
+    m64p_error rval;
+    rval = CoreDoCommand(M64CMD_RESET, hard ? 1 : 0, NULL);
+    if (rval != M64ERR_SUCCESS) {
+        LOG_W(TR("Could not reset: ") + m64errstr(rval));
+    }
+}

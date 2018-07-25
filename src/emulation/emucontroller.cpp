@@ -73,3 +73,15 @@ void EmuController::setSaveSlot(int n)
 {
     Emu::setSaveSlot(n);
 }
+
+
+void EmuController::resetSoft()
+{
+    Emu::reset(false);
+}
+
+
+void EmuController::resetHard()
+{
+    Emu::reset(true);
+}

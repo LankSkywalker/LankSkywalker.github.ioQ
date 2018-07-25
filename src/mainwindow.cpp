@@ -380,6 +380,7 @@ void MainWindow::createMenu()
     startAction = emulationMenu->addAction(tr("&Start"));
     resumeAction = emulationMenu->addAction(tr("Re&sume"));
     pauseAction = emulationMenu->addAction(tr("Pau&se"));
+    resetAction = emulationMenu->addAction(tr("&Reset"));
     stopAction = emulationMenu->addAction(tr("St&op"));
     emulationMenu->addSeparator();
     saveStateAction = emulationMenu->addAction(tr("S&ave state"));
@@ -393,6 +394,11 @@ void MainWindow::createMenu()
         resumeAction->setShortcuts(seq);
         pauseAction->setShortcuts(seq);
     }
+    {
+        QList<QKeySequence> seq;
+        seq << Qt::Key_F9 << Qt::Key_F1;
+        resetAction->setShortcuts(seq);
+    }
     saveStateAction->setShortcut(Qt::Key_F5);
     loadStateAction->setShortcut(Qt::Key_F7);
 
@@ -404,6 +410,7 @@ void MainWindow::createMenu()
     startAction->setEnabled(false);
     resumeAction->setVisible(false);
     pauseAction->setVisible(false);
+    resetAction->setEnabled(false);
     stopAction->setEnabled(false);
     saveStateAction->setEnabled(false);
     loadStateAction->setEnabled(false);
@@ -413,6 +420,7 @@ void MainWindow::createMenu()
     connect(startAction, SIGNAL(triggered()), this, SLOT(launchRomFromMenu()));
     connect(resumeAction, SIGNAL(triggered()), &emulation, SLOT(play()));
     connect(pauseAction, SIGNAL(triggered()), &emulation, SLOT(pause()));
+    connect(resetAction, SIGNAL(triggered()), &emulation, SLOT(resetSoft()));
     connect(saveStateAction, SIGNAL(triggered()), &emulation, SLOT(saveState()));
     connect(loadStateAction, SIGNAL(triggered()), &emulation, SLOT(loadState()));
     connect(stopAction, SIGNAL(triggered()), this, SLOT(stopEmulator()));
@@ -516,6 +524,7 @@ void MainWindow::createMenu()
     menuDisable << stopAction
                 << resumeAction
                 << pauseAction
+                << resetAction
                 << saveStateAction
                 << loadStateAction;
 

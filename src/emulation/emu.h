@@ -12,6 +12,7 @@ namespace Emu
     void saveState();
     void loadState();
     void setSaveSlot(int n);
+    void reset(bool hard);
 }
 
 #endif // EMU_H

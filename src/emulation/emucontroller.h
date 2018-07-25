@@ -24,6 +24,8 @@ public slots:
     void saveState();
     void loadState();
     void setSaveSlot(int n);
+    void resetSoft();
+    void resetHard();
 
 signals:
     void createGlWindow(QSurfaceFormat *format);
