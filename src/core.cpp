@@ -25,9 +25,7 @@ void debugCallback(void *context, int level, const char *message)
 {
     const char *contextStr = (const char *)context;
     LogLevel l = levelFromM64((m64p_msg_level)level);
-    if (l <= L_WARN) {
-        LOG(l, contextStr, message);
-    }
+    LOG(l, contextStr, message);
 }
 
 void coreStateCallback(void *context, m64p_core_param param, int value)

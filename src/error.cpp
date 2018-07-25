@@ -37,7 +37,9 @@ LogLevel levelFromM64(m64p_msg_level level)
     switch (level) {
     case M64MSG_ERROR:   return L_ERR;
     case M64MSG_WARNING: return L_WARN;
-    default:             return L_INFO;
+    case M64MSG_INFO:    return L_INFO;
+    case M64MSG_STATUS:  return L_INFO;
+    case M64MSG_VERBOSE: return L_VERB;
     }
 }
 
@@ -63,6 +65,9 @@ const char *errorLevelToName(LogLevel level, bool shortName)
 static void logToConsole(LogLevel level, const char *from,
         const char *msg, const char *details)
 {
+    if (level > L_INFO) {
+        return;
+    }
     bool doColor = true;
     const char *color = "";
     switch (level) {
@@ -86,6 +91,9 @@ static void logToConsole(LogLevel level, const char *from,
 static void logToMemory(LogLevel level, const char *from,
         const char *msg, const char *details)
 {
+    if (level > L_INFO) {
+        return;
+    }
     logLines.push_back(LogLine(level, from, msg, details));
 }
 
