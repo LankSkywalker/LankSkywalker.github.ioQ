@@ -528,6 +528,7 @@ void MainWindow::createMenu()
                << openAction
                << refreshAction
                << downloadAction
+               << pluginsAction
                << deleteAction
                << configureAction
                << configureGameAction
