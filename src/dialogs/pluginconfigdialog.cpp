@@ -171,7 +171,7 @@ PluginConfigDialog::PluginConfigDialog(const QString &name, QWidget *parent)
                     input->setValue(value);
                     input->setToolTip(help);
                     gridLayout->addWidget(input, col1row, 1, Qt::AlignLeft);
-                    ints.push_back({configHandle, name_ba, input});
+                    ints.push_back({configHandle, name, input, label, help_string});
                 } else {
                     QComboBox *input = new QComboBox();
                     input->setMinimumContentsLength(12);
@@ -186,7 +186,7 @@ PluginConfigDialog::PluginConfigDialog(const QString &name, QWidget *parent)
                     input->setCurrentIndex(selectedIndex);
                     input->setToolTip(help);
                     gridLayout->addWidget(input, col1row, 1, Qt::AlignLeft);
-                    combos.push_back({configHandle, name_ba, input});
+                    combos.push_back({configHandle, name, input, label, help_string});
                 }
             }
             col1row++;
@@ -201,7 +201,7 @@ PluginConfigDialog::PluginConfigDialog(const QString &name, QWidget *parent)
                 cb->setToolTip(help);
                 cb->setCheckState(value ? Qt::Checked : Qt::Unchecked);
                 gridLayout->addWidget(cb, col2row, 2, Qt::AlignLeft);
-                bools.push_back({configHandle, name_ba, cb});
+                bools.push_back({configHandle, name, cb, NULL, help_string});
             }
             col2row++;
             break;
@@ -215,7 +215,7 @@ PluginConfigDialog::PluginConfigDialog(const QString &name, QWidget *parent)
                 input->setToolTip(help);
                 input->setText(value);
                 gridLayout->addWidget(input, col1row, 1, Qt::AlignLeft);
-                strings.push_back({configHandle, name_ba, input});
+                strings.push_back({configHandle, name, input, label, help_string});
             }
             col1row++;
             break;
@@ -224,10 +224,19 @@ PluginConfigDialog::PluginConfigDialog(const QString &name, QWidget *parent)
 
     layout->addWidget(scrollArea);
 
+    QLineEdit *search = new QLineEdit();
+    connect(search, SIGNAL(textEdited(const QString &)),
+            this, SLOT(search(const QString &)));
+
+    QBoxLayout *boxLayout = new QBoxLayout(QBoxLayout::LeftToRight);
+    boxLayout->addWidget(new QLabel("Search:"));
+    boxLayout->addWidget(search);
+    layout->addLayout(boxLayout);
+
     QDialogButtonBox *buttons = new QDialogButtonBox();
     buttons->addButton(QDialogButtonBox::Ok);
     buttons->addButton(QDialogButtonBox::Cancel);
-    layout->addWidget(buttons);
+    boxLayout->addWidget(buttons);
 
     connect(buttons, SIGNAL(accepted()), this, SLOT(accept()));
     connect(buttons, SIGNAL(rejected()), this, SLOT(reject()));
@@ -239,26 +248,22 @@ PluginConfigDialog::PluginConfigDialog(const QString &name, QWidget *parent)
 
 void PluginConfigDialog::accept()
 {
-    for (size_t i = 0; i < ints.size(); i++) {
-        ConfItem<QSpinBox> &o = ints[i];
+    for (auto &o : ints) {
         int value = o.value->value();
-        ConfigSetParameter(o.handle, o.name.data(), M64TYPE_INT, &value);
+        ConfigSetParameter(o.handle, o.name.toUtf8().data(), M64TYPE_INT, &value);
     }
-    for (size_t i = 0; i < combos.size(); i++) {
-        ConfItem<QComboBox> &o = combos[i];
+    for (auto &o : combos) {
         int value = o.value->currentData().toInt();
-        ConfigSetParameter(o.handle, o.name.data(), M64TYPE_INT, &value);
+        ConfigSetParameter(o.handle, o.name.toUtf8().data(), M64TYPE_INT, &value);
     }
-    for (size_t i = 0; i < bools.size(); i++) {
-        ConfItem<QCheckBox> &o = bools[i];
+    for (auto &o : bools) {
         int value = o.value->isChecked();
-        ConfigSetParameter(o.handle, o.name.data(), M64TYPE_BOOL, &value);
+        ConfigSetParameter(o.handle, o.name.toUtf8().data(), M64TYPE_BOOL, &value);
     }
-    for (size_t i = 0; i < strings.size(); i++) {
-        ConfItem<QLineEdit> &o = strings[i];
+    for (auto &o : strings) {
         QByteArray value_ba = o.value->text().toUtf8();
         const char *value = value_ba.data();
-        ConfigSetParameter(o.handle, o.name.data(), M64TYPE_STRING, value);
+        ConfigSetParameter(o.handle, o.name.toUtf8().data(), M64TYPE_STRING, value);
     }
 
     m64p_error rval;
@@ -268,4 +273,45 @@ void PluginConfigDialog::accept()
     }
 
     close();
+}
+
+
+static bool matches(const QString &text, const QString &name, const QString &help)
+{
+    return text.isEmpty()
+        || help.contains(text, Qt::CaseInsensitive)
+        || name.contains(text, Qt::CaseInsensitive);
+}
+
+
+void PluginConfigDialog::search(const QString &text)
+{
+    for (auto &o : ints) {
+        bool m = matches(text, o.name, o.help);
+        o.value->setVisible(m);
+        if (o.label) {
+            o.label->setVisible(m);
+        }
+    }
+    for (auto &o : combos) {
+        bool m = matches(text, o.name, o.help);
+        o.value->setVisible(m);
+        if (o.label) {
+            o.label->setVisible(m);
+        }
+    }
+    for (auto &o : bools) {
+        bool m = matches(text, o.name, o.help);
+        o.value->setVisible(m);
+        if (o.label) {
+            o.label->setVisible(m);
+        }
+    }
+    for (auto &o : strings) {
+        bool m = matches(text, o.name, o.help);
+        o.value->setVisible(m);
+        if (o.label) {
+            o.label->setVisible(m);
+        }
+    }
 }

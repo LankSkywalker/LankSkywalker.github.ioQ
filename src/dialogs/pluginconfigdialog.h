@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <QDialog>
+#include <QLabel>
 class QAbstractButton;
 class QSpinBox;
 class QComboBox;
@@ -16,8 +17,10 @@ template <typename V>
 struct ConfItem
 {
     m64p_handle handle;
-    const QByteArray name;
-    const V *value;
+    QString name;
+    V *value;
+    QLabel *label;
+    QString help;
 };
 
 
@@ -30,6 +33,7 @@ public:
 
 private slots:
     void accept();
+    void search(const QString &text);
 
 private:
     QString sectionName;
