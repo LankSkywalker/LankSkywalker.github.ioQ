@@ -58,7 +58,7 @@ static QString toReadableName(QString name, QString help)
         .split(" (")[0]
         .split(". ")[0];
     if (firstPart.length() > 0 && firstPart[firstPart.length() - 1] == '.') {
-        firstPart.truncate(firstPart.length() - 1);
+        firstPart.chop(1);
     }
 
     if (firstPart.length() < 35 && firstPart.length() > niceName.length()) {
