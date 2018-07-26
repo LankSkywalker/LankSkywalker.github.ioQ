@@ -22,8 +22,8 @@ static QString camelSpaced(const QString &s)
     bool lastUpper = false;
     for (int i = 0; i < s.length(); i++) {
         bool isLast = i == s.length() - 1;
-        bool isUpper = s[i] >= 'A' && s[i] <= 'Z';
-        bool nextUpper = !isLast && s[i+1] >= 'A' && s[i+1] <= 'Z';
+        bool isUpper = s[i].isUpper();
+        bool nextUpper = !isLast && s[i+1].isUpper();
         if (isUpper && (!lastUpper || !nextUpper) && i > 0 && !isLast) {
             ret += " ";
         }
