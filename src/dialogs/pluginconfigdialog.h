@@ -7,6 +7,7 @@
 #include <QDialog>
 class QAbstractButton;
 class QSpinBox;
+class QComboBox;
 class QCheckBox;
 class QLineEdit;
 
@@ -33,6 +34,7 @@ private slots:
 private:
     QString sectionName;
     std::vector<ConfItem<QSpinBox>> ints;
+    std::vector<ConfItem<QComboBox>> combos;
     std::vector<ConfItem<QCheckBox>> bools;
     std::vector<ConfItem<QLineEdit>> strings;
 };

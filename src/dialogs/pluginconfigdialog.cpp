@@ -12,6 +12,8 @@
 #include <QSpinBox>
 #include <QDialogButtonBox>
 #include <QAbstractButton>
+#include <QComboBox>
+#include <QRegularExpression>
 
 #include <string>
 
@@ -56,7 +58,8 @@ static QString toReadableName(QString name, QString help)
         .split(":")[0]
         .split(" -- ")[0]
         .split(" (")[0]
-        .split(". ")[0];
+        .split(". ")[0]
+        .trimmed();
     if (firstPart.length() > 0 && firstPart[firstPart.length() - 1] == '.') {
         firstPart.chop(1);
     }
@@ -66,6 +69,33 @@ static QString toReadableName(QString name, QString help)
     } else {
         return niceName;
     }
+}
+
+
+struct IntOption
+{
+    int number;
+    QString desc;
+};
+
+static std::vector<IntOption> helpToOptions(const QString &help)
+{
+    QRegularExpression re("((?:[<>]=?)?[\\d,-]+)\\s?=\\s?([\\w/ %:-]+)");
+    std::vector<IntOption> ret;
+    auto matches = re.globalMatch(help);
+    while (matches.hasNext()) {
+        auto m = matches.next();
+        if (m.captured(1).indexOf('-') > 0
+                || m.captured(1).contains(',')
+                || m.captured(1).contains('<')
+                || m.captured(1).contains('>')) {
+            return {};
+        }
+        int n = m.captured(1).toInt();
+        QString s = m.captured(2) + " [" + QString::number(n) + "]";
+        ret.push_back({n, s});
+    }
+    return ret;
 }
 
 
@@ -133,13 +163,31 @@ PluginConfigDialog::PluginConfigDialog(const QString &name, QWidget *parent)
                 QLabel *label = new QLabel(desc);
                 label->setToolTip(help);
                 gridLayout->addWidget(label, col1row, 0, Qt::AlignRight);
-                QSpinBox *input = new QSpinBox();
-                input->setMinimum(-99999);
-                input->setMaximum(99999);
-                input->setValue(value);
-                input->setToolTip(help);
-                gridLayout->addWidget(input, col1row, 1, Qt::AlignLeft);
-                ints.push_back({configHandle, name_ba, input});
+                std::vector<IntOption> options = helpToOptions(help_string);
+                if (options.empty()) {
+                    QSpinBox *input = new QSpinBox();
+                    input->setMinimum(-99999);
+                    input->setMaximum(99999);
+                    input->setValue(value);
+                    input->setToolTip(help);
+                    gridLayout->addWidget(input, col1row, 1, Qt::AlignLeft);
+                    ints.push_back({configHandle, name_ba, input});
+                } else {
+                    QComboBox *input = new QComboBox();
+                    input->setMinimumContentsLength(12);
+                    int selectedIndex = -1;
+                    for (size_t i = 0; i < options.size(); i++) {
+                        IntOption &o = options[i];
+                        input->addItem(o.desc, o.number);
+                        if (o.number == value) {
+                            selectedIndex = i;
+                        }
+                    }
+                    input->setCurrentIndex(selectedIndex);
+                    input->setToolTip(help);
+                    gridLayout->addWidget(input, col1row, 1, Qt::AlignLeft);
+                    combos.push_back({configHandle, name_ba, input});
+                }
             }
             col1row++;
             break;
@@ -185,7 +233,7 @@ PluginConfigDialog::PluginConfigDialog(const QString &name, QWidget *parent)
     connect(buttons, SIGNAL(rejected()), this, SLOT(reject()));
 
     setLayout(layout);
-    resize(700, 500);
+    resize(740, 500);
 }
 
 
@@ -194,6 +242,11 @@ void PluginConfigDialog::accept()
     for (size_t i = 0; i < ints.size(); i++) {
         ConfItem<QSpinBox> &o = ints[i];
         int value = o.value->value();
+        ConfigSetParameter(o.handle, o.name.data(), M64TYPE_INT, &value);
+    }
+    for (size_t i = 0; i < combos.size(); i++) {
+        ConfItem<QComboBox> &o = combos[i];
+        int value = o.value->currentData().toInt();
         ConfigSetParameter(o.handle, o.name.data(), M64TYPE_INT, &value);
     }
     for (size_t i = 0; i < bools.size(); i++) {
