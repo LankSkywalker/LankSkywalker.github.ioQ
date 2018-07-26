@@ -36,6 +36,8 @@ private slots:
     void search(const QString &text);
 
 private:
+    void loadUnloadPlugin(const char *name);
+
     QString sectionName;
     std::vector<ConfItem<QSpinBox>> ints;
     std::vector<ConfItem<QComboBox>> combos;

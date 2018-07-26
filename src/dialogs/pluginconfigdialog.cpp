@@ -2,6 +2,8 @@
 #include "../core.h"
 #include "../error.h"
 #include "../common.h"
+#include "../global.h"
+#include "../plugin.h"
 
 #include <QGridLayout>
 #include <QScrollArea>
@@ -143,6 +145,8 @@ static void receiveParameter(void *listp, const char *name, m64p_type type)
 PluginConfigDialog::PluginConfigDialog(const QString &name, QWidget *parent)
     : QDialog(parent)
 {
+    loadUnloadPlugin(name.toUtf8().data());
+
     sectionName = toSectionName(name);
     m64p_handle configHandle;
     m64p_error rval;
@@ -334,5 +338,20 @@ void PluginConfigDialog::search(const QString &text)
         if (o.label) {
             o.label->setVisible(m);
         }
+    }
+}
+
+
+static QString nameToType(const QString &name)
+{
+    return name.section('-', 1, 1);
+}
+
+
+void PluginConfigDialog::loadUnloadPlugin(const char *name)
+{
+    m64p_dynlib_handle h;
+    if (openPlugin(h, name, nameToType(name).toUtf8().data())) {
+        closePlugin(h);
     }
 }
