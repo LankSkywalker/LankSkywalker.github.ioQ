@@ -290,32 +290,40 @@ void MainWindow::autoloadSettings()
         QString ext = OSAL_DLL_EXTENSION;
 
         // Video
-        QString defaultVideoPlugin = "mupen64plus-video-rice";
-        if (dir.exists(defaultVideoPlugin + ext)) {
-            SETTINGS.setValue("Plugins/video", defaultVideoPlugin);
-        } else {
-            QFileInfoList files = dir.entryInfoList({"mupen64plus-video-*" + ext});
-            if (!files.empty()) {
-                SETTINGS.setValue("Plugins/video", files.first().baseName());
+        if (!SETTINGS.contains("Plugins/video")) {
+            QString defaultVideoPlugin = "mupen64plus-video-rice";
+            if (dir.exists(defaultVideoPlugin + ext)) {
+                SETTINGS.setValue("Plugins/video", defaultVideoPlugin);
+            } else {
+                QFileInfoList files = dir.entryInfoList({"mupen64plus-video-*" + ext});
+                if (!files.empty()) {
+                    SETTINGS.setValue("Plugins/video", files.first().baseName());
+                }
             }
         }
 
         // Audio
-        QFileInfoList audioFiles = dir.entryInfoList({"mupen64plus-audio-*" + ext});
-        if (!audioFiles.empty()) {
-            SETTINGS.setValue("Plugins/audio", audioFiles.first().baseName());
+        if (!SETTINGS.contains("Plugins/audio")) {
+            QFileInfoList audioFiles = dir.entryInfoList({"mupen64plus-audio-*" + ext});
+            if (!audioFiles.empty()) {
+                SETTINGS.setValue("Plugins/audio", audioFiles.first().baseName());
+            }
         }
 
         // Input
-        QFileInfoList inputFiles = dir.entryInfoList({"mupen64plus-input-*" + ext});
-        if (!inputFiles.empty()) {
-            SETTINGS.setValue("Plugins/input", inputFiles.first().baseName());
+        if (!SETTINGS.contains("Plugins/input")) {
+            QFileInfoList inputFiles = dir.entryInfoList({"mupen64plus-input-*" + ext});
+            if (!inputFiles.empty()) {
+                SETTINGS.setValue("Plugins/input", inputFiles.first().baseName());
+            }
         }
 
         // Rsp
-        QFileInfoList rspFiles = dir.entryInfoList({"mupen64plus-rsp-*" + ext});
-        if (!rspFiles.empty()) {
-            SETTINGS.setValue("Plugins/rsp", rspFiles.first().baseName());
+        if (!SETTINGS.contains("Plugins/rsp")) {
+            QFileInfoList rspFiles = dir.entryInfoList({"mupen64plus-rsp-*" + ext});
+            if (!rspFiles.empty()) {
+                SETTINGS.setValue("Plugins/rsp", rspFiles.first().baseName());
+            }
         }
     }
 
