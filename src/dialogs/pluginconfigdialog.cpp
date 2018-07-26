@@ -95,6 +95,27 @@ static std::vector<IntOption> helpToOptions(const QString &help)
         QString s = m.captured(2) + " [" + QString::number(n) + "]";
         ret.push_back({n, s});
     }
+
+    // Fix options that have flags (1, 2, 4...) but no 0.
+    if (!ret.empty()) {
+        bool noProblem = false;
+        int expected = 1;
+        for (auto &o : ret) {
+            if (o.number == 0) {
+                noProblem = true;
+                break;
+            }
+            if (o.number != expected) {
+                noProblem = true;
+                break;
+            }
+            expected *= 2;
+        }
+        if (!noProblem) {
+            ret.insert(ret.begin(), {0, QString("None [0]")});
+        }
+    }
+
     return ret;
 }
 
