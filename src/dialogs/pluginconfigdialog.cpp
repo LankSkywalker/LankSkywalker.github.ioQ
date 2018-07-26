@@ -150,7 +150,7 @@ PluginConfigDialog::PluginConfigDialog(const QString &name, QWidget *parent)
         const char *name_cp = name_ba.data();
         QString name = p.name;
         QString help_string = ConfigGetParameterHelp(configHandle, name_cp);
-        QString help = "<p>[" + name + "]</p>"
+        QString help_html = "<p>[" + name + "]</p>"
             + "<p>"
             + QString(help_string).replace(": ", ":</p><p>")
             + "</p>";
@@ -161,7 +161,7 @@ PluginConfigDialog::PluginConfigDialog(const QString &name, QWidget *parent)
             {
                 int value = ConfigGetParamInt(configHandle, name_cp);
                 QLabel *label = new QLabel(desc);
-                label->setToolTip(help);
+                label->setToolTip(help_html);
                 gridLayout->addWidget(label, col1row, 0, Qt::AlignRight);
                 std::vector<IntOption> options = helpToOptions(help_string);
                 if (options.empty()) {
@@ -169,7 +169,7 @@ PluginConfigDialog::PluginConfigDialog(const QString &name, QWidget *parent)
                     input->setMinimum(-99999);
                     input->setMaximum(99999);
                     input->setValue(value);
-                    input->setToolTip(help);
+                    input->setToolTip(help_html);
                     gridLayout->addWidget(input, col1row, 1, Qt::AlignLeft);
                     ints.push_back({configHandle, name, input, label, help_string});
                 } else {
@@ -184,7 +184,7 @@ PluginConfigDialog::PluginConfigDialog(const QString &name, QWidget *parent)
                         }
                     }
                     input->setCurrentIndex(selectedIndex);
-                    input->setToolTip(help);
+                    input->setToolTip(help_html);
                     gridLayout->addWidget(input, col1row, 1, Qt::AlignLeft);
                     combos.push_back({configHandle, name, input, label, help_string});
                 }
@@ -198,7 +198,7 @@ PluginConfigDialog::PluginConfigDialog(const QString &name, QWidget *parent)
             {
                 bool value = ConfigGetParamBool(configHandle, name_cp);
                 QCheckBox *cb = new QCheckBox(desc);
-                cb->setToolTip(help);
+                cb->setToolTip(help_html);
                 cb->setCheckState(value ? Qt::Checked : Qt::Unchecked);
                 gridLayout->addWidget(cb, col2row, 2, Qt::AlignLeft);
                 bools.push_back({configHandle, name, cb, NULL, help_string});
@@ -209,10 +209,10 @@ PluginConfigDialog::PluginConfigDialog(const QString &name, QWidget *parent)
             {
                 const char *value = ConfigGetParamString(configHandle, name_cp);
                 QLabel *label = new QLabel(desc);
-                label->setToolTip(help);
+                label->setToolTip(help_html);
                 gridLayout->addWidget(label, col1row, 0, Qt::AlignRight);
                 QLineEdit *input = new QLineEdit();
-                input->setToolTip(help);
+                input->setToolTip(help_html);
                 input->setText(value);
                 gridLayout->addWidget(input, col1row, 1, Qt::AlignLeft);
                 strings.push_back({configHandle, name, input, label, help_string});
