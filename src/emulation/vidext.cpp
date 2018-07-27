@@ -45,9 +45,10 @@ static m64p_error setMode(int width, int height, int, int mode, int)
     glWindow->makeCurrent();
 }
 
-static void *glGetProc(const char *proc)
+static void *glGetProc(const char *name)
 {
     LOG(L_VERB, FROM, "glGetProc");
+    return (void *)glWindow->context()->getProcAddress(name);
 }
 
 static m64p_error glSetAttr(m64p_GLattr attr, int value)
