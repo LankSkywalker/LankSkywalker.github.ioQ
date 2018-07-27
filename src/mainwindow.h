@@ -113,6 +113,7 @@ private:
     QMenu *emulationMenu;
     QMenu *fileMenu;
     QMenu *helpMenu;
+    QMenu *slotMenu;
     QMenu *layoutMenu;
     QMenu *settingsMenu;
     QMenu *viewMenu;

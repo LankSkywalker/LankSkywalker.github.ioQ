@@ -70,6 +70,7 @@
 #include <QCoreApplication>
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QActionGroup>
 
 extern EmuController emulation;
 
@@ -442,7 +443,19 @@ void MainWindow::createMenu()
     emulationMenu->addSeparator();
     saveStateAction = emulationMenu->addAction(tr("S&ave state"));
     loadStateAction = emulationMenu->addAction(tr("&Load state"));
-    emulationMenu->addSeparator();
+    slotMenu = emulationMenu->addMenu(tr("Select slo&t"));
+    QActionGroup *agroup = new QActionGroup(this);
+    for (int i = 0; i < 10; i++) {
+        QAction *a = slotMenu->addAction("Slot " + QString::number(i));
+        a->setActionGroup(agroup);
+        a->setCheckable(true);
+        a->setShortcut(Qt::Key_0 + i);
+        connect(a, &QAction::triggered, [i](bool checked) {
+            if (checked) {
+                Emu::setSaveSlot(i);
+            }
+        });
+    }
 
     {
         QList<QKeySequence> seq;

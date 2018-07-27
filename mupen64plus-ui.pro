@@ -109,3 +109,4 @@ win32|macx|linux_quazip_static {
 INCLUDEPATH += /usr/local/include/mupen64plus
 LIBS += -lmupen64plus
 LIBS += -ldl
+CONFIG += c++11
