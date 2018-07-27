@@ -292,7 +292,7 @@ void MainWindow::autoloadSettings()
 
         // Video
         if (!SETTINGS.contains("Plugins/video")) {
-            QString defaultVideoPlugin = "mupen64plus-video-rice";
+            QString defaultVideoPlugin = "mupen64plus-video-glide64mk2";
             if (dir.exists(defaultVideoPlugin + ext)) {
                 SETTINGS.setValue("Plugins/video", defaultVideoPlugin);
             } else {

@@ -163,10 +163,11 @@ SettingsDialog::SettingsDialog(QWidget *parent, int activeTab) : QDialog(parent)
     connect(ui->rspConfigure, SIGNAL(clicked()),
             this, SLOT(openRspPluginConfig()));
 
-    //Set Rice as default
+    // Set default video plugin
     QString videoDefault = "";
-    if (videoPlugins.contains("mupen64plus-video-rice"))
-        videoDefault = "mupen64plus-video-rice";
+    if (videoPlugins.contains("mupen64plus-video-glide64mk2")) {
+        videoDefault = "mupen64plus-video-glide64mk2";
+    }
 
     int videoIndex = videoPlugins.indexOf(SETTINGS.value("Plugins/video",videoDefault).toString());
     int audioIndex = audioPlugins.indexOf(SETTINGS.value("Plugins/audio","").toString());
