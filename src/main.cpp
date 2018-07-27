@@ -61,6 +61,9 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName(AppName);
     QCoreApplication::setApplicationName(AppName);
 
+    Core core;
+    core.init();
+
     MainWindow window;
 
     QString maximized = SETTINGS.value("Geometry/maximized", "").toString();
@@ -77,9 +80,6 @@ int main(int argc, char *argv[])
         window.move(QApplication::desktop()->screen()->rect().center()
                 - window.rect().center());
     }
-
-    Core core;
-    core.init();
 
     return application.exec();
 }

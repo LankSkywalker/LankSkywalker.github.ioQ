@@ -76,8 +76,6 @@ SettingsDialog::SettingsDialog(QWidget *parent, int activeTab) : QDialog(parent)
 
 
     //Populate Graphics tab
-    if (SETTINGS.value("Graphics/osd", "true").toString() == "true")
-        ui->osdOption->setChecked(true);
     if (SETTINGS.value("Graphics/hideCursor", "false").toString() == "true")
         ui->hideCursorOption->setChecked(true);
     if (SETTINGS.value("Graphics/fullscreen", "").toString() == "true")
@@ -501,11 +499,6 @@ void SettingsDialog::editSettings()
 
 
     //Graphics tab
-    if (ui->osdOption->isChecked())
-        SETTINGS.setValue("Graphics/osd", true);
-    else
-        SETTINGS.setValue("Graphics/osd", "");
-
     if (ui->hideCursorOption->isChecked())
         SETTINGS.setValue("Graphics/hideCursor", "true");
     else
