@@ -50,6 +50,8 @@ const QString GitHub = "<a href=\"https://github.com/robalni/mupen64plus-ui\">"
         + TR("GitHub repository")
         + "</a>";
 
+const QString TheGamesDBAPIKey = "5dd59a89da5c0018b0e9ded34e299cf675e94d51e229a19822074d1a67019f9f";
+
 #ifdef Q_OS_WIN
     #define SETTINGS    QSettings(AppNameLower+"-ui.ini", QSettings::IniFormat)
 #else
