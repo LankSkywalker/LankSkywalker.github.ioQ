@@ -209,7 +209,7 @@ void MainWindow::resizeWindow(int width, int height)
 
 void MainWindow::addToView(Rom *currentRom, int count)
 {
-    QString visibleLayout = SETTINGS.value("View/layout", "none").toString();
+    QString visibleLayout = SETTINGS.value("View/layout", "table").toString();
 
     if (visibleLayout == "table") {
         tableView->addToTableView(currentRom);
@@ -535,7 +535,7 @@ void MainWindow::createMenu()
             << (QStringList() << tr("Grid View")  << "grid")
             << (QStringList() << tr("List View")  << "list");
 
-    QString layoutValue = SETTINGS.value("View/layout", "none").toString();
+    QString layoutValue = SETTINGS.value("View/layout", "table").toString();
 
     foreach (QStringList layoutName, layouts) {
         QAction *layoutItem = layoutMenu->addAction(layoutName.at(0));
@@ -665,7 +665,7 @@ void MainWindow::createRomView()
     disabledView->setLayout(disabledLayout);
 
     QString disabledText = QString("Add a directory containing ROMs under ")
-                         + "Settings->Configure->Paths to use this view.";
+                         + "Settings->Configure->Paths.";
     disabledLabel = new QLabel(disabledText, disabledView);
     disabledLabel->setWordWrap(true);
     disabledLabel->setAlignment(Qt::AlignCenter);
@@ -684,7 +684,7 @@ void MainWindow::disableButtons()
 
 void MainWindow::disableViews(bool imageUpdated)
 {
-    QString visibleLayout = SETTINGS.value("View/layout", "none").toString();
+    QString visibleLayout = SETTINGS.value("View/layout", "table").toString();
 
     // Save position in current layout
     if (visibleLayout == "table") {
@@ -716,7 +716,7 @@ void MainWindow::enableButtons()
 
 void MainWindow::enableViews(int romCount, bool cached)
 {
-    QString visibleLayout = SETTINGS.value("View/layout", "none").toString();
+    QString visibleLayout = SETTINGS.value("View/layout", "table").toString();
 
     // Else no ROMs, so leave views disabled
     if (romCount != 0) {
@@ -825,7 +825,7 @@ bool MainWindow::eventFilter(QObject*, QEvent *event)
 
 QString MainWindow::getCurrentRomInfoFromView(QString infoName)
 {
-    QString visibleLayout = SETTINGS.value("View/layout", "none").toString();
+    QString visibleLayout = SETTINGS.value("View/layout", "table").toString();
 
     if (visibleLayout == "table") {
         return tableView->getCurrentRomInfo(infoName);
@@ -1103,7 +1103,7 @@ void MainWindow::resetLayouts(bool imageUpdated)
 
 void MainWindow::showActiveView()
 {
-    QString visibleLayout = SETTINGS.value("View/layout", "none").toString();
+    QString visibleLayout = SETTINGS.value("View/layout", "table").toString();
 
     if (visibleLayout == "table") {
         tableView->setHidden(false);
@@ -1147,7 +1147,7 @@ void MainWindow::showRomMenu(const QPoint &pos)
 
 
     QWidget *activeWidget = new QWidget(this);
-    QString visibleLayout = SETTINGS.value("View/layout", "none").toString();
+    QString visibleLayout = SETTINGS.value("View/layout", "table").toString();
 
     if (visibleLayout == "table") {
         activeWidget = tableView->viewport();
