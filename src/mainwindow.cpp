@@ -152,6 +152,7 @@ void MainWindow::createGlWindow(QSurfaceFormat *format)
         glWindow->setCursor(Qt::BlankCursor);
     }
     glWindow->setFormat(*format);
+    resize(640, 480);
     mainWidget = takeCentralWidget();
     setCentralWidget(container);
     int x = SETTINGS.value("Geometry/gameWindowx", -1).toInt();
