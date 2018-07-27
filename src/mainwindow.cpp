@@ -456,6 +456,7 @@ void MainWindow::createMenu()
         resetAction->setShortcuts(seq);
     }
     frameAction->setShortcut(Qt::Key_Period);
+    stopAction->setShortcut(Qt::Key_Escape);
     saveStateAction->setShortcut(Qt::Key_F5);
     loadStateAction->setShortcut(Qt::Key_F7);
 
