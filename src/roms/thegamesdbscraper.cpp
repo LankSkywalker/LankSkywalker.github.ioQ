@@ -61,7 +61,7 @@ QString TheGamesDBScraper::convertIDs(QJsonObject foundGame, QString typeName, Q
 {
     QJsonArray idArray = foundGame.value(typeName).toArray();
 
-    QString cacheFileString = getDataLocation() + "/cache/" + typeName + ".json";
+    QString cacheFileString = getDataLocation() + "/cache_v2/" + typeName + ".json";
     QFile cacheFile(cacheFileString);
 
     cacheFile.open(QIODevice::ReadOnly);
@@ -115,7 +115,7 @@ void TheGamesDBScraper::deleteGameInfo(QString fileName, QString identifier)
                                        QMessageBox::Yes | QMessageBox::No);
 
     if (answer == QMessageBox::Yes) {
-        QString gameCache = getDataLocation() + "/cache/" + identifier.toLower();
+        QString gameCache = getDataLocation() + "/cache_v2/" + identifier.toLower();
 
         QString dataFile = gameCache + "/data.xml";
         QFile file(dataFile);
@@ -152,24 +152,24 @@ void TheGamesDBScraper::downloadGameInfo(QString identifier, QString searchName,
 
         bool updated = false;
 
-        QString gameCache = getDataLocation() + "/cache/" + identifier.toLower();
+        QString gameCache = getDataLocation() + "/cache_v2/" + identifier.toLower();
         QDir cache(gameCache);
 
         if (!cache.exists()) {
             cache.mkpath(gameCache);
         }
 
-        QString genreCache = getDataLocation() + "/cache/genres.json";
+        QString genreCache = getDataLocation() + "/cache_v2/genres.json";
         QFile genres(genreCache);
         if (!genres.exists())
             updateListCache(&genres, "Genres");
 
-        QString developerCache = getDataLocation() + "/cache/developers.json";
+        QString developerCache = getDataLocation() + "/cache_v2/developers.json";
         QFile developers(developerCache);
         if (!developers.exists())
             updateListCache(&developers, "Developers");
 
-        QString publisherCache = getDataLocation() + "/cache/publishers.json";
+        QString publisherCache = getDataLocation() + "/cache_v2/publishers.json";
         QFile publishers(publisherCache);
         if (!publishers.exists())
             updateListCache(&publishers, "Publishers");
@@ -222,8 +222,8 @@ void TheGamesDBScraper::downloadGameInfo(QString identifier, QString searchName,
                 QString status = json.value("status").toString();
                 QString message;
                 message = QString(tr("The following error from TheGamesDB occured while downloading:"))
-                                   + "<br /><br />" + status;
-                QMessageBox::information(parent, QObject::tr("Download Error"), message);
+                                   + "<br /><br />" + status + "<br /><br />";
+                showError(message);
                 if (force) parent->setEnabled(true);
                 return;
             }
@@ -292,12 +292,14 @@ void TheGamesDBScraper::downloadGameInfo(QString identifier, QString searchName,
                 QString developerString = convertIDs(foundGame, "developers", "Developers");
                 QString publisherString = convertIDs(foundGame, "publishers", "Publishers");
 
+                QString players = QString::number(foundGame.value("players").toInt());
+                if (players == "0") players = "";
 
-                saveData.insert("game_title", foundGame.value("game_title"));
-                saveData.insert("release_date", foundGame.value("release_date"));
-                saveData.insert("rating", foundGame.value("rating"));
-                saveData.insert("overview", foundGame.value("overview"));
-                saveData.insert("players", foundGame.value("players"));
+                saveData.insert("game_title", foundGame.value("game_title").toString());
+                saveData.insert("release_date", foundGame.value("release_date").toString());
+                saveData.insert("rating", foundGame.value("rating").toString());
+                saveData.insert("overview", foundGame.value("overview").toString());
+                saveData.insert("players", players);
                 saveData.insert("boxart", frontImg);
                 saveData.insert("genres", genresString);
                 saveData.insert("developer", developerString);
