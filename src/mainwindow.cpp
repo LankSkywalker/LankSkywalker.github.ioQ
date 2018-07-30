@@ -45,8 +45,7 @@
 #include "dialogs/settingsdialog.h"
 
 #include "emulation/glwindow.h"
-#include "emulation/emucontroller.h"
-#include "emulation/emu.h"
+#include "emulation/emulation.h"
 
 #include "roms/romcollection.h"
 #include "roms/thegamesdbscraper.h"
@@ -73,7 +72,7 @@
 #include <QDesktopWidget>
 #include <QActionGroup>
 
-extern EmuController emulation;
+extern Emulation emulation;
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -170,7 +169,7 @@ void MainWindow::createGlWindow(QSurfaceFormat *format)
     }
 
     m64p_rom_settings romSettings;
-    Emu::getRomSettings(sizeof romSettings, &romSettings);
+    emulation.getRomSettings(sizeof romSettings, &romSettings);
     setWindowTitle(QString(romSettings.goodname) + " - " + AppName);
 
     pauseAction->setVisible(true);
@@ -453,7 +452,7 @@ void MainWindow::createMenu()
         a->setShortcut(Qt::Key_0 + i);
         connect(a, &QAction::triggered, [i](bool checked) {
             if (checked) {
-                Emu::setSaveSlot(i);
+                emulation.setSaveSlot(i);
             }
         });
     }

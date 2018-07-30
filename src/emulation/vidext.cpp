@@ -31,7 +31,7 @@
 
 #include "vidext.h"
 #include "glwindow.h"
-#include "emucontroller.h"
+#include "emulation.h"
 #include "../error.h"
 #include "../common.h"
 
@@ -42,7 +42,7 @@
 
 GlWindow *glWindow;
 static QSurfaceFormat format;
-extern EmuController emulation;
+extern Emulation emulation;
 
 static m64p_error init()
 {

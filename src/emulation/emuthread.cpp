@@ -30,8 +30,7 @@
  ***/
 
 #include "emuthread.h"
-#include "emucontroller.h"
-#include "emu.h"
+#include "emulation.h"
 
 
 EmuThread::EmuThread(QString romFileName, QString zipFileName)
@@ -43,5 +42,6 @@ EmuThread::EmuThread(QString romFileName, QString zipFileName)
 
 void EmuThread::run()
 {
-    Emu::runGame(romFileName, zipFileName);
+    extern Emulation emulation;
+    emulation.runGame(romFileName, zipFileName);
 }

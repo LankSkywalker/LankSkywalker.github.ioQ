@@ -29,8 +29,8 @@
  *
  ***/
 
-#include "emu.h"
-#include "emucontroller.h"
+#include "emulation.h"
+#include "emuthread.h"
 #include "../core.h"
 #include "../plugin.h"
 #include "../global.h"
@@ -41,7 +41,8 @@
 
 #include <m64p_types.h>
 
-extern EmuController emulation;
+extern Emulation emulation;
+EmuThread *emuthread = NULL;
 
 
 static m64p_dynlib_handle pluginRsp, pluginGfx, pluginAudio, pluginInput;
@@ -53,7 +54,14 @@ static bool attachPlugins();
 static void detachPlugins();
 
 
-void Emu::runGame(const QString &romFileName, const QString &zipFileName)
+void Emulation::startGame(const QString &romFileName, const QString &zipFileName)
+{
+    emuthread = new EmuThread(romFileName, zipFileName);
+    emuthread->start();
+}
+
+
+void Emulation::runGame(const QString &romFileName, const QString &zipFileName)
 {
     QByteArray romData;
     readRomFile(romData, romFileName, zipFileName);
@@ -69,11 +77,11 @@ void Emu::runGame(const QString &romFileName, const QString &zipFileName)
         return;
     }
 
-    emit emulation.started();
+    emit started();
 
     runRom(romData.data(), romData.length());
 
-    emit emulation.finished();
+    emit finished();
 }
 
 
@@ -169,7 +177,16 @@ static void detachPlugins()
 }
 
 
-void Emu::stopGame()
+bool Emulation::isExecuting()
+{
+    m64p_error rval;
+    int state;
+    rval = CoreDoCommand(M64CMD_CORE_STATE_QUERY, M64CORE_EMU_STATE, &state);
+    return state != M64EMU_STOPPED;
+}
+
+
+void Emulation::stopGame()
 {
     m64p_error rval;
     rval = CoreDoCommand(M64CMD_STOP, 0, NULL);
@@ -180,27 +197,27 @@ void Emu::stopGame()
 }
 
 
-void Emu::play()
+void Emulation::play()
 {
     m64p_error rval;
     rval = CoreDoCommand(M64CMD_RESUME, 0, NULL);
 }
 
 
-void Emu::pause()
+void Emulation::pause()
 {
     m64p_error rval;
     rval = CoreDoCommand(M64CMD_PAUSE, 0, NULL);
 }
 
 
-void Emu::advanceFrame()
+void Emulation::advanceFrame()
 {
     CoreDoCommand(M64CMD_ADVANCE_FRAME, 0, NULL);
 }
 
 
-void Emu::saveState()
+void Emulation::saveState()
 {
     m64p_error rval;
     rval = CoreDoCommand(M64CMD_STATE_SAVE, 0, NULL);
@@ -210,7 +227,7 @@ void Emu::saveState()
 }
 
 
-void Emu::loadState()
+void Emulation::loadState()
 {
     m64p_error rval;
     rval = CoreDoCommand(M64CMD_STATE_LOAD, 0, NULL);
@@ -220,7 +237,7 @@ void Emu::loadState()
 }
 
 
-void Emu::setSaveSlot(int n)
+void Emulation::setSaveSlot(int n)
 {
     m64p_error rval;
     rval = CoreDoCommand(M64CMD_STATE_SET_SLOT, n, NULL);
@@ -230,7 +247,7 @@ void Emu::setSaveSlot(int n)
 }
 
 
-void Emu::reset(bool hard)
+void Emulation::reset(bool hard)
 {
     m64p_error rval;
     rval = CoreDoCommand(M64CMD_RESET, hard ? 1 : 0, NULL);
@@ -240,7 +257,19 @@ void Emu::reset(bool hard)
 }
 
 
-bool Emu::getRomSettings(size_t size, m64p_rom_settings *romSettings)
+void Emulation::resetSoft()
+{
+    reset(false);
+}
+
+
+void Emulation::resetHard()
+{
+    reset(true);
+}
+
+
+bool Emulation::getRomSettings(size_t size, m64p_rom_settings *romSettings)
 {
     m64p_error rval;
     rval = CoreDoCommand(M64CMD_ROM_GET_SETTINGS, size, romSettings);

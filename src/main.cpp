@@ -34,14 +34,14 @@
 #include "common.h"
 #include "mainwindow.h"
 #include "core.h"
-#include "emulation/emucontroller.h"
+#include "emulation/emulation.h"
 
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QFileInfo>
 #include <QTranslator>
 
-EmuController emulation;
+Emulation emulation;
 
 
 int main(int argc, char *argv[])

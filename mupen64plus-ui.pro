@@ -30,8 +30,7 @@ SOURCES += src/main.cpp \
     src/dialogs/logdialog.cpp \
     src/dialogs/pluginconfigdialog.cpp \
     src/dialogs/settingsdialog.cpp \
-    src/emulation/emu.cpp \
-    src/emulation/emucontroller.cpp \
+    src/emulation/emulation.cpp \
     src/emulation/emuthread.cpp \
     src/emulation/glwindow.cpp \
     src/emulation/vidext.cpp \
@@ -58,8 +57,7 @@ HEADERS += src/global.h \
     src/dialogs/logdialog.h \
     src/dialogs/pluginconfigdialog.h \
     src/dialogs/settingsdialog.h \
-    src/emulation/emu.h \
-    src/emulation/emucontroller.h \
+    src/emulation/emulation.h \
     src/emulation/emuthread.h \
     src/emulation/glwindow.h \
     src/emulation/vidext.h \

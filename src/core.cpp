@@ -33,7 +33,7 @@
 #include "common.h"
 #include "error.h"
 #include "emulation/vidext.h"
-#include "emulation/emucontroller.h"
+#include "emulation/emulation.h"
 #include "osal/osal_dynamiclib.h"
 #include "osal/osal_preproc.h"
 
@@ -63,13 +63,13 @@ void debugCallback(void *context, int level, const char *message)
 
 void coreStateCallback(void *context, m64p_core_param param, int value)
 {
-    extern EmuController emulation;
+    extern Emulation emulation;
     const char *contextStr = (const char *)context;
     if (param == M64CORE_EMU_STATE) {
         if (value == M64EMU_RUNNING) {
-            emulation.emitResumed();
+            emulation.resumed();
         } else if (value == M64EMU_PAUSED) {
-            emulation.emitPaused();
+            emulation.paused();
         }
     }
 }

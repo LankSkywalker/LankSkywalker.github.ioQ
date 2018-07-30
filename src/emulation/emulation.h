@@ -29,35 +29,27 @@
  *
  ***/
 
-#ifndef EMUCONTROLLER_H
-#define EMUCONTROLLER_H
+#ifndef EMULATION_H
+#define EMULATION_H
 
+#include <m64p_types.h>
+#include <cstdlib>
 #include <QObject>
-#include <QString>
-#include <QDir>
-#include <QSurfaceFormat>
+class QSurfaceFormat;
+class QString;
 
-class EmuController : public QObject
+class Emulation : public QObject
 {
     Q_OBJECT
 
 public:
-    EmuController();
     void startGame(const QString &romFileName, const QString &zipFileName = "");
-    void stopGame();
+    void runGame(const QString &romFileName, const QString &zipFileName);
     bool isExecuting();
-    void emitResumed();
-    void emitPaused();
-
-public slots:
-    void play();
-    void pause();
-    void advanceFrame();
-    void saveState();
-    void loadState();
+    void stopGame();
     void setSaveSlot(int n);
-    void resetSoft();
-    void resetHard();
+    void reset(bool hard);
+    bool getRomSettings(size_t size, m64p_rom_settings *romSettings);
 
 signals:
     void createGlWindow(QSurfaceFormat *format);
@@ -67,6 +59,15 @@ signals:
     void resumed();
     void paused();
     void finished();
+
+public slots:
+    void play();
+    void pause();
+    void advanceFrame();
+    void saveState();
+    void loadState();
+    void resetSoft();
+    void resetHard();
 };
 
-#endif // EMUCONTROLLER_H
+#endif // EMULATION_H
