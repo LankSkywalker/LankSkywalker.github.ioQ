@@ -1,4 +1,5 @@
 /***
+ * Copyright (c) 2018, Robert Alm Nilsson
  * Copyright (c) 2013, Dan Hasting
  * All rights reserved.
  *

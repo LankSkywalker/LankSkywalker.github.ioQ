@@ -1,6 +1,4 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *   Mupen64plus-ui-console - osal_preproc.h                               *
- *   Mupen64Plus homepage: https://mupen64plus.org/                        *
  *   Copyright (C) 2009 Richard Goedeken                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,12 +16,13 @@
  *   Free Software Foundation, Inc.,                                       *
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/* Part of mupen64plus-ui-console, modified 2018-07-30 */
 
 /* This header file is for OS-specific #includes and #defines
  *
  */
 
-#if !defined(OSAL_PREPROC_H)
+#ifndef OSAL_PREPROC_H
 #define OSAL_PREPROC_H
 
 #if defined(WIN32)
