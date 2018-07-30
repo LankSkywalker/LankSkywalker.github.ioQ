@@ -61,7 +61,7 @@ QString TheGamesDBScraper::convertIDs(QJsonObject foundGame, QString typeName, Q
 {
     QJsonArray idArray = foundGame.value(typeName).toArray();
 
-    QString cacheFileString = getDataLocation() + "/cache_v2/" + typeName + ".json";
+    QString cacheFileString = getCacheLocation() + typeName + ".json";
     QFile cacheFile(cacheFileString);
 
     cacheFile.open(QIODevice::ReadOnly);
@@ -115,7 +115,7 @@ void TheGamesDBScraper::deleteGameInfo(QString fileName, QString identifier)
                                        QMessageBox::Yes | QMessageBox::No);
 
     if (answer == QMessageBox::Yes) {
-        QString gameCache = getDataLocation() + "/cache_v2/" + identifier.toLower();
+        QString gameCache = getCacheLocation() + identifier.toLower();
 
         QString dataFile = gameCache + "/data.xml";
         QFile file(dataFile);
@@ -152,25 +152,22 @@ void TheGamesDBScraper::downloadGameInfo(QString identifier, QString searchName,
 
         bool updated = false;
 
-        QString gameCache = getDataLocation() + "/cache_v2/" + identifier.toLower();
+        QString gameCache = getCacheLocation() + identifier.toLower();
         QDir cache(gameCache);
 
         if (!cache.exists()) {
             cache.mkpath(gameCache);
         }
 
-        QString genreCache = getDataLocation() + "/cache_v2/genres.json";
-        QFile genres(genreCache);
+        QFile genres(getCacheLocation() + "genres.json");
         if (!genres.exists())
             updateListCache(&genres, "Genres");
 
-        QString developerCache = getDataLocation() + "/cache_v2/developers.json";
-        QFile developers(developerCache);
+        QFile developers(getCacheLocation() + "developers.json");
         if (!developers.exists())
             updateListCache(&developers, "Developers");
 
-        QString publisherCache = getDataLocation() + "/cache_v2/publishers.json";
-        QFile publishers(publisherCache);
+        QFile publishers(getCacheLocation() + "publishers.json");
         if (!publishers.exists())
             updateListCache(&publishers, "Publishers");
 
@@ -185,22 +182,24 @@ void TheGamesDBScraper::downloadGameInfo(QString identifier, QString searchName,
             searchName.remove(QRegExp("\\W*(\\(|\\[).+(\\)|\\])\\W*"));
 
             //Few game specific hacks
-            //TODO: Contact thegamesdb.net and see if these can be fixed on their end
-            if (searchName == "Legend of Zelda, The - Majora's Mask")
+            if (searchName == "Legend of Zelda, The - Majora's Mask" ||
+                searchName == "ZELDA MAJORA'S MASK")
                 searchName = "Majora's Mask";
             else if (searchName == "Legend of Zelda, The - Ocarina of Time" ||
                      searchName == "THE LEGEND OF ZELDA")
                 searchName = "The Legend of Zelda: Ocarina of Time";
-            else if (searchName == "Tsumi to Batsu - Hoshi no Keishousha")
+            else if (searchName.toLower().startsWith("tsumi to batsu"))
                 searchName = "Sin and Punishment";
-            else if (searchName == "1080 Snowboarding")
+            else if (searchName.toLower() == "1080 snowboarding")
                 searchName = "1080: TenEighty Snowboarding";
-            else if (searchName == "Extreme-G XG2")
+            else if (searchName == "Extreme-G XG2" || searchName == "Extreme G 2")
                 searchName = "Extreme-G 2";
-            else if (searchName.contains("Pokemon"))
-                searchName.replace("Pokemon", "Pokémon");
-            else if (searchName.toLower() == "f-zero x")
-                gameID = "10836";
+            else if (searchName.contains("Pokemon", Qt::CaseInsensitive))
+                searchName.replace("Pokemon", "Pokémon", Qt::CaseInsensitive);
+            else if (searchName.toLower() == "smash brothers")
+                searchName = "Super Smash Bros.";
+            else if (searchName.toLower() == "conker bfd")
+                searchName = "Conker's Bad Fur Day";
 
             QString apiFilter = "&filter[platform]=3&include=boxart&fields=game_title,release_date,";
             apiFilter += "developers,publishers,genres,overview,rating,players";
@@ -243,7 +242,7 @@ void TheGamesDBScraper::downloadGameInfo(QString identifier, QString searchName,
 
                     QString check = "Game: " + title.toString();
                     check.remove(QRegExp(QString("[^A-Za-z 0-9 \\.,\\?'""!@#\\$%\\^&\\*\\")
-                                         + "(\\)-_=\\+;:<>\\/\\\\|\\}\\{\\[\\]`~]*"));
+                                         + "(\\)-_=\\+;:<>\\/\\\\|\\}\\{\\[\\]`~é]*"));
                     if (date.toString() != "") check += "\n" + tr("Released on: ") + date.toString();
                     check += "\n\n" + tr("Does this look correct?");
 
@@ -258,7 +257,7 @@ void TheGamesDBScraper::downloadGameInfo(QString identifier, QString searchName,
                 } else {
                     //We only want one game, so search for a perfect match in the GameTitle element.
                     //Otherwise this will default to 0 (the first game found)
-                    if(title.toString() == searchName)
+                    if(title.toString().toLower() == searchName.toLower())
                         found = count;
                 }
 
@@ -431,13 +430,15 @@ void TheGamesDBScraper::showError(QString error)
 
 void TheGamesDBScraper::updateListCache(QFile *file, QString list)
 {
-    QUrl url;
-    url.setUrl("https://api.thegamesdb.net/" + list + "?apikey=" + TheGamesDBAPIKey);
-    QString data = getUrlContents(url);
-    QJsonDocument document = QJsonDocument::fromJson(data.toUtf8());
-    QJsonDocument result(document.object().value("data").toObject().value(list.toLower()).toObject());
+    if (keepGoing) {
+        QUrl url;
+        url.setUrl("https://api.thegamesdb.net/" + list + "?apikey=" + TheGamesDBAPIKey);
+        QString data = getUrlContents(url);
+        QJsonDocument document = QJsonDocument::fromJson(data.toUtf8());
+        QJsonDocument result(document.object().value("data").toObject().value(list.toLower()).toObject());
 
-    file->open(QIODevice::WriteOnly);
-    file->write(result.toJson());
-    file->close();
+        file->open(QIODevice::WriteOnly);
+        file->write(result.toJson());
+        file->close();
+    }
 }
