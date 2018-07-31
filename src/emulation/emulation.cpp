@@ -37,7 +37,6 @@
 #include "../error.h"
 #include "../common.h"
 #include "../osal/osal_dynamiclib.h"
-#include "../roms/romfile.h"
 
 #include <m64p_types.h>
 

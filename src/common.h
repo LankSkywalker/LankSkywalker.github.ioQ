@@ -1,4 +1,5 @@
 /***
+ * Copyright (c) 2018, Robert Alm Nilsson
  * Copyright (c) 2013, Dan Hasting
  * All rights reserved.
  *
@@ -81,9 +82,8 @@ int getGridSize(QString which);
 int getTableDataIndexFromName(QString infoName);
 int getTextSize();
 
-QByteArray byteswap(QByteArray romData);
+void byteswap(QByteArray &romData);
 QStringList getZippedFiles(QString completeFileName);
-QByteArray *getZippedRom(QString romFileName, QString zipFile);
 QColor getColor(QString color, int transparency = 255);
 QString getDefaultLanguage();
 QString getTranslation(QString text);
@@ -93,6 +93,12 @@ QString getCacheLocation();
 QString getDataLocation();
 QString getRomInfo(QString identifier, const Rom *rom, bool removeWarn = false, bool sort = false);
 QString getVersion();
+
+// Reads the contents of the ROM file, optionally inside a ZIP file,
+// and appends it to romData.
+void readRomFile(QByteArray &romData,
+        const QString &romFileName,
+        const QString &zipFileName = "");
 
 #define TR(s) QObject::tr(s)
 

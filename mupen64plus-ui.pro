@@ -35,7 +35,6 @@ SOURCES += src/main.cpp \
     src/emulation/glwindow.cpp \
     src/emulation/vidext.cpp \
     src/osal/osal_dynamiclib.c \
-    src/roms/romfile.cpp \
     src/roms/romcollection.cpp \
     src/roms/thegamesdbscraper.cpp \
     src/views/gridview.cpp \
@@ -62,7 +61,6 @@ HEADERS += src/global.h \
     src/emulation/glwindow.h \
     src/emulation/vidext.h \
     src/osal/osal_dynamiclib.h \
-    src/roms/romfile.h \
     src/roms/romcollection.h \
     src/roms/thegamesdbscraper.h \
     src/views/gridview.h \

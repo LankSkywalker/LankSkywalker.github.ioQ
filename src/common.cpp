@@ -1,4 +1,5 @@
 /***
+ * Copyright (c) 2018, Robert Alm Nilsson
  * Copyright (c) 2013, Dan Hasting
  * All rights reserved.
  *
@@ -30,7 +31,7 @@
  ***/
 
 #include "common.h"
-
+#include "error.h"
 #include "global.h"
 
 #include <QColor>
@@ -55,19 +56,16 @@
 #endif
 
 
-QByteArray byteswap(QByteArray romData)
+void byteswap(QByteArray &romData)
 {
-    QByteArray flipped;
-
     if (romData.left(4).toHex() == "37804012") {
+        char *data = (char *)romData.data();
         for (int i = 0; i < romData.length(); i += 2)
         {
-            flipped.append(romData[i + 1]);
-            flipped.append(romData[i]);
+            char tmp = data[i];
+            data[i] = data[i + 1];
+            data[i + 1] = tmp;
         }
-        return flipped;
-    } else {
-        return romData;
     }
 }
 
@@ -386,19 +384,6 @@ QStringList getZippedFiles(QString completeFileName)
 }
 
 
-QByteArray *getZippedRom(QString romFileName, QString zipFile)
-{
-    QuaZipFile zippedFile(zipFile, romFileName);
-
-    zippedFile.open(QIODevice::ReadOnly);
-    QByteArray *romData = new QByteArray();
-    romData->append(zippedFile.readAll());
-    zippedFile.close();
-
-    return romData;
-}
-
-
 bool romSorter(const Rom &firstRom, const Rom &lastRom)
 {
     QString sort, direction;
@@ -441,4 +426,28 @@ bool romSorter(const Rom &firstRom, const Rom &lastRom)
         return sortFirst > sortLast;
     else
         return sortFirst < sortLast;
+}
+
+
+void readRomFile(QByteArray &romData,
+        const QString &romFileName,
+        const QString &zipFileName)
+{
+    if (zipFileName != "") {
+        QuaZipFile zippedFile(zipFileName, romFileName);
+
+        zippedFile.open(QIODevice::ReadOnly);
+        romData.append(zippedFile.readAll());
+        zippedFile.close();
+    } else {
+        QFile romFile(romFileName);
+        if (!romFile.exists()) {
+            SHOW_W(TR("ROM file not found."));
+            return;
+        }
+
+        romFile.open(QIODevice::ReadOnly);
+        romData.append(romFile.readAll());
+        romFile.close();
+    }
 }

@@ -147,38 +147,34 @@ int RomCollection::addRoms()
                     foreach (QString zippedFile, getZippedFiles(completeFileName))
                     {
                         //check for ROM files
-                        QByteArray *romData = getZippedRom(zippedFile, completeFileName);
+                        QByteArray romData;
+                        readRomFile(romData, zippedFile, completeFileName);
 
                         if (fileTypes.contains("*.v64"))
-                            *romData = byteswap(*romData);
+                            byteswap(romData);
 
-                        if (romData->left(4).toHex() == "80371240") { //Z64 ROM
-                            roms.append(addRom(romData, zippedFile, romPath, fileName, query));
+                        if (romData.left(4).toHex() == "80371240") { //Z64 ROM
+                            roms.append(addRom(&romData, zippedFile, romPath, fileName, query));
                             romCount++;
-                        } else if (romData->left(4).toHex() == "e848d316") { //64DD ROM
-                            ddRoms.append(addRom(romData, zippedFile, romPath, fileName, query, true));
+                        } else if (romData.left(4).toHex() == "e848d316") { //64DD ROM
+                            ddRoms.append(addRom(&romData, zippedFile, romPath, fileName, query, true));
                             romCount++;
                         }
-
-                        delete romData;
                     }
                 } else { //Just a normal file
-                    file.open(QIODevice::ReadOnly);
-                    QByteArray *romData = new QByteArray(file.readAll());
-                    file.close();
+                    QByteArray romData;
+                    readRomFile(romData, completeFileName);
 
                     if (fileTypes.contains("*.v64"))
-                        *romData = byteswap(*romData);
+                        byteswap(romData);
 
-                    if (romData->left(4).toHex() == "80371240") { //Z64 ROM
-                        roms.append(addRom(romData, fileName, romPath, "", query));
+                    if (romData.left(4).toHex() == "80371240") { //Z64 ROM
+                        roms.append(addRom(&romData, fileName, romPath, "", query));
                         romCount++;
-                    } else if (romData->left(4).toHex() == "e848d316") { //64DD ROM
-                        ddRoms.append(addRom(romData, fileName, romPath, "", query, true));
+                    } else if (romData.left(4).toHex() == "e848d316") { //64DD ROM
+                        ddRoms.append(addRom(&romData, fileName, romPath, "", query, true));
                         romCount++;
                     }
-
-                    delete romData;
                 }
 
                 count++;
