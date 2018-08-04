@@ -107,6 +107,9 @@ win32|macx|linux_quazip_static {
     }
 }
 
+INCLUDEPATH += /usr/include/SDL2
+LIBS += -lSDL2
+
 INCLUDEPATH += /usr/local/include/mupen64plus
 LIBS += -lmupen64plus
 LIBS += -ldl

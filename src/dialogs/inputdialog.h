@@ -39,6 +39,7 @@
 #include <vector>
 #include <QDialog>
 #include <QLabel>
+#include <SDL.h>
 class QAbstractButton;
 class QSpinBox;
 class QComboBox;
@@ -63,6 +64,14 @@ class InputDialog : public QDialog
         std::vector<KeySpec> keys;
     };
 
+    struct InputReadingState {
+        // If this is false, the rest of the fields must not be used.
+        bool reading;
+        Button *button;
+        Value *value;
+        SDL_Joystick *joy;
+    };
+
     struct Controller {
         QString sectionName;
         m64p_handle configHandle;
@@ -78,14 +87,22 @@ private slots:
     void controllerSelected(int index);
 
 private:
+    Controller &currentController();
     void saveController(int controllerIndex);
     void getButtons();
     void setValues();
+    void connectButtons();
+    void startReadInput(Button &b, Value &v);
+    void stopReadInput();
+    void timerEvent(QTimerEvent *timerEvent) override;
     void loadUnloadPlugin(const char *name);
 
+    bool sdlWasInited;
+    int inputTimer;
+    InputReadingState inputReadingState;
     Ui::InputDialog *ui;
     const QString pluginName;
-    int currentController = 0;
+    int currentControllerIndex = 0;
     std::vector<Controller> controllers;
     std::vector<Button> buttons;
 };

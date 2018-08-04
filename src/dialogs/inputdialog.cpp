@@ -36,6 +36,9 @@
 #include "../core.h"
 #include "../plugin.h"
 
+#include <SDL.h>
+#include <QThread>
+
 
 static QString toSectionName(const QString &name, int controllerNumber)
 {
@@ -81,12 +84,145 @@ InputDialog::InputDialog(const QString &name, QWidget *parent)
 
     getButtons();
     setValues();
+    connectButtons();
+
+    if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) == 0) {
+        sdlWasInited = true;
+    } else {
+        SHOW_E(TR("Could not init SDL. Input configuration will not work. ")
+                + SDL_GetError());
+        sdlWasInited = false;
+    }
+
+    inputReadingState.reading = false;
+}
+
+
+void InputDialog::connectButtons()
+{
+    for (Button &b : buttons) {
+        connect(b.button, &QPushButton::pressed, [&]() {
+            Controller &c = currentController();
+            for (Value &v : c.values) {
+                if (strcmp(v.configName, b.configName) == 0) {
+                    startReadInput(b, v);
+                }
+            }
+        });
+    }
+}
+
+
+void InputDialog::startReadInput(Button &b, Value &v)
+{
+    if (inputReadingState.reading) {
+        stopReadInput();
+    }
+
+    inputTimer = startTimer(50);
+    SDL_Joystick *joy = SDL_JoystickOpen(0); // TODO: 0
+    inputReadingState = {true, &b, &v, joy};
+
+    // Dirty hack to clear event queue so we don't get old remaining
+    // events.  Is there a way without having to sleep?
+    QThread::msleep(10);
+    SDL_JoystickUpdate();
+    SDL_FlushEvent(SDL_JOYAXISMOTION);
+}
+
+
+void InputDialog::stopReadInput()
+{
+    inputReadingState.button->button->setChecked(false);
+    inputReadingState.button->button->setDown(false);
+    SDL_JoystickClose(inputReadingState.joy);
+    inputReadingState.reading = false;
+    killTimer(inputTimer);
+    inputTimer = 0;
+}
+
+
+void InputDialog::timerEvent(QTimerEvent *timerEvent)
+{
+    SDL_JoystickID joyId;
+    if (inputReadingState.reading) {
+        joyId = SDL_JoystickInstanceID(inputReadingState.joy);
+    } else {
+        LOG_W(TR("Timer event while not reading, should never happen."));
+        return;
+    }
+    bool gotInput = false;
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        switch (event.type) {
+        case SDL_JOYBUTTONDOWN:
+            if (event.jbutton.which == joyId) {
+                int n = event.jbutton.button;
+                inputReadingState.value->keys = {
+                    KeySpec(KeySpec::BUTTON, KeySpec::Value(n))
+                };
+                gotInput = true;
+            }
+            break;
+        case SDL_JOYAXISMOTION:
+            if (event.jaxis.which == joyId) {
+                int n = event.jaxis.axis;
+                int val = event.jaxis.value;
+                KeySpec::Value::Sign sign = KeySpec::Value::NO_SIGN;
+                if (val > 16384) {
+                    sign = KeySpec::Value::PLUS;
+                } else if (val < -16384) {
+                    sign = KeySpec::Value::MINUS;
+                }
+                if (sign != KeySpec::Value::NO_SIGN) {
+                    inputReadingState.value->keys = {
+                        KeySpec(KeySpec::AXIS, KeySpec::Value(n, sign))
+                    };
+                    gotInput = true;
+                }
+            }
+            break;
+        case SDL_JOYHATMOTION:
+            if (event.jhat.which == joyId) {
+                int n = event.jhat.hat;
+                int val = event.jhat.value;
+                KeySpec::Value::Direction dir;
+                gotInput = true;
+                switch (val) {
+                case SDL_HAT_UP:    dir = KeySpec::Value::UP;    break;
+                case SDL_HAT_DOWN:  dir = KeySpec::Value::DOWN;  break;
+                case SDL_HAT_LEFT:  dir = KeySpec::Value::LEFT;  break;
+                case SDL_HAT_RIGHT: dir = KeySpec::Value::RIGHT; break;
+                default:            gotInput = false;
+                }
+                if (gotInput) {
+                    inputReadingState.value->keys = {
+                        KeySpec(KeySpec::HAT, KeySpec::Value(n, dir))
+                    };
+                }
+            }
+            break;
+        }
+    }
+    if (gotInput) {
+        setValues();
+        stopReadInput();
+    }
 }
 
 
 InputDialog::~InputDialog()
 {
+    if (sdlWasInited) {
+        SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
+    }
     delete ui;
+}
+
+
+InputDialog::Controller &InputDialog::currentController()
+{
+    return controllers[currentControllerIndex];
 }
 
 
@@ -143,7 +279,7 @@ static QString keyspecsToString(const std::vector<KeySpec> &keyspecs)
 
 void InputDialog::setValues()
 {
-    Controller &c = controllers[currentController];
+    Controller &c = currentController();
 
     // First get the values from core if we don't have them already.
     if (c.values.empty()) {
@@ -175,7 +311,7 @@ void InputDialog::setValues()
 
 void InputDialog::saveController(int controllerIndex)
 {
-    const Controller &c = controllers[currentController];
+    const Controller &c = currentController();
     m64p_error rval;
 
     for (const Value &v : c.values) {
@@ -209,7 +345,7 @@ void InputDialog::accept()
 
 void InputDialog::controllerSelected(int index)
 {
-    currentController = index;
+    currentControllerIndex = index;
     setValues();
 }
 
