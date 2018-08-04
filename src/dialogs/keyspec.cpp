@@ -85,16 +85,16 @@ bool KeySpec::parseOne(KeySpec &k, const char **str)
     } else if (name == "button") {
         k = KeySpec(BUTTON, getVal(arg1));
     } else if (name == "axis") {
-        if (iMatches.hasNext()) {
-            k = KeySpec(AXIS, getVal(arg1), getVal(iMatches.next()));
-        } else {
-            k = KeySpec(AXIS, getVal(arg1));
-        }
+        k = KeySpec(AXIS, getVal(arg1));
     } else if (name == "hat") {
         k = KeySpec(HAT, getVal(arg1));
     } else {
         LOG_W(TR("Unknown input config: ") + name);
         return false;
+    }
+
+    while (iMatches.hasNext()) {
+        k.addValue(getVal(iMatches.next()));
     }
 
     return true;

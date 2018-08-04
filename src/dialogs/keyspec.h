@@ -99,6 +99,11 @@ public:
         return *this;
     }
 
+    void addValue(const Value &v)
+    {
+        values.push_back(v);
+    }
+
     QString toString() const;
 
     // Parses one key spec, eg "axis(0-,0+)" and updates k and str.
