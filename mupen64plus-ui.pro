@@ -27,6 +27,8 @@ SOURCES += src/main.cpp \
     src/dialogs/configeditor.cpp \
     src/dialogs/downloaddialog.cpp \
     src/dialogs/gamesettingsdialog.cpp \
+    src/dialogs/inputdialog.cpp \
+    src/dialogs/keyspec.cpp \
     src/dialogs/logdialog.cpp \
     src/dialogs/pluginconfigdialog.cpp \
     src/dialogs/settingsdialog.cpp \
@@ -53,6 +55,8 @@ HEADERS += src/global.h \
     src/dialogs/configeditor.h \
     src/dialogs/downloaddialog.h \
     src/dialogs/gamesettingsdialog.h \
+    src/dialogs/inputdialog.h \
+    src/dialogs/keyspec.h \
     src/dialogs/logdialog.h \
     src/dialogs/pluginconfigdialog.h \
     src/dialogs/settingsdialog.h \
@@ -72,7 +76,8 @@ HEADERS += src/global.h \
 RESOURCES += resources/mupen64plus.qrc
 
 FORMS += src/dialogs/gamesettingsdialog.ui \
-    src/dialogs/settingsdialog.ui
+    src/dialogs/settingsdialog.ui \
+    src/dialogs/inputdialog.ui
 
 TRANSLATIONS += resources/locale/fr.ts
 

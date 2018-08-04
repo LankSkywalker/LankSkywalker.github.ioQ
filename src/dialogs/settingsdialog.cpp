@@ -33,6 +33,7 @@
 #include "settingsdialog.h"
 #include "ui_settingsdialog.h"
 #include "pluginconfigdialog.h"
+#include "inputdialog.h"
 
 #include "../global.h"
 #include "../common.h"
@@ -942,7 +943,7 @@ void SettingsDialog::openAudioPluginConfig()
 
 void SettingsDialog::openInputPluginConfig()
 {
-    PluginConfigDialog(ui->inputBox->currentText(), this).exec();
+    InputDialog(ui->inputBox->currentText(), this).exec();
 }
 
 
