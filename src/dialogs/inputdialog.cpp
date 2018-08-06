@@ -38,6 +38,7 @@
 
 #include <SDL.h>
 #include <QThread>
+#include <QKeyEvent>
 
 
 static QString toSectionName(const QString &name, int controllerNumber)
@@ -207,6 +208,28 @@ void InputDialog::timerEvent(QTimerEvent *timerEvent)
     if (gotInput) {
         setValues();
         stopReadInput();
+    }
+}
+
+
+static SDL_Keycode qtToSdlKey(int key)
+{
+    // TODO: this function
+    return key;
+}
+
+
+void InputDialog::keyPressEvent(QKeyEvent *keyEvent)
+{
+    if (inputReadingState.reading) {
+        int sdlKey = qtToSdlKey(keyEvent->key());
+        inputReadingState.value->keys = {
+            KeySpec(KeySpec::KEY, KeySpec::Value(sdlKey))
+        };
+        setValues();
+        stopReadInput();
+    } else if (keyEvent->key() == Qt::Key_Escape) {
+        close();
     }
 }
 

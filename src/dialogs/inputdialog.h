@@ -95,6 +95,7 @@ private:
     void startReadInput(Button &b, Value &v);
     void stopReadInput();
     void timerEvent(QTimerEvent *timerEvent) override;
+    void keyPressEvent(QKeyEvent *keyEvent) override;
     void loadUnloadPlugin(const char *name);
 
     bool sdlWasInited;
