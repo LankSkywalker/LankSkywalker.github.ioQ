@@ -74,7 +74,7 @@ InputDialog::InputDialog(const QString &name, QWidget *parent)
         m64p_handle configHandle;
         QString sectionName = toSectionName(name, i);
         openSection(sectionName, configHandle);
-        controllers.push_back({sectionName, configHandle, {}});
+        controllers.push_back({sectionName, configHandle, {}, false});
         ui->controllerBox->addItem(TR("Controller <N>").replace("<N>", QString::number(i)));
     }
     connect(ui->controllerBox, SIGNAL(currentIndexChanged(int)),
@@ -240,6 +240,7 @@ void InputDialog::timerEvent(QTimerEvent *timerEvent)
         std::vector<KeySpec> &keys = inputReadingState.value->keys;
         setKeySpecs(keys, key, param);
         setValues();
+        currentController().changed = true;
         stopReadInput();
     }
 }
@@ -261,6 +262,7 @@ void InputDialog::keyPressEvent(QKeyEvent *keyEvent)
         std::vector<KeySpec> &keys = inputReadingState.value->keys;
         setKeySpecs(keys, key, param);
         setValues();
+        currentController().changed = true;
         stopReadInput();
     } else if (keyEvent->key() == Qt::Key_Escape) {
         close();
@@ -402,15 +404,20 @@ void InputDialog::saveController(int controllerIndex)
     const Controller &c = currentController();
     m64p_error rval;
 
-    for (const Value &v : c.values) {
-        QString valueStr = keyspecsToString(v.keys);
-        QByteArray valueBa = valueStr.toUtf8();
-        const char *value = valueBa.data();
-        rval = ConfigSetParameter(c.configHandle, v.configName,
-                M64TYPE_STRING, value);
-        if (rval != M64ERR_SUCCESS) {
-            LOG_W(TR("Could not set configuration parameter <Name>: ")
-                    .replace("<Name>", v.configName) + m64errstr(rval));
+    if (c.changed) {
+        int val = 0;
+        rval = ConfigSetParameter(c.configHandle, "mode", M64TYPE_INT, &val);
+
+        for (const Value &v : c.values) {
+            QString valueStr = keyspecsToString(v.keys);
+            QByteArray valueBa = valueStr.toUtf8();
+            const char *value = valueBa.data();
+            rval = ConfigSetParameter(c.configHandle, v.configName,
+                    M64TYPE_STRING, value);
+            if (rval != M64ERR_SUCCESS) {
+                LOG_W(TR("Could not set configuration parameter <Name>: ")
+                        .replace("<Name>", v.configName) + m64errstr(rval));
+            }
         }
     }
 

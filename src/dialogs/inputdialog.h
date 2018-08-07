@@ -77,6 +77,7 @@ class InputDialog : public QDialog
         QString sectionName;
         m64p_handle configHandle;
         std::vector<Value> values;
+        bool changed;
     };
 
 public:
