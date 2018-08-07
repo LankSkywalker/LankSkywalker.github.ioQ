@@ -107,6 +107,7 @@ void InputDialog::connectButtons()
             for (Value &v : c.values) {
                 if (strcmp(v.configName, b.configName) == 0) {
                     startReadInput(b, v);
+                    break;
                 }
             }
         });
@@ -143,6 +144,40 @@ void InputDialog::stopReadInput()
 }
 
 
+static void setKeySpecs(std::vector<KeySpec> &keys, const KeySpec &key, int param)
+{
+    if (param < 0) {
+        keys = {key};
+    } else if (keys.empty() || keys[0].type != key.type) {
+        size_t nValues = param + 1;
+        if (!keys.empty() && keys[0].values.size() > nValues) {
+            nValues = keys[0].values.size();
+        }
+        // Since param >= 0 we know there must be at least 2 values.
+        if (nValues < 2) {
+            nValues = 2;
+        }
+        keys.clear();
+        keys.resize(1);
+        keys[0].type = key.type;
+        if (key.type == KeySpec::AXIS) {
+            keys[0].values.resize(nValues, key.values[0].invertedSign());
+        } else if (key.type == KeySpec::HAT) {
+            keys[0].values.resize(nValues, key.values[0].invertedDirection());
+        } else {
+            keys[0].values.resize(nValues);
+        }
+        keys[0].values[param] = key.values[0];
+    } else {
+        keys.resize(1);
+        if ((int)keys[0].values.size() <= param) {
+            keys[0].values.resize(param + 1);
+        }
+        keys[0].values[param] = key.values[0];
+    }
+}
+
+
 void InputDialog::timerEvent(QTimerEvent *timerEvent)
 {
     SDL_JoystickID joyId;
@@ -153,15 +188,14 @@ void InputDialog::timerEvent(QTimerEvent *timerEvent)
         return;
     }
     bool gotInput = false;
+    KeySpec key;
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
         case SDL_JOYBUTTONDOWN:
             if (event.jbutton.which == joyId) {
                 int n = event.jbutton.button;
-                inputReadingState.value->keys = {
-                    KeySpec(KeySpec::BUTTON, KeySpec::Value(n))
-                };
+                key = KeySpec(KeySpec::BUTTON, KeySpec::Value(n));
                 gotInput = true;
             }
             break;
@@ -176,9 +210,7 @@ void InputDialog::timerEvent(QTimerEvent *timerEvent)
                     sign = KeySpec::Value::MINUS;
                 }
                 if (sign != KeySpec::Value::NO_SIGN) {
-                    inputReadingState.value->keys = {
-                        KeySpec(KeySpec::AXIS, KeySpec::Value(n, sign))
-                    };
+                    key = KeySpec(KeySpec::AXIS, KeySpec::Value(n, sign));
                     gotInput = true;
                 }
             }
@@ -197,15 +229,16 @@ void InputDialog::timerEvent(QTimerEvent *timerEvent)
                 default:            gotInput = false;
                 }
                 if (gotInput) {
-                    inputReadingState.value->keys = {
-                        KeySpec(KeySpec::HAT, KeySpec::Value(n, dir))
-                    };
+                    key = KeySpec(KeySpec::HAT, KeySpec::Value(n, dir));
                 }
             }
             break;
         }
     }
     if (gotInput) {
+        int param = inputReadingState.button->parameter;
+        std::vector<KeySpec> &keys = inputReadingState.value->keys;
+        setKeySpecs(keys, key, param);
         setValues();
         stopReadInput();
     }
@@ -223,9 +256,10 @@ void InputDialog::keyPressEvent(QKeyEvent *keyEvent)
 {
     if (inputReadingState.reading) {
         int sdlKey = qtToSdlKey(keyEvent->key());
-        inputReadingState.value->keys = {
-            KeySpec(KeySpec::KEY, KeySpec::Value(sdlKey))
-        };
+        KeySpec key = KeySpec(KeySpec::KEY, KeySpec::Value(sdlKey));
+        int param = inputReadingState.button->parameter;
+        std::vector<KeySpec> &keys = inputReadingState.value->keys;
+        setKeySpecs(keys, key, param);
         setValues();
         stopReadInput();
     } else if (keyEvent->key() == Qt::Key_Escape) {
@@ -251,21 +285,25 @@ InputDialog::Controller &InputDialog::currentController()
 
 void InputDialog::getButtons()
 {
+    // -1 means it defines the whole keyspec, >= 0 means it only
+    // defines one parameter to the keyspec.
     buttons = {
-        {"X Axis",           ui->leftButton},
-        {"Y Axis",           ui->upButton},
-        {"A Button",         ui->aButton},
-        {"B Button",         ui->bButton},
-        {"C Button U",       ui->cUpButton},
-        {"C Button D",       ui->cDownButton},
-        {"C Button L",       ui->cLeftButton},
-        {"C Button R",       ui->cRightButton},
-        {"DPad U",           ui->dUpButton},
-        {"DPad D",           ui->dDownButton},
-        {"DPad L",           ui->dLeftButton},
-        {"DPad R",           ui->dRightButton},
-        {"Mempak switch",    ui->memButton},
-        {"Rumblepak switch", ui->rumbleButton},
+        {"X Axis",            0, ui->leftButton},
+        {"X Axis",            1, ui->rightButton},
+        {"Y Axis",            0, ui->upButton},
+        {"Y Axis",            1, ui->downButton},
+        {"A Button",         -1, ui->aButton},
+        {"B Button",         -1, ui->bButton},
+        {"C Button U",       -1, ui->cUpButton},
+        {"C Button D",       -1, ui->cDownButton},
+        {"C Button L",       -1, ui->cLeftButton},
+        {"C Button R",       -1, ui->cRightButton},
+        {"DPad U",           -1, ui->dUpButton},
+        {"DPad D",           -1, ui->dDownButton},
+        {"DPad L",           -1, ui->dLeftButton},
+        {"DPad R",           -1, ui->dRightButton},
+        {"Mempak switch",    -1, ui->memButton},
+        {"Rumblepak switch", -1, ui->rumbleButton},
     };
 }
 
@@ -306,27 +344,50 @@ void InputDialog::setValues()
 
     // First get the values from core if we don't have them already.
     if (c.values.empty()) {
-        for (const Button &k : buttons) {
-            const char *value = ConfigGetParamString(c.configHandle, k.configName);
-            std::vector<KeySpec> keyspecs = parseKeyConfig(value);
-            c.values.push_back(Value{k.configName, keyspecs});
+        for (const Button &b : buttons) {
+            // This if statement is just to make sure we don't add the
+            // same config parameter twice.
+            if (b.parameter == 0 || b.parameter == -1) {
+                const char *value = ConfigGetParamString(c.configHandle, b.configName);
+                std::vector<KeySpec> keyspecs = parseKeyConfig(value);
+                c.values.push_back(Value{b.configName, keyspecs});
+            }
         }
     }
 
     // And then show them on the buttons.
-    for (Button &k : buttons) {
+    for (Button &b : buttons) {
         std::vector<KeySpec> keyspecs;
         // Find the value for this button.
         for (const Value &v : c.values) {
-            if (strcmp(v.configName, k.configName) == 0) {
+            if (strcmp(v.configName, b.configName) == 0) {
                 keyspecs = v.keys;
+                if (b.parameter >= 0) {
+                    // Use only the specified parameter for each keyspec.
+                    for (KeySpec &k : keyspecs) {
+                        if ((int)k.values.size() > b.parameter) {
+                            if (k.values[b.parameter].number >= 0) {
+                                k.values = {k.values[b.parameter]};
+                            } else {
+                                keyspecs = {};
+                                break;
+                            }
+                        } else {
+                            LOG_W(TR("Parameter <N> not found in <KeySpec>.")
+                                    .replace("<N>", QString::number(b.parameter))
+                                    .replace("<KeySpec>", k.toString()));
+                            keyspecs = {};
+                            break;
+                        }
+                    }
+                }
                 break;
             }
         }
         if (keyspecs.empty()) {
-            k.button->setText("Select...");
+            b.button->setText(TR("Select..."));
         } else {
-            k.button->setText(keyspecsToString(keyspecs));
+            b.button->setText(keyspecsToString(keyspecs));
         }
     }
 }
@@ -340,7 +401,7 @@ void InputDialog::saveController(int controllerIndex)
     for (const Value &v : c.values) {
         QString valueStr = keyspecsToString(v.keys);
         QByteArray valueBa = valueStr.toUtf8();
-        const char *value = valueBa.data();;
+        const char *value = valueBa.data();
         rval = ConfigSetParameter(c.configHandle, v.configName,
                 M64TYPE_STRING, value);
         if (rval != M64ERR_SUCCESS) {

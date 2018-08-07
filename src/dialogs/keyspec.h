@@ -58,6 +58,9 @@ public:
             LEFT,
             RIGHT,
         };
+        Value()
+            : number(-1)
+        {}
         Value(int number)
             : number(number)
             , sign(NO_SIGN)
@@ -71,6 +74,14 @@ public:
             , direction(dir)
         {
             assert(dir >= 0 && dir < 4);
+        }
+        Value invertedSign() const
+        {
+            return Value(number, Sign(sign ? sign ^ 6 : sign));
+        }
+        Value invertedDirection() const
+        {
+            return Value(number, Direction(direction ^ 1));
         }
         int number;
         union {
@@ -109,7 +120,6 @@ public:
     // Parses one key spec, eg "axis(0-,0+)" and updates k and str.
     static bool parseOne(KeySpec &k, const char **str);
 
-private:
     Type type;
     std::vector<Value> values;
 };

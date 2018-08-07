@@ -56,6 +56,7 @@ class InputDialog : public QDialog
 
     struct Button {
         const char *configName;
+        int parameter;
         QPushButton *button;
     };
 

@@ -122,12 +122,14 @@ QString KeySpec::toString() const
         if (!firstIteration) {
             s += ",";
         }
-        s += QString::number(v.number);
-        if (type == AXIS && v.sign) {
-            s += v.sign;
-        }
-        if (type == HAT) {
-            s += QString(" ") + hatDirections[v.direction];
+        if (v.number >= 0) {
+            s += QString::number(v.number);
+            if (type == AXIS && v.sign) {
+                s += v.sign;
+            }
+            if (type == HAT) {
+                s += QString(" ") + hatDirections[v.direction];
+            }
         }
         firstIteration = false;
     }
