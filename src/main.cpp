@@ -65,6 +65,8 @@ int main(int argc, char *argv[])
     Core core;
     core.init();
 
+    setTheme();
+
     MainWindow window;
 
     QString maximized = SETTINGS.value("Geometry/maximized", "").toString();

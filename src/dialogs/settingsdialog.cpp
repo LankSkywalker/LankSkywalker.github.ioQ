@@ -396,6 +396,9 @@ SettingsDialog::SettingsDialog(QWidget *parent, int activeTab) : QDialog(parent)
 
     ui->languageInfoLabel->setHidden(true);
 
+    QString theme = SETTINGS.value("theme").toString();
+    ui->themeBox->setCurrentText(theme);
+
     connect(ui->downloadOption, SIGNAL(toggled(bool)), this, SLOT(toggleDownload(bool)));
     connect(ui->downloadOption, SIGNAL(toggled(bool)), this, SLOT(populateTableAndListTab(bool)));
     connect(ui->languageBox, SIGNAL(currentIndexChanged(int)), this, SLOT(updateLanguageInfo()));
@@ -601,6 +604,8 @@ void SettingsDialog::editSettings()
         SETTINGS.setValue("List/sortdirection", "ascending");
 
 
+    SETTINGS.setValue("theme", ui->themeBox->currentText());
+    setTheme(ui->themeBox->currentText());
     SETTINGS.setValue("language", ui->languageBox->itemData(ui->languageBox->currentIndex()));
 
     close();

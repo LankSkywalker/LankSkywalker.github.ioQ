@@ -82,6 +82,8 @@ int getGridSize(QString which);
 int getTableDataIndexFromName(QString infoName);
 int getTextSize();
 
+void setTheme();
+void setTheme(const QString &theme);
 void byteswap(QByteArray &romData);
 QStringList getZippedFiles(QString completeFileName);
 QColor getColor(QString color, int transparency = 255);

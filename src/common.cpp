@@ -40,6 +40,9 @@
 #include <QFile>
 #include <QLocale>
 #include <QSize>
+#include <QApplication>
+#include <QPalette>
+#include <QStyle>
 
 #if QT_VERSION >= 0x050000
 #include <quazip5/quazip.h>
@@ -54,6 +57,37 @@
 #else
 #include <QDesktopServices>
 #endif
+
+
+void setTheme()
+{
+    return setTheme(SETTINGS.value("theme", "Default").toString());
+}
+
+
+void setTheme(const QString &theme)
+{
+    if (theme == "Dark") {
+        QPalette p = QApplication::palette();
+        p.setColor(QPalette::Base, QColor(65, 65, 65));
+        p.setColor(QPalette::AlternateBase, QColor(30, 30, 30));
+        p.setColor(QPalette::Window, QColor(55, 55, 55));
+        p.setColor(QPalette::Button, QColor(65, 65, 65));
+        p.setColor(QPalette::ButtonText, QColor(255, 255, 255));
+        p.setColor(QPalette::WindowText, QColor(255, 255, 255));
+        p.setColor(QPalette::BrightText, QColor(255, 255, 255));
+        p.setColor(QPalette::Text, QColor(255, 255, 255));
+        p.setColor(QPalette::ToolTipBase, QColor(60, 60, 60));
+        p.setColor(QPalette::ToolTipText, QColor(200, 200, 200));
+        p.setColor(QPalette::Link, QColor(210, 90, 90));
+        p.setColor(QPalette::LinkVisited, QColor(210, 90, 90));
+        p.setColor(QPalette::Highlight, QColor(110, 65, 65));
+        p.setColor(QPalette::HighlightedText, QColor(255, 255, 255));
+        QApplication::setPalette(p);
+    } else {
+        QApplication::setPalette(QApplication::style()->standardPalette());
+    }
+}
 
 
 void byteswap(QByteArray &romData)
