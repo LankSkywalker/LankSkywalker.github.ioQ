@@ -278,3 +278,15 @@ bool Emulation::getRomSettings(size_t size, m64p_rom_settings *romSettings)
     }
     return true;
 }
+
+
+void Emulation::sendKeyDown(int sdlKey)
+{
+    CoreDoCommand(M64CMD_SEND_SDL_KEYDOWN, sdlKey, NULL);
+}
+
+
+void Emulation::sendKeyUp(int sdlKey)
+{
+    CoreDoCommand(M64CMD_SEND_SDL_KEYUP, sdlKey, NULL);
+}

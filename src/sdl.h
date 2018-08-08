@@ -29,47 +29,14 @@
  *
  ***/
 
-#ifndef EMULATION_H
-#define EMULATION_H
+#ifndef SDL_H
+#define SDL_H
 
-#include <m64p_types.h>
-#include <cstdlib>
-#include <QObject>
-class QSurfaceFormat;
-class QString;
+#include <SDL.h>
+class QKeyEvent;
 
-class Emulation : public QObject
-{
-    Q_OBJECT
+SDL_Scancode qtToSdlScancode(const QKeyEvent *keyEvent);
+int qtToSdlKey(const QKeyEvent *keyEvent);
+const char *sdlKeyName(SDL_Keycode keycode);
 
-public:
-    void startGame(const QString &romFileName, const QString &zipFileName = "");
-    void runGame(const QString &romFileName, const QString &zipFileName);
-    bool isExecuting();
-    void stopGame();
-    void setSaveSlot(int n);
-    void reset(bool hard);
-    bool getRomSettings(size_t size, m64p_rom_settings *romSettings);
-
-signals:
-    void createGlWindow(QSurfaceFormat *format);
-    void destroyGlWindow();
-    void resize(int width, int height);
-    void started();
-    void resumed();
-    void paused();
-    void finished();
-
-public slots:
-    void play();
-    void pause();
-    void advanceFrame();
-    void saveState();
-    void loadState();
-    void resetSoft();
-    void resetHard();
-    void sendKeyDown(int sdlKey);
-    void sendKeyUp(int sdlKey);
-};
-
-#endif // EMULATION_H
+#endif // SDL_H

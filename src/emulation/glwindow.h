@@ -42,6 +42,8 @@ public:
     void initializeGL() Q_DECL_OVERRIDE;
     void exposeEvent(QExposeEvent *) Q_DECL_OVERRIDE
     {}
+    void keyPressEvent(QKeyEvent *keyEvent) Q_DECL_OVERRIDE;
+    void keyReleaseEvent(QKeyEvent *keyEvent) Q_DECL_OVERRIDE;
 };
 
 

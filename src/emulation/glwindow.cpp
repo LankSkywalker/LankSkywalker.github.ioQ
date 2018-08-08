@@ -30,10 +30,27 @@
  ***/
 
 #include "glwindow.h"
+#include "emulation.h"
+#include "../sdl.h"
+#include <QKeyEvent>
 
 void GlWindow::initializeGL()
 {
     extern EmuThread *emuthread;
     doneCurrent();
     context()->moveToThread(emuthread);
+}
+
+
+void GlWindow::keyPressEvent(QKeyEvent *keyEvent)
+{
+    extern Emulation emulation;
+    emulation.sendKeyDown(qtToSdlScancode(keyEvent));
+}
+
+
+void GlWindow::keyReleaseEvent(QKeyEvent *keyEvent)
+{
+    extern Emulation emulation;
+    emulation.sendKeyUp(qtToSdlScancode(keyEvent));
 }

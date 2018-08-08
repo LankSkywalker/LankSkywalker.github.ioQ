@@ -32,6 +32,7 @@
 #include "keyspec.h"
 #include "../error.h"
 #include "../common.h"
+#include "../sdl.h"
 
 #include <QRegularExpression>
 
@@ -101,8 +102,11 @@ bool KeySpec::parseOne(KeySpec &k, const char **str)
 }
 
 
-QString KeySpec::toString() const
+QString KeySpec::toString(bool readable) const
 {
+    if (type == KEY && readable && !values.empty()) {
+        return sdlKeyName(values[0].number);
+    }
     const char *hatDirections[] = {
         "Up",
         "Down",

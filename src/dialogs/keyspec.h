@@ -115,7 +115,7 @@ public:
         values.push_back(v);
     }
 
-    QString toString() const;
+    QString toString(bool readable = false) const;
 
     // Parses one key spec, eg "axis(0-,0+)" and updates k and str.
     static bool parseOne(KeySpec &k, const char **str);

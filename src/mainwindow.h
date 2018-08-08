@@ -164,7 +164,6 @@ private slots:
     void updateLayoutSetting();
     void emulationResumed();
     void emulationPaused();
-
 };
 
 #endif // MAINWINDOW_H

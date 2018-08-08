@@ -35,6 +35,7 @@
 #include "../error.h"
 #include "../core.h"
 #include "../plugin.h"
+#include "../sdl.h"
 
 #include <SDL.h>
 #include <QThread>
@@ -246,17 +247,10 @@ void InputDialog::timerEvent(QTimerEvent *timerEvent)
 }
 
 
-static SDL_Keycode qtToSdlKey(int key)
-{
-    // TODO: this function
-    return key;
-}
-
-
 void InputDialog::keyPressEvent(QKeyEvent *keyEvent)
 {
     if (inputReadingState.reading) {
-        int sdlKey = qtToSdlKey(keyEvent->key());
+        int sdlKey = qtToSdlKey(keyEvent);
         KeySpec key = KeySpec(KeySpec::KEY, KeySpec::Value(sdlKey));
         int param = inputReadingState.button->parameter;
         std::vector<KeySpec> &keys = inputReadingState.value->keys;
@@ -329,7 +323,7 @@ static std::vector<KeySpec> parseKeyConfig(const char *str)
 }
 
 
-static QString keyspecsToString(const std::vector<KeySpec> &keyspecs)
+static QString keyspecsToString(const std::vector<KeySpec> &keyspecs, bool readable = false)
 {
     QString str;
     bool first = true;
@@ -337,7 +331,7 @@ static QString keyspecsToString(const std::vector<KeySpec> &keyspecs)
         if (!first) {
             str += " ";
         }
-        str += k.toString();
+        str += k.toString(readable && k.type == KeySpec::KEY);
         first = false;
     }
     return str;
@@ -393,7 +387,7 @@ void InputDialog::setValues()
         if (keyspecs.empty()) {
             b.button->setText(TR("Select..."));
         } else {
-            b.button->setText(keyspecsToString(keyspecs));
+            b.button->setText(keyspecsToString(keyspecs, true));
         }
     }
 }

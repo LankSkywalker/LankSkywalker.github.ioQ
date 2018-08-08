@@ -156,6 +156,7 @@ void MainWindow::createGlWindow(QSurfaceFormat *format)
     resize(640, 480);
     mainWidget = takeCentralWidget();
     setCentralWidget(container);
+    container->setFocus();
     int x = SETTINGS.value("Geometry/gameWindowx", -1).toInt();
     int y = SETTINGS.value("Geometry/gameWindowy", -1).toInt();
     if (x != -1 && y != -1) {

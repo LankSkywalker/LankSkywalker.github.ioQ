@@ -23,6 +23,7 @@ SOURCES += src/main.cpp \
     src/mainwindow.cpp \
     src/error.cpp \
     src/plugin.cpp \
+    src/sdl.cpp \
     src/dialogs/aboutguidialog.cpp \
     src/dialogs/configeditor.cpp \
     src/dialogs/downloaddialog.cpp \
@@ -51,6 +52,7 @@ HEADERS += src/global.h \
     src/mainwindow.h \
     src/error.h \
     src/plugin.h \
+    src/sdl.h \
     src/dialogs/aboutguidialog.h \
     src/dialogs/configeditor.h \
     src/dialogs/downloaddialog.h \
