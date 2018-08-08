@@ -298,7 +298,6 @@ PluginConfigDialog::PluginConfigDialog(const QString &name, QWidget *parent)
     connect(buttons, SIGNAL(rejected()), this, SLOT(reject()));
 
     setLayout(layout);
-    resize(740, 500);
 }
 
 
