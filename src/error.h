@@ -83,17 +83,17 @@ static inline std::string toString(const QString &s)
     return std::string(s.toUtf8().data());
 }
 
-#define LOG(level, from, msg) \
-    logError(level, from, ::toString(msg).data());
-
-#define SHOW(level, from, msg) \
-    logAndShowError(level, from, ::toString(msg).data());
-
 #define LOG_DBG(level, from, msg) \
-    logError(level, from, ::toString(msg).data(), __FILE__ ":" MY__LINE__);
+    logError(level, from, ::toString(msg).data(), __FILE__ ":" MY__LINE__)
 
 #define SHOW_DBG(level, from, msg) \
-    logAndShowError(level, from, ::toString(msg).data(), __FILE__ ":" MY__LINE__);
+    logAndShowError(level, from, ::toString(msg).data(), __FILE__ ":" MY__LINE__)
+
+#define LOG(level, from, msg) \
+    logError(level, from, ::toString(msg).data())
+
+#define SHOW(level, from, msg) \
+    logAndShowError(level, from, ::toString(msg).data())
 
 
 #define LOG_E(msg)     LOG(L_ERR, FROM_UI, msg)
