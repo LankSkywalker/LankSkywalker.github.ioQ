@@ -72,6 +72,7 @@ LogLevel levelFromM64(m64p_msg_level level)
     case M64MSG_STATUS:  return L_INFO;
     case M64MSG_VERBOSE: return L_VERB;
     }
+    throw;
 }
 
 const char *errorLevelToName(LogLevel level, bool shortName)

@@ -61,11 +61,13 @@ static m64p_error quit()
     glWindow->doneCurrent();
     glWindow->context()->moveToThread(QApplication::instance()->thread());
     emulation.destroyGlWindow();
+    return M64ERR_SUCCESS;
 }
 
 static m64p_error listModes(m64p_2d_size *sizes, int *nSizes)
 {
     LOG(L_VERB, FROM, "listModes");
+    abort();
 }
 
 static m64p_error setMode(int width, int height, int, int mode, int)
@@ -74,6 +76,7 @@ static m64p_error setMode(int width, int height, int, int mode, int)
     emulation.createGlWindow(&format);
     emulation.resize(width, height);
     glWindow->makeCurrent();
+    return M64ERR_SUCCESS;
 }
 
 static void *glGetProc(const char *name)
@@ -163,6 +166,7 @@ static m64p_error glSetAttr(m64p_GLattr attr, int value)
 static m64p_error glGetAttr(m64p_GLattr attr, int *value)
 {
     LOG(L_VERB, FROM, "glGetAttr");
+    abort();
 }
 
 static m64p_error glSwapBuf()
@@ -175,21 +179,25 @@ static m64p_error glSwapBuf()
 static m64p_error setCaption(const char *title)
 {
     LOG(L_VERB, FROM, "setCaption");
+    return M64ERR_SUCCESS;
 }
 
 static m64p_error toggleFs()
 {
     LOG(L_VERB, FROM, "toggleFs");
+    abort();
 }
 
 static m64p_error resizeWindow(int, int)
 {
     LOG(L_VERB, FROM, "resizeWindow");
+    abort();
 }
 
 static uint32_t glGetDefaultFb()
 {
     LOG(L_VERB, FROM, "glGetDefaultFb");
+    abort();
 }
 
 

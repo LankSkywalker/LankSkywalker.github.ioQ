@@ -448,7 +448,8 @@ void InputDialog::controllerSelected(int index)
 void InputDialog::loadUnloadPlugin(const char *name)
 {
     m64p_dynlib_handle h;
-    if (openPlugin(h, name, "input")) {
+    char pluginType[] = "input";
+    if (openPlugin(h, name, pluginType)) {
         closePlugin(h);
     }
 }
