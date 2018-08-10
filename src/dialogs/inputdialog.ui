@@ -28,30 +28,17 @@ QGroupBox::title {
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QComboBox" name="controllerBox">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="frame">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
     <spacer name="verticalSpacer_4">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::MinimumExpanding</enum>
+     </property>
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>40</height>
+       <height>5</height>
       </size>
      </property>
     </spacer>

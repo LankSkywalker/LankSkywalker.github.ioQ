@@ -88,6 +88,10 @@ InputDialog::InputDialog(const QString &name, QWidget *parent)
         sdlWasInited = false;
     }
 
+    QTabBar *tabs = new QTabBar;
+    tabs->setExpanding(false);
+    dynamic_cast<QBoxLayout*>(layout())->insertWidget(0, tabs);
+
     for (int i = 1; i <= 4; i++) {
         m64p_handle configHandle;
         QString sectionName = toSectionName(name, i);
@@ -129,9 +133,10 @@ InputDialog::InputDialog(const QString &name, QWidget *parent)
 
         controllers.push_back({sectionName, configHandle, {}, false, configs, deviceIndex});
 
-        ui->controllerBox->addItem(TR("Controller <N>").replace("<N>", QString::number(i)));
+        tabs->addTab(TR("Controller <N>").replace("<N>", QString::number(i)));
+
     }
-    connect(ui->controllerBox, SIGNAL(currentIndexChanged(int)),
+    connect(tabs, SIGNAL(currentChanged(int)),
             this, SLOT(controllerSelected(int)));
 
     connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
