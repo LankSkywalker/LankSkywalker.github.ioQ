@@ -62,6 +62,13 @@ static bool openSection(const QString &sectionName, m64p_handle &configHandle)
 }
 
 
+static void receiveParameter(void *data, const char *name, m64p_type type)
+{
+    auto *configs = (ConfigControlCollection *)data;
+    configs->addItem(type, name);
+}
+
+
 InputDialog::InputDialog(const QString &name, QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::InputDialog)
@@ -71,11 +78,42 @@ InputDialog::InputDialog(const QString &name, QWidget *parent)
 
     loadUnloadPlugin(name.toUtf8().data());
 
+    getButtons();
+
     for (int i = 1; i <= 4; i++) {
         m64p_handle configHandle;
         QString sectionName = toSectionName(name, i);
         openSection(sectionName, configHandle);
-        controllers.push_back({sectionName, configHandle, {}, false});
+        ConfigControlCollection configs;
+        configs.setConfigHandle(configHandle);
+        ConfigListParameters(configHandle, &configs, receiveParameter);
+
+        // Remove config parameters that are later added manually.
+        for (const Button &b : buttons) {
+            configs.removeByConfigName(b.configName);
+        }
+        configs.removeByConfigName("version");
+        configs.removeByConfigName("mode");
+
+        // Add config parameters.
+        QWidget *otherParamsContainer = new QWidget;
+        QGridLayout *otherParamsLayout = new QGridLayout(otherParamsContainer);
+        int col1row = 0;
+        int col2row = 0;
+        for (const ConfItem &item : configs.getItems()) {
+            if (item.type == M64TYPE_BOOL) {
+                otherParamsLayout->addWidget(item.widget, col2row, 2, Qt::AlignLeft);
+                col2row++;
+            } else {
+                otherParamsLayout->addWidget(item.label, col1row, 0, Qt::AlignRight);
+                otherParamsLayout->addWidget(item.widget, col1row, 1, Qt::AlignLeft);
+                col1row++;
+            }
+        }
+        ui->otherParams->addWidget(otherParamsContainer);
+
+        controllers.push_back({sectionName, configHandle, {}, false, configs});
+
         ui->controllerBox->addItem(TR("Controller <N>").replace("<N>", QString::number(i)));
     }
     connect(ui->controllerBox, SIGNAL(currentIndexChanged(int)),
@@ -84,7 +122,6 @@ InputDialog::InputDialog(const QString &name, QWidget *parent)
     connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
-    getButtons();
     setValues();
     connectButtons();
 
@@ -390,6 +427,8 @@ void InputDialog::setValues()
             b.button->setText(keyspecsToString(keyspecs, true));
         }
     }
+
+    ui->otherParams->setCurrentIndex(currentControllerIndex);
 }
 
 
@@ -414,6 +453,8 @@ void InputDialog::saveController(int controllerIndex)
             }
         }
     }
+
+    c.configs.save();
 
     QString sectionName = toSectionName(pluginName, controllerIndex + 1);
     rval = ConfigSaveSection(sectionName.toUtf8().data());

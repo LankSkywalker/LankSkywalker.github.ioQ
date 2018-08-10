@@ -70,6 +70,7 @@ public:
     ConfigControlCollection();
     void addItem(m64p_type type, const char *name);
     std::vector<ConfItem> &getItems();
+    bool removeByConfigName(const char *configName);
     void save() const;
     void filter(const QString &text);
     void setConfigHandle(m64p_handle configHandle);

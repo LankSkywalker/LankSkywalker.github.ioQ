@@ -33,6 +33,7 @@
 #define INPUTDIALOG_H
 
 #include "../config/keyspec.h"
+#include "../config/configcontrolcollection.h"
 
 #include <m64p_types.h>
 
@@ -78,6 +79,7 @@ class InputDialog : public QDialog
         m64p_handle configHandle;
         std::vector<Value> values;
         bool changed;
+        ConfigControlCollection configs;
     };
 
 public:

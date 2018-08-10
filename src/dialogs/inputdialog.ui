@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>556</width>
-    <height>545</height>
+    <height>581</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -29,6 +29,9 @@
       <bool>true</bool>
      </property>
     </widget>
+   </item>
+   <item>
+    <widget class="QStackedWidget" name="otherParams"/>
    </item>
    <item>
     <layout class="QGridLayout" name="gridLayout">
@@ -346,7 +349,7 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QGroupBox" name="groupBox">
+      <widget class="QGroupBox" name="buttonsBox">
        <property name="title">
         <string>Buttons</string>
        </property>
@@ -424,7 +427,7 @@
       </widget>
      </item>
      <item row="1" column="0">
-      <widget class="QGroupBox" name="groupBox_2">
+      <widget class="QGroupBox" name="analogStickBox">
        <property name="title">
         <string>Analog stick</string>
        </property>
@@ -527,14 +530,8 @@
        </layout>
       </widget>
      </item>
-     <item row="4" column="1">
-      <layout class="QGridLayout" name="gridLayout_3"/>
-     </item>
-     <item row="4" column="0">
-      <layout class="QGridLayout" name="gridLayout_2"/>
-     </item>
      <item row="3" column="0" colspan="2">
-      <widget class="QGroupBox" name="groupBox_4">
+      <widget class="QGroupBox" name="switchesBox">
        <property name="title">
         <string>Switches</string>
        </property>

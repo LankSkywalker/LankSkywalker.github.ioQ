@@ -88,7 +88,7 @@ static QString toReadableName(QString name, QString help)
         firstPart.chop(1);
     }
 
-    if (firstPart.length() < 35 && firstPart.length() > niceName.length()) {
+    if (firstPart.length() < 32 && firstPart.length() > niceName.length()) {
         return firstPart;
     } else {
         return niceName;
@@ -161,6 +161,18 @@ void ConfigControlCollection::addItem(m64p_type type, const char *name)
 std::vector<ConfItem> &ConfigControlCollection::getItems()
 {
     return items;
+}
+
+
+bool ConfigControlCollection::removeByConfigName(const char *configName)
+{
+    for (size_t i = 0; i < items.size(); i++) {
+        const ConfItem &item = items[i];
+        if (item.name.compare(configName, Qt::CaseInsensitive) == 0) {
+            items.erase(items.begin() + i);
+            i--;
+        }
+    }
 }
 
 
