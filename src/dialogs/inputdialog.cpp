@@ -105,21 +105,24 @@ InputDialog::InputDialog(const QString &name, QWidget *parent)
         configs.removeByConfigName("device");
         configs.removeByConfigName("name");
 
-        // Add config parameters.
-        QWidget *otherParamsContainer = new QWidget;
-        QGridLayout *otherParamsLayout = new QGridLayout(otherParamsContainer);
         int col1row = 0;
         int col2row = 0;
+        QWidget *otherParamsContainer = new QWidget;
+        QGridLayout *otherParamsLayout = new QGridLayout(otherParamsContainer);
+        otherParamsLayout->setContentsMargins(0, 0, 0, 0);
+
+        // Add config parameters.
         for (const ConfItem &item : configs.getItems()) {
             if (item.type == M64TYPE_BOOL) {
-                otherParamsLayout->addWidget(item.widget, col2row, 2, Qt::AlignLeft);
-                col2row++;
-            } else {
-                otherParamsLayout->addWidget(item.label, col1row, 0, Qt::AlignRight);
-                otherParamsLayout->addWidget(item.widget, col1row, 1, Qt::AlignLeft);
+                otherParamsLayout->addWidget(item.widget, col1row, 0, Qt::AlignLeft);
                 col1row++;
+            } else {
+                otherParamsLayout->addWidget(item.label, col2row, 1, Qt::AlignLeft);
+                otherParamsLayout->addWidget(item.widget, col2row, 2, Qt::AlignRight);
+                col2row++;
             }
         }
+        otherParamsLayout->setColumnStretch(0, 1);
         ui->otherParams->addWidget(otherParamsContainer);
 
         int deviceIndex = ConfigGetParamInt(configHandle, "device");
