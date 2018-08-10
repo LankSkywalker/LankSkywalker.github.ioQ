@@ -31,6 +31,20 @@
     </widget>
    </item>
    <item>
+    <layout class="QGridLayout" name="topGrid">
+     <item row="0" column="0">
+      <widget class="QLabel" name="deviceLabel">
+       <property name="text">
+        <string>Device</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QComboBox" name="deviceBox"/>
+     </item>
+    </layout>
+   </item>
+   <item>
     <widget class="QStackedWidget" name="otherParams"/>
    </item>
    <item>
@@ -39,7 +53,7 @@
       <number>10</number>
      </property>
      <item row="2" column="0" colspan="2">
-      <layout class="QGridLayout" name="gridLayout_8">
+      <layout class="QGridLayout" name="triggersGroup">
        <item row="1" column="0">
         <widget class="QGroupBox" name="groupBox_3">
          <property name="title">
@@ -147,7 +161,7 @@
       </layout>
      </item>
      <item row="0" column="0">
-      <widget class="QGroupBox" name="dButtonsBox">
+      <widget class="QGroupBox" name="dButtonsGroup">
        <property name="title">
         <string>D-buttons</string>
        </property>
@@ -248,7 +262,7 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QGroupBox" name="cButtonsBox">
+      <widget class="QGroupBox" name="cButtonsGroup">
        <property name="title">
         <string>C-buttons</string>
        </property>
@@ -349,7 +363,7 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QGroupBox" name="buttonsBox">
+      <widget class="QGroupBox" name="buttonsGroup">
        <property name="title">
         <string>Buttons</string>
        </property>
@@ -427,7 +441,7 @@
       </widget>
      </item>
      <item row="1" column="0">
-      <widget class="QGroupBox" name="analogStickBox">
+      <widget class="QGroupBox" name="analogStickGroup">
        <property name="title">
         <string>Analog stick</string>
        </property>
@@ -531,7 +545,7 @@
       </widget>
      </item>
      <item row="3" column="0" colspan="2">
-      <widget class="QGroupBox" name="switchesBox">
+      <widget class="QGroupBox" name="switchesGroup">
        <property name="title">
         <string>Switches</string>
        </property>

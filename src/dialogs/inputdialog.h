@@ -80,6 +80,7 @@ class InputDialog : public QDialog
         std::vector<Value> values;
         bool changed;
         ConfigControlCollection configs;
+        int deviceIndex;
     };
 
 public:
@@ -89,6 +90,7 @@ public:
 private slots:
     void accept();
     void controllerSelected(int index);
+    void deviceChanged(int widgetIndex);
 
 private:
     Controller &currentController();

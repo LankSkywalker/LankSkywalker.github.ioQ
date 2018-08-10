@@ -80,6 +80,14 @@ InputDialog::InputDialog(const QString &name, QWidget *parent)
 
     getButtons();
 
+    if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) == 0) {
+        sdlWasInited = true;
+    } else {
+        SHOW_E(TR("Could not init SDL. Input configuration will not work. ")
+                + SDL_GetError());
+        sdlWasInited = false;
+    }
+
     for (int i = 1; i <= 4; i++) {
         m64p_handle configHandle;
         QString sectionName = toSectionName(name, i);
@@ -94,6 +102,8 @@ InputDialog::InputDialog(const QString &name, QWidget *parent)
         }
         configs.removeByConfigName("version");
         configs.removeByConfigName("mode");
+        configs.removeByConfigName("device");
+        configs.removeByConfigName("name");
 
         // Add config parameters.
         QWidget *otherParamsContainer = new QWidget;
@@ -112,7 +122,9 @@ InputDialog::InputDialog(const QString &name, QWidget *parent)
         }
         ui->otherParams->addWidget(otherParamsContainer);
 
-        controllers.push_back({sectionName, configHandle, {}, false, configs});
+        int deviceIndex = ConfigGetParamInt(configHandle, "device");
+
+        controllers.push_back({sectionName, configHandle, {}, false, configs, deviceIndex});
 
         ui->controllerBox->addItem(TR("Controller <N>").replace("<N>", QString::number(i)));
     }
@@ -122,18 +134,10 @@ InputDialog::InputDialog(const QString &name, QWidget *parent)
     connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
+    inputReadingState.reading = false;
+
     setValues();
     connectButtons();
-
-    if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) == 0) {
-        sdlWasInited = true;
-    } else {
-        SHOW_E(TR("Could not init SDL. Input configuration will not work. ")
-                + SDL_GetError());
-        sdlWasInited = false;
-    }
-
-    inputReadingState.reading = false;
 }
 
 
@@ -150,6 +154,15 @@ void InputDialog::connectButtons()
             }
         });
     }
+
+    connect(ui->deviceBox, SIGNAL(activated(int)),
+            this, SLOT(deviceChanged(int)));
+}
+
+
+void InputDialog::deviceChanged(int widgetIndex)
+{
+    currentController().deviceIndex = widgetIndex - 1;
 }
 
 
@@ -429,6 +442,20 @@ void InputDialog::setValues()
     }
 
     ui->otherParams->setCurrentIndex(currentControllerIndex);
+
+    // Clear the device combo box.
+    int devMaxCount = ui->deviceBox->maxCount();
+    ui->deviceBox->setMaxCount(0);
+    ui->deviceBox->setMaxCount(devMaxCount);
+
+    // Add devices.
+    ui->deviceBox->addItem("No joystick", -1);
+    int nJoysticks = SDL_NumJoysticks();
+    for (int j = 0; j < nJoysticks; j++) {
+        const char *name = SDL_JoystickNameForIndex(j);
+        ui->deviceBox->addItem(name, j);
+    }
+    ui->deviceBox->setCurrentIndex(c.deviceIndex + 1);
 }
 
 
@@ -455,6 +482,16 @@ void InputDialog::saveController(int controllerIndex)
     }
 
     c.configs.save();
+
+    int deviceIndex = c.deviceIndex;
+    rval = ConfigSetParameter(c.configHandle, "device", M64TYPE_INT, &deviceIndex);
+    const char *deviceName;
+    if (deviceIndex >= 0) {
+        deviceName = SDL_JoystickNameForIndex(deviceIndex);
+    } else {
+        deviceName = "Keyboard";
+    }
+    rval = ConfigSetParameter(c.configHandle, "name", M64TYPE_STRING, deviceName);
 
     QString sectionName = toSectionName(pluginName, controllerIndex + 1);
     rval = ConfigSaveSection(sectionName.toUtf8().data());
