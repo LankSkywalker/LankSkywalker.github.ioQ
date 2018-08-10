@@ -32,7 +32,7 @@
 #ifndef INPUTDIALOG_H
 #define INPUTDIALOG_H
 
-#include "keyspec.h"
+#include "../config/keyspec.h"
 
 #include <m64p_types.h>
 

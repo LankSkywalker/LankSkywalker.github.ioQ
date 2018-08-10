@@ -24,12 +24,13 @@ SOURCES += src/main.cpp \
     src/error.cpp \
     src/plugin.cpp \
     src/sdl.cpp \
+    src/config/configcontrolcollection.cpp \
+    src/config/keyspec.cpp \
     src/dialogs/aboutguidialog.cpp \
     src/dialogs/configeditor.cpp \
     src/dialogs/downloaddialog.cpp \
     src/dialogs/gamesettingsdialog.cpp \
     src/dialogs/inputdialog.cpp \
-    src/dialogs/keyspec.cpp \
     src/dialogs/logdialog.cpp \
     src/dialogs/pluginconfigdialog.cpp \
     src/dialogs/settingsdialog.cpp \
@@ -53,12 +54,13 @@ HEADERS += src/global.h \
     src/error.h \
     src/plugin.h \
     src/sdl.h \
+    src/config/configcontrolcollection.h \
+    src/config/keyspec.h \
     src/dialogs/aboutguidialog.h \
     src/dialogs/configeditor.h \
     src/dialogs/downloaddialog.h \
     src/dialogs/gamesettingsdialog.h \
     src/dialogs/inputdialog.h \
-    src/dialogs/keyspec.h \
     src/dialogs/logdialog.h \
     src/dialogs/pluginconfigdialog.h \
     src/dialogs/settingsdialog.h \

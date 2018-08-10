@@ -29,39 +29,55 @@
  *
  ***/
 
-#ifndef PLUGINCONFIGDIALOG_H
-#define PLUGINCONFIGDIALOG_H
-
-#include "../config/configcontrolcollection.h"
+#ifndef CONFIGCONTROLCOLLECTION_H
+#define CONFIGCONTROLCOLLECTION_H
 
 #include <m64p_types.h>
-
-#include <QDialog>
-#include <QLabel>
-class QAbstractButton;
-class QSpinBox;
-class QComboBox;
-class QCheckBox;
-class QLineEdit;
+#include <vector>
+#include <QString>
+class QWidget;
+class QLabel;
 
 
-class PluginConfigDialog : public QDialog
+struct ConfItem
 {
-    Q_OBJECT
+    m64p_type type;
+    QString name;
+    QWidget *widget;
+    QLabel *label;
+    QString help;
+    m64p_handle configHandle;
 
-public:
-    explicit PluginConfigDialog(const QString &name, QWidget *parent = NULL);
-
-private slots:
-    void accept();
-    void search(const QString &text);
+    ConfItem(m64p_type type, const QString &name, m64p_handle configHandle)
+        : type(type)
+        , name(name)
+        , widget(NULL)
+        , label(NULL)
+        , help("")
+        , configHandle(configHandle)
+    {
+        createWidget();
+    }
 
 private:
-    void loadUnloadPlugin(const char *name);
-
-    QString sectionName;
-    ConfigControlCollection configs;
+    void createWidget();
 };
 
 
-#endif // PLUGINCONFIGDIALOG_H
+class ConfigControlCollection
+{
+public:
+    ConfigControlCollection();
+    void addItem(m64p_type type, const char *name);
+    std::vector<ConfItem> &getItems();
+    void save() const;
+    void filter(const QString &text);
+    void setConfigHandle(m64p_handle configHandle);
+
+private:
+    m64p_handle configHandle;
+    std::vector<ConfItem> items;
+};
+
+
+#endif // CONFIGCONTROLCOLLECTION_H
