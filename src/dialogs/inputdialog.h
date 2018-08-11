@@ -91,6 +91,7 @@ private slots:
     void accept();
     void controllerSelected(int index);
     void deviceChanged(int widgetIndex);
+    void configChanged();
 
 private:
     Controller &currentController();

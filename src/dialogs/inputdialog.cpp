@@ -40,6 +40,10 @@
 #include <SDL.h>
 #include <QThread>
 #include <QKeyEvent>
+#include <QSpinBox>
+#include <QComboBox>
+#include <QCheckBox>
+#include <QLineEdit>
 
 
 static QString toSectionName(const QString &name, int controllerNumber)
@@ -125,6 +129,23 @@ InputDialog::InputDialog(const QString &name, QWidget *parent)
                 otherParamsLayout->addWidget(item.widget, col2row, 2, Qt::AlignRight);
                 col2row++;
             }
+            QWidget *w = item.widget;
+            auto spinBox = dynamic_cast<QSpinBox*>(w);
+            if (spinBox) {
+                connect(spinBox, SIGNAL(valueChanged(int)), this, SLOT(configChanged()));
+            }
+            auto comboBox = dynamic_cast<QComboBox*>(w);
+            if (comboBox) {
+                connect(comboBox, SIGNAL(activated(int)), this, SLOT(configChanged()));
+            }
+            auto checkBox = dynamic_cast<QCheckBox*>(w);
+            if (checkBox) {
+                connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(configChanged()));
+            }
+            auto lineEdit = dynamic_cast<QLineEdit*>(w);
+            if (lineEdit) {
+                connect(lineEdit, SIGNAL(editingFinished()), this, SLOT(configChanged()));
+            }
         }
         otherParamsLayout->setColumnStretch(0, 1);
         ui->otherParams->addWidget(otherParamsContainer);
@@ -149,6 +170,12 @@ InputDialog::InputDialog(const QString &name, QWidget *parent)
 }
 
 
+void InputDialog::configChanged()
+{
+    currentController().changed = true;
+}
+
+
 void InputDialog::connectButtons()
 {
     for (Button &b : buttons) {
@@ -170,7 +197,9 @@ void InputDialog::connectButtons()
 
 void InputDialog::deviceChanged(int widgetIndex)
 {
-    currentController().deviceIndex = widgetIndex - 1;
+    Controller &c = currentController();
+    c.deviceIndex = widgetIndex - 1;
+    c.changed = true;
 }
 
 
