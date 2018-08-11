@@ -118,6 +118,7 @@ int RomCollection::addRoms()
     QList<Rom> ddRoms;
 
     database.open();
+    database.transaction();
     QSqlQuery query("DELETE FROM rom_collection", database);
 
     if (totalCount != 0) {
@@ -192,6 +193,7 @@ int RomCollection::addRoms()
         SHOW_W(tr("No ROMs found."));
     }
 
+    database.commit();
     database.close();
 
     //Emit signals for regular roms
