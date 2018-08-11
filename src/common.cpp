@@ -93,10 +93,12 @@ void setTheme(const QString &theme)
 void byteswap(QByteArray &romData)
 {
     if (romData.left(4).toHex() == "37804012") {
-        uint16_t *data = (uint16_t *)romData.data();
-        uint16_t *end = data + romData.length() / 2;
+        assert(romData.length() % 8 == 0);
+        uint64_t *data = (uint64_t *)romData.data();
+        uint64_t *end = data + romData.length() / 8;
         for (; data != end; data++) {
-            *data = *data << 8 | *data >> 8;
+            *data = (*data & 0x00ff00ff00ff00ff) << 8
+                  | (*data & 0xff00ff00ff00ff00) >> 8;
         }
     }
 }
