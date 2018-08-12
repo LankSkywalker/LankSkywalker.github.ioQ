@@ -164,7 +164,7 @@ int RomCollection::addRoms()
                     }
                 } else { //Just a normal file
                     QByteArray romData;
-                    readRomFile(romData, completeFileName);
+                    romData = QByteArray::fromRawData(mapRomFile(file), file.size());
 
                     if (fileTypes.contains("*.v64"))
                         byteswap(romData);

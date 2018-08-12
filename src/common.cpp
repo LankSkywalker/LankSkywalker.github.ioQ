@@ -485,3 +485,12 @@ void readRomFile(QByteArray &romData,
         romFile.close();
     }
 }
+
+
+const char *mapRomFile(QFile &file)
+{
+    file.open(QIODevice::ReadOnly);
+    uchar *romData = file.map(0, file.size(), QFileDevice::MapPrivateOption);
+    file.close();
+    return (const char *)romData;
+}
