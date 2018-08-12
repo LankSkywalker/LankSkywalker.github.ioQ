@@ -37,6 +37,7 @@
 
 #include "../global.h"
 #include "../common.h"
+#include "../settings.h"
 
 #include <QDesktopWidget>
 #include <QFileDialog>
@@ -128,33 +129,10 @@ SettingsDialog::SettingsDialog(QWidget *parent, int activeTab) : QDialog(parent)
 
 
     //Populate Plugins tab
-    QStringList audioPlugins, inputPlugins, rspPlugins, videoPlugins;
-    pluginsDir = QDir(SETTINGS.value("Paths/plugins", "").toString());
-
-    if (pluginsDir.exists()) {
-        QStringList files = pluginsDir.entryList(QStringList() << "*", QDir::Files);
-
-        if (files.size() > 0) {
-            foreach (QString fileName, files)
-            {
-                QString baseName = QFileInfo(fileName).completeBaseName();
-
-                if (fileName.contains("-audio-"))
-                    audioPlugins << baseName;
-                else if (fileName.contains("-input-"))
-                    inputPlugins << baseName;
-                else if (fileName.contains("-rsp-"))
-                    rspPlugins << baseName;
-                else if (fileName.contains("-video-"))
-                    videoPlugins << baseName;
-            }
-        }
-    }
-
-    ui->videoBox->insertItems(0, videoPlugins);
-    ui->audioBox->insertItems(0, audioPlugins);
-    ui->inputBox->insertItems(0, inputPlugins);
-    ui->rspBox->insertItems(0, rspPlugins);
+    ui->videoBox->insertItems(0, getAvailableVideoPlugins());
+    ui->audioBox->insertItems(0, getAvailableAudioPlugins());
+    ui->inputBox->insertItems(0, getAvailableInputPlugins());
+    ui->rspBox->insertItems(0, getAvailableRspPlugins());
 
     connect(ui->videoConfigure, SIGNAL(clicked()),
             this, SLOT(openVideoPluginConfig()));
@@ -165,21 +143,10 @@ SettingsDialog::SettingsDialog(QWidget *parent, int activeTab) : QDialog(parent)
     connect(ui->rspConfigure, SIGNAL(clicked()),
             this, SLOT(openRspPluginConfig()));
 
-    // Set default video plugin
-    QString videoDefault = "";
-    if (videoPlugins.contains("mupen64plus-video-glide64mk2")) {
-        videoDefault = "mupen64plus-video-glide64mk2";
-    }
-
-    int videoIndex = videoPlugins.indexOf(SETTINGS.value("Plugins/video",videoDefault).toString());
-    int audioIndex = audioPlugins.indexOf(SETTINGS.value("Plugins/audio","").toString());
-    int inputIndex = inputPlugins.indexOf(SETTINGS.value("Plugins/input","").toString());
-    int rspIndex = rspPlugins.indexOf(SETTINGS.value("Plugins/rsp","").toString());
-
-    if (videoIndex >= 0) ui->videoBox->setCurrentIndex(videoIndex);
-    if (audioIndex >= 0) ui->audioBox->setCurrentIndex(audioIndex);
-    if (inputIndex >= 0) ui->inputBox->setCurrentIndex(inputIndex);
-    if (rspIndex >= 0) ui->rspBox->setCurrentIndex(rspIndex);
+    ui->videoBox->setCurrentText(getCurrentVideoPlugin());
+    ui->audioBox->setCurrentText(getCurrentAudioPlugin());
+    ui->inputBox->setCurrentText(getCurrentInputPlugin());
+    ui->rspBox->setCurrentText(getCurrentRspPlugin());
 
 
     //Populate Table tab

@@ -36,6 +36,7 @@
 #include "../core.h"
 #include "../plugin.h"
 #include "../sdl.h"
+#include "../settings.h"
 
 #include <SDL.h>
 #include <QThread>
@@ -70,6 +71,12 @@ static void receiveParameter(void *data, const char *name, m64p_type type)
 {
     auto *configs = (ConfigControlCollection *)data;
     configs->addItem(type, name);
+}
+
+
+InputDialog::InputDialog(QWidget *parent)
+    : InputDialog(getCurrentInputPlugin(), parent)
+{
 }
 
 

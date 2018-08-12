@@ -36,6 +36,7 @@
 #include "common.h"
 #include "error.h"
 #include "core.h"
+#include "settings.h"
 
 #include "dialogs/aboutguidialog.h"
 #include "dialogs/configeditor.h"
@@ -43,6 +44,7 @@
 #include "dialogs/gamesettingsdialog.h"
 #include "dialogs/logdialog.h"
 #include "dialogs/settingsdialog.h"
+#include "dialogs/inputdialog.h"
 
 #include "emulation/glwindow.h"
 #include "emulation/emulation.h"
@@ -289,46 +291,22 @@ void MainWindow::autoloadSettings()
 
     // Set default plugins
 
-    if (pluginPath != "") {
-        QDir dir(pluginPath);
-        QString ext = OSAL_DLL_EXTENSION;
-
-        // Video
-        if (!SETTINGS.contains("Plugins/video")) {
-            QString defaultVideoPlugin = "mupen64plus-video-glide64mk2";
-            if (dir.exists(defaultVideoPlugin + ext)) {
-                SETTINGS.setValue("Plugins/video", defaultVideoPlugin);
-            } else {
-                QFileInfoList files = dir.entryInfoList({"mupen64plus-video-*" + ext});
-                if (!files.empty()) {
-                    SETTINGS.setValue("Plugins/video", files.first().baseName());
-                }
-            }
-        }
-
-        // Audio
-        if (!SETTINGS.contains("Plugins/audio")) {
-            QFileInfoList audioFiles = dir.entryInfoList({"mupen64plus-audio-*" + ext});
-            if (!audioFiles.empty()) {
-                SETTINGS.setValue("Plugins/audio", audioFiles.first().baseName());
-            }
-        }
-
-        // Input
-        if (!SETTINGS.contains("Plugins/input")) {
-            QFileInfoList inputFiles = dir.entryInfoList({"mupen64plus-input-*" + ext});
-            if (!inputFiles.empty()) {
-                SETTINGS.setValue("Plugins/input", inputFiles.first().baseName());
-            }
-        }
-
-        // Rsp
-        if (!SETTINGS.contains("Plugins/rsp")) {
-            QFileInfoList rspFiles = dir.entryInfoList({"mupen64plus-rsp-*" + ext});
-            if (!rspFiles.empty()) {
-                SETTINGS.setValue("Plugins/rsp", rspFiles.first().baseName());
-            }
-        }
+    QString p;
+    p = getCurrentVideoPlugin();
+    if (p != "") {
+        SETTINGS.setValue("Plugins/video", p);
+    }
+    p = getCurrentAudioPlugin();
+    if (p != "") {
+        SETTINGS.setValue("Plugins/audio", p);
+    }
+    p = getCurrentInputPlugin();
+    if (p != "") {
+        SETTINGS.setValue("Plugins/input", p);
+    }
+    p = getCurrentRspPlugin();
+    if (p != "") {
+        SETTINGS.setValue("Plugins/rsp", p);
     }
 
 
@@ -503,14 +481,12 @@ void MainWindow::createMenu()
 
     // Settings
     settingsMenu = new QMenu(tr("&Settings"), this);
-    pluginsAction = settingsMenu->addAction(tr("Plugins..."));
+    configureGameAction = settingsMenu->addAction(tr("Configure &Game..."));
+    settingsMenu->addSeparator();
     editorAction = settingsMenu->addAction(tr("Edit mupen64plus.cfg..."));
     settingsMenu->addSeparator();
-    configureGameAction = settingsMenu->addAction(tr("Configure &Game..."));
-#ifndef Q_OS_OSX
-    // OSX does not show the quit action so the separator is unneeded
-    settingsMenu->addSeparator();
-#endif
+    configInputAction = settingsMenu->addAction(tr("Configure &input..."));
+    pluginsAction = settingsMenu->addAction(tr("Plugins..."));
     configureAction = settingsMenu->addAction(tr("&Configure..."));
     configureAction->setIcon(QIcon::fromTheme("preferences-other"));
 
@@ -519,6 +495,7 @@ void MainWindow::createMenu()
     menuBar->addMenu(settingsMenu);
 
     connect(pluginsAction, SIGNAL(triggered()), this, SLOT(openPlugins()));
+    connect(configInputAction, SIGNAL(triggered()), this, SLOT(openInputConfig()));
     connect(editorAction, SIGNAL(triggered()), this, SLOT(openEditor()));
     connect(configureGameAction, SIGNAL(triggered()), this, SLOT(openGameSettings()));
     connect(configureAction, SIGNAL(triggered()), this, SLOT(openSettings()));
@@ -925,6 +902,12 @@ void MainWindow::openDownloader()
 void MainWindow::openPlugins()
 {
     openSettings(3);
+}
+
+
+void MainWindow::openInputConfig()
+{
+    InputDialog().exec();
 }
 
 

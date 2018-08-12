@@ -84,6 +84,7 @@ class InputDialog : public QDialog
     };
 
 public:
+    explicit InputDialog(QWidget *parent = NULL);
     explicit InputDialog(const QString &name, QWidget *parent = NULL);
     ~InputDialog();
 

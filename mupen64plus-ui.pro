@@ -24,6 +24,7 @@ SOURCES += src/main.cpp \
     src/error.cpp \
     src/plugin.cpp \
     src/sdl.cpp \
+    src/settings.cpp \
     src/config/configcontrolcollection.cpp \
     src/config/keyspec.cpp \
     src/dialogs/aboutguidialog.cpp \
@@ -54,6 +55,7 @@ HEADERS += src/global.h \
     src/error.h \
     src/plugin.h \
     src/sdl.h \
+    src/settings.h \
     src/config/configcontrolcollection.h \
     src/config/keyspec.h \
     src/dialogs/aboutguidialog.h \

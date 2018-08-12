@@ -86,6 +86,7 @@ private:
     QAction *deleteAction;
     QAction *downloadAction;
     QAction *pluginsAction;
+    QAction *configInputAction;
     QAction *editorAction;
     QAction *fullScreenAction;
     QAction *logAction;
@@ -148,6 +149,7 @@ private slots:
     void openDeleteDialog();
     void openDownloader();
     void openPlugins();
+    void openInputConfig();
     void openEditor();
     void openGameSettings();
     void openLog();
