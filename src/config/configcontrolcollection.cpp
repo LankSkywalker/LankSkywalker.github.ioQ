@@ -170,9 +170,10 @@ bool ConfigControlCollection::removeByConfigName(const char *configName)
         const ConfItem &item = items[i];
         if (item.name.compare(configName, Qt::CaseInsensitive) == 0) {
             items.erase(items.begin() + i);
-            i--;
+            return true;
         }
     }
+    return false;
 }
 
 
