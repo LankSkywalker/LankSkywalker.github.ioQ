@@ -167,6 +167,7 @@ InputDialog::InputDialog(const QString &name, QWidget *parent)
 
     setValues();
     connectButtons();
+    setWindowTitle(name);
 }
 
 
