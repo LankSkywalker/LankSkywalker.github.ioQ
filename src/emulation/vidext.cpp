@@ -175,7 +175,6 @@ static m64p_error glGetAttr(m64p_GLattr attr, int *value)
         case QSurfaceFormat::CompatibilityProfile:
             *value = M64P_GL_CONTEXT_PROFILE_COMPATIBILITY;
             break;
-        }
         case QSurfaceFormat::NoProfile:
             if (format.version() < qMakePair(3, 2)) {
                 *value = M64P_GL_CONTEXT_PROFILE_COMPATIBILITY;
@@ -183,6 +182,7 @@ static m64p_error glGetAttr(m64p_GLattr attr, int *value)
                 *value = M64P_GL_CONTEXT_PROFILE_CORE;
             }
             break;
+        }
         break;
     }
     return M64ERR_SUCCESS;
@@ -204,7 +204,7 @@ static m64p_error setCaption(const char *title)
 static m64p_error toggleFs()
 {
     LOG(L_VERB, FROM, "toggleFs");
-    abort();
+    emulation.toggleFullscreen();
 }
 
 static m64p_error resizeWindow(int, int)

@@ -59,6 +59,7 @@ signals:
     void resumed();
     void paused();
     void finished();
+    void toggleFullscreen();
 
 public slots:
     void play();

@@ -97,6 +97,7 @@ MainWindow::MainWindow(QWidget *parent)
             Qt::BlockingQueuedConnection);
     connect(&emulation, SIGNAL(resumed()), this, SLOT(emulationResumed()));
     connect(&emulation, SIGNAL(paused()), this, SLOT(emulationPaused()));
+    connect(&emulation, SIGNAL(toggleFullscreen()), this, SLOT(toggleFullscreen()));
     connect(&emulation, SIGNAL(destroyGlWindow()),
             this, SLOT(destroyGlWindow()),
             Qt::BlockingQueuedConnection);
@@ -171,6 +172,11 @@ void MainWindow::createGlWindow(QSurfaceFormat *format)
                 - rect().center());
     }
 
+    if (SETTINGS.value("Graphics/fullscreen", "") == "true") {
+        QMainWindow::menuBar()->setHidden(true);
+        showFullScreen();
+    }
+
     m64p_rom_settings romSettings;
     emulation.getRomSettings(sizeof romSettings, &romSettings);
     setWindowTitle(QString(romSettings.goodname) + " - " + AppName);
@@ -192,6 +198,13 @@ void MainWindow::destroyGlWindow()
     setCentralWidget(mainWidget);
     SETTINGS.setValue("Geometry/gameWindowx", geometry().x());
     SETTINGS.setValue("Geometry/gameWindowy", geometry().y());
+    if (SETTINGS.value("Graphics/fullscreen", "") == "true") {
+        // Don't know why but have to go fullscreen before going back,
+        // otherwise it doesn't go back properly.
+        showFullScreen();
+        showNormal();
+        QMainWindow::menuBar()->setHidden(false);
+    }
     restoreGeometry(mainGeometry);
     setWindowTitle(AppName);
     pauseAction->setVisible(false);
@@ -1226,4 +1239,9 @@ void MainWindow::emulationPaused()
 {
     resumeAction->setVisible(true);
     pauseAction->setVisible(false);
+}
+
+void MainWindow::toggleFullscreen()
+{
+    showFullScreen();
 }
