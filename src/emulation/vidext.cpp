@@ -79,10 +79,10 @@ static m64p_error setMode(int width, int height, int, int mode, int)
     return M64ERR_SUCCESS;
 }
 
-static void *glGetProc(const char *name)
+static m64p_function glGetProc(const char *name)
 {
     LOG(L_VERB, FROM, "glGetProc");
-    return (void *)glWindow->context()->getProcAddress(name);
+    return static_cast<m64p_function>(glWindow->context()->getProcAddress(name));
 }
 
 static m64p_error glSetAttr(m64p_GLattr attr, int value)
