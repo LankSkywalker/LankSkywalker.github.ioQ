@@ -35,6 +35,7 @@
 #include "pluginconfigdialog.h"
 #include "inputdialog.h"
 
+#include "../core.h"
 #include "../global.h"
 #include "../common.h"
 #include "../settings.h"
@@ -79,6 +80,8 @@ SettingsDialog::SettingsDialog(QWidget *parent, int activeTab) : QDialog(parent)
 
 
     //Populate Graphics tab
+    if (SETTINGS.value("Graphics/osd", "false").toString() == "true")
+        ui->osdOption->setChecked(true);
     if (SETTINGS.value("Graphics/hideCursor", "false").toString() == "true")
         ui->hideCursorOption->setChecked(true);
     if (SETTINGS.value("Graphics/fullscreen", "").toString() == "true")
@@ -442,6 +445,9 @@ void SettingsDialog::browseConfig()
 
 void SettingsDialog::editSettings()
 {
+    m64p_handle configCore;
+    ConfigOpenSection("Core", &configCore);
+
     //Set download option first
     if (ui->downloadOption->isChecked()) {
         SETTINGS.setValue("Other/downloadinfo", true);
@@ -474,6 +480,16 @@ void SettingsDialog::editSettings()
 
 
     //Graphics tab
+    int osdValue;
+    if (ui->osdOption->isChecked()) {
+        SETTINGS.setValue("Graphics/osd", "true");
+        osdValue = true;
+    } else {
+        SETTINGS.setValue("Graphics/osd", "");
+        osdValue = false;
+    }
+    ConfigSetParameter(configCore, "OnScreenDisplay", M64TYPE_BOOL, &osdValue);
+
     if (ui->hideCursorOption->isChecked())
         SETTINGS.setValue("Graphics/hideCursor", "true");
     else

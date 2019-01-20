@@ -166,7 +166,26 @@ static m64p_error glSetAttr(m64p_GLattr attr, int value)
 static m64p_error glGetAttr(m64p_GLattr attr, int *value)
 {
     LOG(L_VERB, FROM, "glGetAttr");
-    abort();
+    switch (attr) {
+    case M64P_GL_CONTEXT_PROFILE_MASK:
+        switch (format.profile()) {
+        case QSurfaceFormat::CoreProfile:
+            *value = M64P_GL_CONTEXT_PROFILE_CORE;
+            break;
+        case QSurfaceFormat::CompatibilityProfile:
+            *value = M64P_GL_CONTEXT_PROFILE_COMPATIBILITY;
+            break;
+        }
+        case QSurfaceFormat::NoProfile:
+            if (format.version() < qMakePair(3, 2)) {
+                *value = M64P_GL_CONTEXT_PROFILE_COMPATIBILITY;
+            } else {
+                *value = M64P_GL_CONTEXT_PROFILE_CORE;
+            }
+            break;
+        break;
+    }
+    return M64ERR_SUCCESS;
 }
 
 static m64p_error glSwapBuf()

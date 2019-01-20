@@ -330,20 +330,6 @@ void MainWindow::autoloadSettings()
             SETTINGS.setValue("Paths/config", configCheck);
         }
     }
-
-
-    // Core settings
-
-    m64p_handle configHandle;
-    m64p_error rval;
-    rval = ConfigOpenSection("Core", &configHandle);
-    if (rval != M64ERR_SUCCESS) {
-        LOG_W(TR("Could not open config core section. ")
-                + m64errstr(rval));
-    }
-
-    int osdValue = false;
-    ConfigSetParameter(configHandle, "OnScreenDisplay", M64TYPE_BOOL, &osdValue);
 }
 
 
