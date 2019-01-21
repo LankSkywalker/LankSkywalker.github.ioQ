@@ -474,12 +474,18 @@ void SettingsDialog::editSettings()
 
 
     //Emulation tab
-    if (ui->pureButton->isChecked())
+    int emuMode = 0;
+    if (ui->pureButton->isChecked()) {
         SETTINGS.setValue("Emulation/mode", "0");
-    else if (ui->cachedButton->isChecked())
+        emuMode = 0;
+    } else if (ui->cachedButton->isChecked()) {
         SETTINGS.setValue("Emulation/mode", "1");
-    else
+        emuMode = 1;
+    } else {
         SETTINGS.setValue("Emulation/mode", "2");
+        emuMode = 2;
+    }
+    ConfigSetParameter(configCore, "R4300Emulator", M64TYPE_INT, &emuMode);
 
 
     //Graphics tab
