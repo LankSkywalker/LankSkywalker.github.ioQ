@@ -111,7 +111,8 @@ SettingsDialog::SettingsDialog(QWidget *parent, int activeTab) : QDialog(parent)
           << "1024x768"
           << "1024x600"
           << "800x600"
-          << "640x480";
+          << "640x480"
+          << "320x240";
 
 
     desktop = new QDesktopWidget;
@@ -447,6 +448,8 @@ void SettingsDialog::editSettings()
 {
     m64p_handle configCore;
     ConfigOpenSection("Core", &configCore);
+    m64p_handle configVideo;
+    ConfigOpenSection("Video-General", &configVideo);
 
     //Set download option first
     if (ui->downloadOption->isChecked()) {
@@ -495,15 +498,28 @@ void SettingsDialog::editSettings()
     else
         SETTINGS.setValue("Graphics/hideCursor", "");
 
-    if (ui->fullscreenOption->isChecked())
+    int fsValue;
+    if (ui->fullscreenOption->isChecked()) {
         SETTINGS.setValue("Graphics/fullscreen", true);
-    else
+        fsValue = true;
+    } else {
         SETTINGS.setValue("Graphics/fullscreen", "");
+        fsValue = false;
+    }
+    ConfigSetParameter(configVideo, "Fullscreen", M64TYPE_BOOL, &fsValue);
 
-    if (ui->resolutionBox->currentText() != "default")
-        SETTINGS.setValue("Graphics/resolution", ui->resolutionBox->currentText());
-    else
+    if (ui->resolutionBox->currentText() != "default") {
+        QByteArray ba = ui->resolutionBox->currentText().toUtf8();
+        const char *resText = ba.data();
+        int w, h;
+        if (sscanf(resText, "%dx%d", &w, &h) == 2) {
+            SETTINGS.setValue("Graphics/resolution", resText);
+            ConfigSetParameter(configVideo, "ScreenWidth", M64TYPE_INT, &w);
+            ConfigSetParameter(configVideo, "ScreenHeight", M64TYPE_INT, &h);
+        }
+    } else {
         SETTINGS.setValue("Graphics/resolution", "");
+    }
 
 
     //Plugins tab
@@ -591,6 +607,8 @@ void SettingsDialog::editSettings()
     setTheme(ui->themeBox->currentText());
     SETTINGS.setValue("language", ui->languageBox->itemData(ui->languageBox->currentIndex()));
 
+    ConfigSaveSection("Core");
+    ConfigSaveSection("Video-General");
     close();
 }
 

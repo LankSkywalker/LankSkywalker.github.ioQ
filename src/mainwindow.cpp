@@ -156,7 +156,6 @@ void MainWindow::createGlWindow(QSurfaceFormat *format)
         glWindow->setCursor(Qt::BlankCursor);
     }
     glWindow->setFormat(*format);
-    resize(640, 480);
     mainWidget = takeCentralWidget();
     setCentralWidget(container);
     container->setFocus();

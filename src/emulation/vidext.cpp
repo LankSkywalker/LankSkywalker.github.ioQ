@@ -34,9 +34,11 @@
 #include "emulation.h"
 #include "../error.h"
 #include "../common.h"
+#include "../global.h"
 
 #include <m64p_types.h>
 #include <QApplication>
+#include <QDesktopWidget>
 
 #define FROM "vidext"
 
