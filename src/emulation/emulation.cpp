@@ -36,6 +36,7 @@
 #include "../global.h"
 #include "../error.h"
 #include "../common.h"
+#include "../settings.h"
 #include "../osal/osal_dynamiclib.h"
 
 #include <m64p_types.h>
@@ -94,6 +95,8 @@ static bool runRom(void *romData, int length)
     }
 
     if (!attachPlugins()) {
+        CoreDoCommand(M64CMD_ROM_CLOSE, 0, NULL);
+        detachPlugins();
         return false;
     }
 
@@ -109,6 +112,7 @@ static bool runRom(void *romData, int length)
     rval = CoreDoCommand(M64CMD_ROM_CLOSE, 0, NULL);
     if (rval != M64ERR_SUCCESS) {
         SHOW_W(TR("Could not close the ROM: ") + m64errstr(rval));
+        detachPlugins();
         return false;
     }
     detachPlugins();
@@ -121,6 +125,10 @@ static bool attachPlugin(m64p_plugin_type type,
         m64p_dynlib_handle &plugin, const QString &name, char *typestr)
 {
     LOG_I(TR("Starting <Type> plugin...").replace("<Type>", typestr));
+    if (name == "") {
+        SHOW_E(TR("No plugin specified. Go to settings and select plugins."));
+        return false;
+    }
     m64p_error rval;
     bool ok;
     ok = openPlugin(plugin, name.toUtf8().data(), typestr);
@@ -142,19 +150,19 @@ static bool attachPlugin(m64p_plugin_type type,
 static bool attachPlugins()
 {
     QString name;
-    name = SETTINGS.value("Plugins/video", "").toString();
+    name = getCurrentVideoPlugin();
     if (!attachPlugin(M64PLUGIN_GFX, pluginGfx, name, (char *)"video")) {
         return false;
     }
-    name = SETTINGS.value("Plugins/audio", "").toString();
+    name = getCurrentAudioPlugin();
     if (!attachPlugin(M64PLUGIN_AUDIO, pluginAudio, name, (char *)"audio")) {
         return false;
     }
-    name = SETTINGS.value("Plugins/input", "").toString();
+    name = getCurrentInputPlugin();
     if (!attachPlugin(M64PLUGIN_INPUT, pluginInput, name, (char *)"input")) {
         return false;
     }
-    name = SETTINGS.value("Plugins/rsp", "").toString();
+    name = getCurrentRspPlugin();
     if (!attachPlugin(M64PLUGIN_RSP, pluginRsp, name, (char *)"RSP")) {
         return false;
     }
@@ -165,14 +173,26 @@ static bool attachPlugins()
 
 static void detachPlugins()
 {
-    CoreDetachPlugin(M64PLUGIN_RSP);
-    closePlugin(pluginRsp);
-    CoreDetachPlugin(M64PLUGIN_INPUT);
-    closePlugin(pluginInput);
-    CoreDetachPlugin(M64PLUGIN_AUDIO);
-    closePlugin(pluginAudio);
-    CoreDetachPlugin(M64PLUGIN_GFX);
-    closePlugin(pluginGfx);
+    if (pluginRsp) {
+        CoreDetachPlugin(M64PLUGIN_RSP);
+        closePlugin(pluginRsp);
+        pluginRsp = NULL;
+    }
+    if (pluginInput) {
+        CoreDetachPlugin(M64PLUGIN_INPUT);
+        closePlugin(pluginInput);
+        pluginInput = NULL;
+    }
+    if (pluginAudio) {
+        CoreDetachPlugin(M64PLUGIN_AUDIO);
+        closePlugin(pluginAudio);
+        pluginAudio = NULL;
+    }
+    if (pluginGfx) {
+        CoreDetachPlugin(M64PLUGIN_GFX);
+        closePlugin(pluginGfx);
+        pluginGfx = NULL;
+    }
 }
 
 
