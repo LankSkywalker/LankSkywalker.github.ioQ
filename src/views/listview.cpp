@@ -84,8 +84,9 @@ void ListView::addToListView(Rom *currentRom, int count, bool ddEnabled)
     ClickableWidget *gameListItem = new ClickableWidget(listWidget);
     gameListItem->setContentsMargins(0, 0, 20, 0);
     gameListItem->setContextMenuPolicy(Qt::CustomContextMenu);
-    if (SETTINGS.value("List/theme","Light").toString() == "Dark")
+    if (SETTINGS.value("theme", "Default").toString() == "Dark") {
         gameListItem->setStyleSheet("color:#EEE;");
+    }
 
     //Assign ROM data to widget for use in click events
     gameListItem->setProperty("fileName", currentRom->fileName);
@@ -174,10 +175,11 @@ void ListView::addToListView(Rom *currentRom, int count, bool ddEnabled)
         separator->setFrameShape(QFrame::HLine);
         separator->setStyleSheet("margin:0;padding:0;");
         QPalette palette = separator->palette();
-        if (SETTINGS.value("List/theme","Light").toString() == "Dark")
+        if (SETTINGS.value("theme", "Default").toString() == "Dark") {
             palette.setColor(QPalette::Window, Qt::black);
-        else
+        } else {
             palette.setColor(QPalette::Window, Qt::gray);
+        }
         separator->setPalette(palette);
         listLayout->addWidget(separator);
     }
@@ -308,10 +310,11 @@ void ListView::selectNextRom(QWidget* current, QString keypress)
 
 void ListView::setListBackground()
 {
-    if (SETTINGS.value("List/theme","Light").toString() == "Dark")
+    if (SETTINGS.value("theme", "Default").toString() == "Dark") {
         setStyleSheet("#listView { border: none; background: #222; } #listWidget { background: transparent; }");
-    else
+    } else {
         setStyleSheet("#listView { border: none; background: #FFF; } #listWidget { background: transparent; }");
+    }
 }
 
 
