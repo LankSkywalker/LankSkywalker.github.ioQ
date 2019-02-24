@@ -78,30 +78,54 @@ QStringList getAvailableRspPlugins()
 }
 
 
-QString getCurrentVideoPlugin()
+QString getCurrentVideoPlugin(QString game)
 {
+    QString plugin;
     QString defaultName = "mupen64plus-video-glide64mk2";
-    QString plugin = SETTINGS.value("Plugins/video", defaultName).toString();
+    if (game != "") {
+        plugin = SETTINGS.value(game + "/video", defaultName).toString();
+    }
+    if (plugin == "") {
+        plugin = SETTINGS.value("Plugins/video", defaultName).toString();
+    }
     return plugin;
 }
 
 
-QString getCurrentAudioPlugin()
+QString getCurrentAudioPlugin(QString game)
 {
-    QString plugin = SETTINGS.value("Plugins/audio", "").toString();
+    QString plugin;
+    if (game != "") {
+        plugin = SETTINGS.value(game + "/audio", "").toString();
+    }
+    if (plugin == "") {
+        plugin = SETTINGS.value("Plugins/audio", "").toString();
+    }
     return plugin;
 }
 
 
-QString getCurrentInputPlugin()
+QString getCurrentInputPlugin(QString game)
 {
-    QString plugin = SETTINGS.value("Plugins/input", "").toString();
+    QString plugin;
+    if (game != "") {
+        plugin = SETTINGS.value(game + "/input", "").toString();
+    }
+    if (plugin == "") {
+        plugin = SETTINGS.value("Plugins/input", "").toString();
+    }
     return plugin;
 }
 
 
-QString getCurrentRspPlugin()
+QString getCurrentRspPlugin(QString game)
 {
-    QString plugin = SETTINGS.value("Plugins/rsp", "").toString();
+    QString plugin;
+    if (game != "") {
+        plugin = SETTINGS.value(game + "/rsp", "").toString();
+    }
+    if (plugin == "") {
+        plugin = SETTINGS.value("Plugins/rsp", "").toString();
+    }
     return plugin;
 }

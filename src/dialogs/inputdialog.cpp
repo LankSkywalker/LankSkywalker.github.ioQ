@@ -48,6 +48,8 @@
 #include <QLineEdit>
 
 
+extern Emulation emulation;
+
 static constexpr int MAX_AXES = 32;
 int16_t axisValues[MAX_AXES];
 
@@ -80,7 +82,7 @@ static void receiveParameter(void *data, const char *name, m64p_type type)
 
 
 InputDialog::InputDialog(QWidget *parent)
-    : InputDialog(getCurrentInputPlugin(), parent)
+    : InputDialog(getCurrentInputPlugin(emulation.currentGameFile()), parent)
 {
 }
 

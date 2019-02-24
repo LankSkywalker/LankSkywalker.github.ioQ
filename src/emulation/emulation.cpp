@@ -44,13 +44,14 @@
 extern Emulation emulation;
 EmuThread *emuthread = NULL;
 
+static QString currentGameFilename;
 
 static m64p_dynlib_handle pluginRsp, pluginGfx, pluginAudio, pluginInput;
 
-static bool runRom(void *romData, int length);
+static bool runRom(void *romData, int length, QString filename);
 static bool attachPlugin(m64p_plugin_type type,
         m64p_dynlib_handle &plugin, const QString &name, char *typestr);
-static bool attachPlugins();
+static bool attachPlugins(QString game);
 static void detachPlugins();
 
 
@@ -79,13 +80,16 @@ void Emulation::runGame(const QString &romFileName, const QString &zipFileName)
 
     emit started();
 
-    runRom(romData.data(), romData.length());
+    QString filename = QFileInfo(romFileName).fileName();
+    currentGameFilename = filename;
+    runRom(romData.data(), romData.length(), filename);
+    currentGameFilename = "";
 
     emit finished();
 }
 
 
-static bool runRom(void *romData, int length)
+static bool runRom(void *romData, int length, QString filename)
 {
     m64p_error rval;
     rval = CoreDoCommand(M64CMD_ROM_OPEN, length, romData);
@@ -94,7 +98,7 @@ static bool runRom(void *romData, int length)
         return false;
     }
 
-    if (!attachPlugins()) {
+    if (!attachPlugins(filename)) {
         CoreDoCommand(M64CMD_ROM_CLOSE, 0, NULL);
         detachPlugins();
         return false;
@@ -147,22 +151,22 @@ static bool attachPlugin(m64p_plugin_type type,
 }
 
 
-static bool attachPlugins()
+static bool attachPlugins(QString game)
 {
     QString name;
-    name = getCurrentVideoPlugin();
+    name = getCurrentVideoPlugin(game);
     if (!attachPlugin(M64PLUGIN_GFX, pluginGfx, name, (char *)"video")) {
         return false;
     }
-    name = getCurrentAudioPlugin();
+    name = getCurrentAudioPlugin(game);
     if (!attachPlugin(M64PLUGIN_AUDIO, pluginAudio, name, (char *)"audio")) {
         return false;
     }
-    name = getCurrentInputPlugin();
+    name = getCurrentInputPlugin(game);
     if (!attachPlugin(M64PLUGIN_INPUT, pluginInput, name, (char *)"input")) {
         return false;
     }
-    name = getCurrentRspPlugin();
+    name = getCurrentRspPlugin(game);
     if (!attachPlugin(M64PLUGIN_RSP, pluginRsp, name, (char *)"RSP")) {
         return false;
     }
@@ -218,6 +222,11 @@ bool Emulation::restartInputPlugin()
     }
     LOG_E(TR("Could not restart input plugin: ") + m64errstr(rval));
     return false;
+}
+
+
+QString Emulation::currentGameFile() const {
+    return currentGameFilename;
 }
 
 

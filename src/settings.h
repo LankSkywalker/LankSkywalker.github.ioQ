@@ -45,13 +45,13 @@ QStringList getAvailableInputPlugins();
 QStringList getAvailableRspPlugins();
 
 
-QString getCurrentVideoPlugin();
+QString getCurrentVideoPlugin(QString game = "");
 
-QString getCurrentAudioPlugin();
+QString getCurrentAudioPlugin(QString game = "");
 
-QString getCurrentInputPlugin();
+QString getCurrentInputPlugin(QString game = "");
 
-QString getCurrentRspPlugin();
+QString getCurrentRspPlugin(QString game = "");
 
 
 #endif // SETTINGS_H

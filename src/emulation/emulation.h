@@ -51,6 +51,7 @@ public:
     void reset(bool hard);
     bool getRomSettings(size_t size, m64p_rom_settings *romSettings);
     bool restartInputPlugin();
+    QString currentGameFile() const;
 
 signals:
     void createGlWindow(QSurfaceFormat *format);
