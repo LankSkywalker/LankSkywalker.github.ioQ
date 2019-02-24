@@ -905,7 +905,11 @@ void MainWindow::openPlugins()
 
 void MainWindow::openInputConfig()
 {
-    InputDialog().exec();
+    if (getCurrentInputPlugin() != "") {
+        InputDialog().exec();
+    } else {
+        SHOW_I("Go to settings and select an input plugin first");
+    }
 }
 
 

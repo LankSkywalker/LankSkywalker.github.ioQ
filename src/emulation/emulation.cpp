@@ -196,6 +196,31 @@ static void detachPlugins()
 }
 
 
+bool Emulation::restartInputPlugin()
+{
+    m64p_error rval;
+    ptr_PluginShutdown pluginShutdown;
+    pluginShutdown = (ptr_PluginShutdown)osal_dynlib_getproc(pluginInput,
+                                                             "PluginShutdown");
+    if (pluginShutdown) {
+        rval = pluginShutdown();
+        ptr_PluginStartup pluginStartup;
+        pluginStartup = (ptr_PluginStartup)osal_dynlib_getproc(pluginInput,
+                                                               "PluginStartup");
+        if (pluginStartup && rval == M64ERR_SUCCESS) {
+            void debugCallback(void*, int, const char*);
+            rval = pluginStartup(Core::get().getLibhandle(),
+                                 (char*)"input", debugCallback);
+            if (rval == M64ERR_SUCCESS) {
+                return true;
+            }
+        }
+    }
+    LOG_E(TR("Could not restart input plugin: ") + m64errstr(rval));
+    return false;
+}
+
+
 bool Emulation::isExecuting()
 {
     m64p_error rval;

@@ -37,6 +37,7 @@
 #include "../plugin.h"
 #include "../sdl.h"
 #include "../settings.h"
+#include "../emulation/emulation.h"
 
 #include <SDL.h>
 #include <QThread>
@@ -45,6 +46,10 @@
 #include <QComboBox>
 #include <QCheckBox>
 #include <QLineEdit>
+
+
+static constexpr int MAX_AXES = 32;
+int16_t axisValues[MAX_AXES];
 
 
 static QString toSectionName(const QString &name, int controllerNumber)
@@ -84,10 +89,19 @@ InputDialog::InputDialog(const QString &name, QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::InputDialog)
     , pluginName(name)
+    , pausedByDialog(false)
 {
     ui->setupUi(this);
 
-    loadUnloadPlugin(name.toUtf8().data());
+    int state;
+    CoreDoCommand(M64CMD_CORE_STATE_QUERY, M64CORE_EMU_STATE, &state);
+    if (state == M64EMU_STOPPED) {
+        loadUnloadPlugin(name.toUtf8().data());
+    } else {
+        state = M64EMU_PAUSED;
+        CoreDoCommand(M64CMD_CORE_STATE_SET, M64CORE_EMU_STATE, &state);
+        pausedByDialog = true;
+    }
 
     getButtons();
 
@@ -217,15 +231,10 @@ void InputDialog::startReadInput(Button &b, Value &v)
         stopReadInput();
     }
 
+    memset(axisValues, 0, sizeof axisValues);
     inputTimer = startTimer(50);
     SDL_Joystick *joy = SDL_JoystickOpen(0); // TODO: 0
     inputReadingState = {true, &b, &v, joy};
-
-    // Dirty hack to clear event queue so we don't get old remaining
-    // events.  Is there a way without having to sleep?
-    QThread::msleep(10);
-    SDL_JoystickUpdate();
-    SDL_FlushEvent(SDL_JOYAXISMOTION);
 }
 
 
@@ -276,61 +285,57 @@ static void setKeySpecs(std::vector<KeySpec> &keys, const KeySpec &key, int para
 
 void InputDialog::timerEvent(QTimerEvent *timerEvent)
 {
-    SDL_JoystickID joyId;
-    if (inputReadingState.reading) {
-        joyId = SDL_JoystickInstanceID(inputReadingState.joy);
-    } else {
+    SDL_Joystick *joy = inputReadingState.joy;
+    if (!inputReadingState.reading) {
         LOG_W(TR("Timer event while not reading, should never happen."));
         return;
     }
+    SDL_JoystickUpdate();
     bool gotInput = false;
     KeySpec key;
-    SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        switch (event.type) {
-        case SDL_JOYBUTTONDOWN:
-            if (event.jbutton.which == joyId) {
-                int n = event.jbutton.button;
-                key = KeySpec(KeySpec::BUTTON, KeySpec::Value(n));
-                gotInput = true;
-            }
-            break;
-        case SDL_JOYAXISMOTION:
-            if (event.jaxis.which == joyId) {
-                int n = event.jaxis.axis;
-                int val = event.jaxis.value;
-                KeySpec::Value::Sign sign = KeySpec::Value::NO_SIGN;
-                if (val > 16384) {
-                    sign = KeySpec::Value::PLUS;
-                } else if (val < -16384) {
-                    sign = KeySpec::Value::MINUS;
-                }
-                if (sign != KeySpec::Value::NO_SIGN) {
-                    key = KeySpec(KeySpec::AXIS, KeySpec::Value(n, sign));
-                    gotInput = true;
-                }
-            }
-            break;
-        case SDL_JOYHATMOTION:
-            if (event.jhat.which == joyId) {
-                int n = event.jhat.hat;
-                int val = event.jhat.value;
-                KeySpec::Value::Direction dir;
-                gotInput = true;
-                switch (val) {
-                case SDL_HAT_UP:    dir = KeySpec::Value::UP;    break;
-                case SDL_HAT_DOWN:  dir = KeySpec::Value::DOWN;  break;
-                case SDL_HAT_LEFT:  dir = KeySpec::Value::LEFT;  break;
-                case SDL_HAT_RIGHT: dir = KeySpec::Value::RIGHT; break;
-                default:            gotInput = false;
-                }
-                if (gotInput) {
-                    key = KeySpec(KeySpec::HAT, KeySpec::Value(n, dir));
-                }
-            }
-            break;
+
+    for (int i = 0; i < SDL_JoystickNumButtons(joy); i++) {
+        if (SDL_JoystickGetButton(joy, i)) {
+            key = KeySpec(KeySpec::BUTTON, KeySpec::Value(i));
+            gotInput = true;
+            goto gotInput;
         }
     }
+
+    for (int i = 0; i < MAX_AXES && i < SDL_JoystickNumAxes(joy); i++) {
+        int16_t val = SDL_JoystickGetAxis(joy, i);
+        KeySpec::Value::Sign sign = KeySpec::Value::NO_SIGN;
+        if (val > 16384 && val > axisValues[i] && axisValues[i] != 0) {
+            sign = KeySpec::Value::PLUS;
+        } else if (val < -16384 && val < axisValues[i] && axisValues[i] != 0) {
+            sign = KeySpec::Value::MINUS;
+        }
+        axisValues[i] = val;
+        if (sign != KeySpec::Value::NO_SIGN) {
+            key = KeySpec(KeySpec::AXIS, KeySpec::Value(i, sign));
+            gotInput = true;
+            goto gotInput;
+        }
+    }
+
+    for (int i = 0; i < SDL_JoystickNumHats(joy); i++) {
+        uint8_t val = SDL_JoystickGetHat(joy, i);
+        KeySpec::Value::Direction dir;
+        gotInput = true;
+        switch (val) {
+        case SDL_HAT_UP:    dir = KeySpec::Value::UP;    break;
+        case SDL_HAT_DOWN:  dir = KeySpec::Value::DOWN;  break;
+        case SDL_HAT_LEFT:  dir = KeySpec::Value::LEFT;  break;
+        case SDL_HAT_RIGHT: dir = KeySpec::Value::RIGHT; break;
+        default:            gotInput = false;
+        }
+        if (gotInput) {
+            key = KeySpec(KeySpec::HAT, KeySpec::Value(i, dir));
+            goto gotInput;
+        }
+    }
+
+gotInput:
     if (gotInput) {
         int param = inputReadingState.button->parameter;
         std::vector<KeySpec> &keys = inputReadingState.value->keys;
@@ -551,7 +556,23 @@ void InputDialog::accept()
     for (int i = 0; i < 4; i++) {
         saveController(i);
     }
+    if (pausedByDialog) {
+        extern Emulation emulation;
+        emulation.restartInputPlugin();
+        int state = M64EMU_RUNNING;
+        CoreDoCommand(M64CMD_CORE_STATE_SET, M64CORE_EMU_STATE, &state);
+    }
     close();
+}
+
+
+void InputDialog::reject()
+{
+    if (pausedByDialog) {
+        int state = M64EMU_RUNNING;
+        CoreDoCommand(M64CMD_CORE_STATE_SET, M64CORE_EMU_STATE, &state);
+    }
+    QDialog::reject();
 }
 
 

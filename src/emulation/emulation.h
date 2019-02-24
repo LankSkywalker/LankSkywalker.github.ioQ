@@ -50,6 +50,7 @@ public:
     void setSaveSlot(int n);
     void reset(bool hard);
     bool getRomSettings(size_t size, m64p_rom_settings *romSettings);
+    bool restartInputPlugin();
 
 signals:
     void createGlWindow(QSurfaceFormat *format);

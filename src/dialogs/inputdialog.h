@@ -89,7 +89,8 @@ public:
     ~InputDialog();
 
 private slots:
-    void accept();
+    void accept() override;
+    void reject() override;
     void controllerSelected(int index);
     void deviceChanged(int widgetIndex);
     void configChanged();
@@ -114,6 +115,7 @@ private:
     int currentControllerIndex = 0;
     std::vector<Controller> controllers;
     std::vector<Button> buttons;
+    bool pausedByDialog;
 };
 
 
