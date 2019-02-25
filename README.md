@@ -2,6 +2,8 @@
 
 A frontend for the Nintendo 64 emulator Mupen64Plus.
 
+![screenshot](https://www.robalni.org/mupen64plus/mupen64plus-screenshot.png)
+
 
 ## License
 
