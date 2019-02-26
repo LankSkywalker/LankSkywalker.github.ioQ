@@ -305,18 +305,33 @@ void MainWindow::autoloadSettings()
 
     QString p;
     p = getCurrentVideoPlugin();
+    if (p == "") {
+        p = getAvailableVideoPlugins()[0];
+    }
     if (p != "") {
         SETTINGS.setValue("Plugins/video", p);
     }
+
     p = getCurrentAudioPlugin();
+    if (p == "") {
+        p = getAvailableAudioPlugins()[0];
+    }
     if (p != "") {
         SETTINGS.setValue("Plugins/audio", p);
     }
+
     p = getCurrentInputPlugin();
+    if (p == "") {
+        p = getAvailableInputPlugins()[0];
+    }
     if (p != "") {
         SETTINGS.setValue("Plugins/input", p);
     }
+
     p = getCurrentRspPlugin();
+    if (p == "") {
+        p = getAvailableRspPlugins()[0];
+    }
     if (p != "") {
         SETTINGS.setValue("Plugins/rsp", p);
     }
@@ -908,7 +923,7 @@ void MainWindow::openInputConfig()
     if (getCurrentInputPlugin() != "") {
         InputDialog().exec();
     } else {
-        SHOW_I("Go to settings and select an input plugin first");
+        SHOW_I(tr("Go to settings and select an input plugin first"));
     }
 }
 
