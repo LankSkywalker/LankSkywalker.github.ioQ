@@ -306,7 +306,7 @@ void MainWindow::autoloadSettings()
     QString p;
     p = getCurrentVideoPlugin();
     if (p == "") {
-        p = getAvailableVideoPlugins()[0];
+        p = getAvailableVideoPlugins().value(0);
     }
     if (p != "") {
         SETTINGS.setValue("Plugins/video", p);
@@ -314,7 +314,7 @@ void MainWindow::autoloadSettings()
 
     p = getCurrentAudioPlugin();
     if (p == "") {
-        p = getAvailableAudioPlugins()[0];
+        p = getAvailableAudioPlugins().value(0);
     }
     if (p != "") {
         SETTINGS.setValue("Plugins/audio", p);
@@ -322,7 +322,7 @@ void MainWindow::autoloadSettings()
 
     p = getCurrentInputPlugin();
     if (p == "") {
-        p = getAvailableInputPlugins()[0];
+        p = getAvailableInputPlugins().value(0);
     }
     if (p != "") {
         SETTINGS.setValue("Plugins/input", p);
@@ -330,7 +330,7 @@ void MainWindow::autoloadSettings()
 
     p = getCurrentRspPlugin();
     if (p == "") {
-        p = getAvailableRspPlugins()[0];
+        p = getAvailableRspPlugins().value(0);
     }
     if (p != "") {
         SETTINGS.setValue("Plugins/rsp", p);
