@@ -487,7 +487,7 @@ void readRomFile(QByteArray &romData,
 }
 
 
-const char *mapRomFile(QFile &file)
+const char *mapFile(QFile &file)
 {
     file.open(QIODevice::ReadOnly);
     uchar *romData = file.map(0, file.size(), QFileDevice::MapPrivateOption);

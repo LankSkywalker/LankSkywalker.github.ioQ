@@ -1,5 +1,5 @@
 /***
- * Copyright (c) 2018, Robert Alm Nilsson
+ * Copyright (c) 2019, Robert Alm Nilsson
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,53 +29,42 @@
  *
  ***/
 
-#ifndef EMULATION_H
-#define EMULATION_H
+#ifndef CHEATPARSE_H
+#define CHEATPARSE_H
 
-#include <m64p_types.h>
-#include <cstdlib>
 #include <set>
-#include <QObject>
-class QSurfaceFormat;
+#include <map>
+#include <vector>
+#include <QString>
+#include <m64p_types.h>
+
+
 class QString;
 
-class Emulation : public QObject
+using CheatCode = m64p_cheat_code;
+
+struct Cheat
 {
-    Q_OBJECT
-
-public:
-    void startGame(const QString &romFileName, const QString &zipFileName = "");
-    void runGame(const QString &romFileName, const QString &zipFileName);
-    bool isExecuting();
-    void stopGame();
-    void setSaveSlot(int n);
-    void reset(bool hard);
-    bool getRomSettings(size_t size, m64p_rom_settings *romSettings);
-    bool restartInputPlugin();
-    QString currentGameFile() const;
-
-    static std::set<QString> activeCheats;
-
-signals:
-    void createGlWindow(QSurfaceFormat *format);
-    void destroyGlWindow();
-    void resize(int width, int height);
-    void started();
-    void resumed();
-    void paused();
-    void finished();
-    void toggleFullscreen();
-
-public slots:
-    void play();
-    void pause();
-    void advanceFrame();
-    void saveState();
-    void loadState();
-    void resetSoft();
-    void resetHard();
-    void sendKeyDown(int sdlKey);
-    void sendKeyUp(int sdlKey);
+    Cheat(QString name, QString fullName, QString description,
+            Cheat *parent, bool on)
+        : name(name), fullName(fullName), description(description),
+          parent(parent), checked(on)
+    {}
+    Cheat(const Cheat &other) = default;
+    Cheat &operator=(const Cheat &other) = default;
+    QString name;
+    QString fullName;
+    QString description;
+    Cheat *parent;
+    std::map<QString, Cheat> children;
+    std::vector<CheatCode> codes;  // Only valid if size of children == 0.
+    bool checked;
+    size_t optionsFor;
+    std::map<uint16_t, QString> options;
 };
 
-#endif // EMULATION_H
+
+bool parseCheats(const char *code, size_t codeSize, const char *section,
+                 const std::set<QString> &activeCheats, Cheat &rootCheat);
+
+#endif // CHEATPARSE_H

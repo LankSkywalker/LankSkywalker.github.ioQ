@@ -44,6 +44,8 @@
 extern Emulation emulation;
 EmuThread *emuthread = NULL;
 
+std::set<QString> Emulation::activeCheats;
+
 static QString currentGameFilename;
 
 static m64p_dynlib_handle pluginRsp, pluginGfx, pluginAudio, pluginInput;
@@ -103,6 +105,8 @@ static bool runRom(void *romData, int length, QString filename)
         detachPlugins();
         return false;
     }
+
+    Emulation::activeCheats.clear();
 
     // This is where the game actually runs.
     rval = CoreDoCommand(M64CMD_EXECUTE, 0, NULL);

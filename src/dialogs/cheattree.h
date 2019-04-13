@@ -1,5 +1,5 @@
 /***
- * Copyright (c) 2018, Robert Alm Nilsson
+ * Copyright (c) 2019, Robert Alm Nilsson
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,53 +29,49 @@
  *
  ***/
 
-#ifndef EMULATION_H
-#define EMULATION_H
+#ifndef CHEATTREE_H
+#define CHEATTREE_H
 
-#include <m64p_types.h>
-#include <cstdlib>
-#include <set>
-#include <QObject>
-class QSurfaceFormat;
-class QString;
+#include "../cheatparse.h"
+#include <QTreeView>
 
-class Emulation : public QObject
+
+class CheatTree : public QTreeView
 {
     Q_OBJECT
 
 public:
-    void startGame(const QString &romFileName, const QString &zipFileName = "");
-    void runGame(const QString &romFileName, const QString &zipFileName);
-    bool isExecuting();
-    void stopGame();
-    void setSaveSlot(int n);
-    void reset(bool hard);
-    bool getRomSettings(size_t size, m64p_rom_settings *romSettings);
-    bool restartInputPlugin();
-    QString currentGameFile() const;
-
-    static std::set<QString> activeCheats;
-
-signals:
-    void createGlWindow(QSurfaceFormat *format);
-    void destroyGlWindow();
-    void resize(int width, int height);
-    void started();
-    void resumed();
-    void paused();
-    void finished();
-    void toggleFullscreen();
-
-public slots:
-    void play();
-    void pause();
-    void advanceFrame();
-    void saveState();
-    void loadState();
-    void resetSoft();
-    void resetHard();
-    void sendKeyDown(int sdlKey);
-    void sendKeyUp(int sdlKey);
+    explicit CheatTree(QWidget *parent = NULL);
 };
 
-#endif // EMULATION_H
+
+class CheatModel : public QAbstractItemModel
+{
+    Q_OBJECT
+
+public:
+    explicit CheatModel(QWidget *parent = NULL);
+    QModelIndex index(int row, int column,
+            const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex &index) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index = QModelIndex(),
+            int role = Qt::DisplayRole) const override;
+
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role)
+        override;
+    QVariant headerData(int section, Qt::Orientation o, int role)
+        const override;
+
+    bool toggle(const QModelIndex &index);
+
+    // This is the root group containing the other cheats.  These
+    // cheats will be loaded when the dialog opens and reads the cheat
+    // file.
+    Cheat cheats;
+};
+
+
+#endif  // CHEATTREE_H

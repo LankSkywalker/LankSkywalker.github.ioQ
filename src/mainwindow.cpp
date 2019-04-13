@@ -39,6 +39,7 @@
 #include "settings.h"
 
 #include "dialogs/aboutguidialog.h"
+#include "dialogs/cheatdialog.h"
 #include "dialogs/configeditor.h"
 #include "dialogs/downloaddialog.h"
 #include "dialogs/gamesettingsdialog.h"
@@ -448,6 +449,7 @@ void MainWindow::createMenu()
             }
         });
     }
+    cheatsAction = emulationMenu->addAction(tr("&Cheats..."));
 
     {
         QList<QKeySequence> seq;
@@ -490,6 +492,7 @@ void MainWindow::createMenu()
     connect(saveStateAction, SIGNAL(triggered()), &emulation, SLOT(saveState()));
     connect(loadStateAction, SIGNAL(triggered()), &emulation, SLOT(loadState()));
     connect(stopAction, SIGNAL(triggered()), this, SLOT(stopEmulator()));
+    connect(cheatsAction, SIGNAL(triggered()), this, SLOT(showCheats()));
 
 
     // Settings
@@ -1165,6 +1168,12 @@ void MainWindow::showRomMenu(const QPoint &pos)
 void MainWindow::stopEmulator()
 {
     emulation.stopGame();
+}
+
+
+void MainWindow::showCheats()
+{
+    CheatDialog().exec();
 }
 
 

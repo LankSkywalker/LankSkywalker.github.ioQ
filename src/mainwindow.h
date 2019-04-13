@@ -101,6 +101,7 @@ private:
     QAction *saveStateAction;
     QAction *loadStateAction;
     QAction *stopAction;
+    QAction *cheatsAction;
     QActionGroup *layoutGroup;
     QDialog *zipDialog;
     QDialogButtonBox *zipButtonBox;
@@ -161,6 +162,7 @@ private slots:
     void showMenuBar(bool mouseAtTop);
     void showRomMenu(const QPoint &);
     void stopEmulator();
+    void showCheats();
     void toggleMenus(bool active);
     void updateFullScreenMode();
     void updateLayoutSetting();

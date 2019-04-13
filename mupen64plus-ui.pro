@@ -18,6 +18,7 @@ win32:RC_FILE = dist/windows/icon.rc
 
 
 SOURCES += src/main.cpp \
+    src/cheatparse.cpp \
     src/common.cpp \
     src/core.cpp \
     src/mainwindow.cpp \
@@ -28,6 +29,8 @@ SOURCES += src/main.cpp \
     src/config/configcontrolcollection.cpp \
     src/config/keyspec.cpp \
     src/dialogs/aboutguidialog.cpp \
+    src/dialogs/cheatdialog.cpp \
+    src/dialogs/cheattree.cpp \
     src/dialogs/configeditor.cpp \
     src/dialogs/downloaddialog.cpp \
     src/dialogs/gamesettingsdialog.cpp \
@@ -49,6 +52,7 @@ SOURCES += src/main.cpp \
     src/views/widgets/treewidgetitem.cpp
 
 HEADERS += src/global.h \
+    src/cheatparse.h \
     src/common.h \
     src/core.h \
     src/mainwindow.h \
@@ -59,6 +63,8 @@ HEADERS += src/global.h \
     src/config/configcontrolcollection.h \
     src/config/keyspec.h \
     src/dialogs/aboutguidialog.h \
+    src/dialogs/cheatdialog.h \
+    src/dialogs/cheattree.h \
     src/dialogs/configeditor.h \
     src/dialogs/downloaddialog.h \
     src/dialogs/gamesettingsdialog.h \

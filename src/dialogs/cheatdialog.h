@@ -1,5 +1,5 @@
 /***
- * Copyright (c) 2018, Robert Alm Nilsson
+ * Copyright (c) 2019, Robert Alm Nilsson
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,53 +29,36 @@
  *
  ***/
 
-#ifndef EMULATION_H
-#define EMULATION_H
+#ifndef CHEATDIALOG_H
+#define CHEATDIALOG_H
 
-#include <m64p_types.h>
-#include <cstdlib>
-#include <set>
-#include <QObject>
-class QSurfaceFormat;
-class QString;
+#include <QDialog>
+#include <QFile>
+#include <map>
 
-class Emulation : public QObject
+
+class CheatDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    void startGame(const QString &romFileName, const QString &zipFileName = "");
-    void runGame(const QString &romFileName, const QString &zipFileName);
-    bool isExecuting();
-    void stopGame();
-    void setSaveSlot(int n);
-    void reset(bool hard);
-    bool getRomSettings(size_t size, m64p_rom_settings *romSettings);
-    bool restartInputPlugin();
-    QString currentGameFile() const;
+    explicit CheatDialog(QWidget *parent = NULL);
 
-    static std::set<QString> activeCheats;
-
-signals:
-    void createGlWindow(QSurfaceFormat *format);
-    void destroyGlWindow();
-    void resize(int width, int height);
-    void started();
-    void resumed();
-    void paused();
-    void finished();
-    void toggleFullscreen();
-
-public slots:
-    void play();
-    void pause();
-    void advanceFrame();
-    void saveState();
-    void loadState();
-    void resetSoft();
-    void resetHard();
-    void sendKeyDown(int sdlKey);
-    void sendKeyUp(int sdlKey);
+private:
+    QFile cheatFile;
 };
 
-#endif // EMULATION_H
+class Cheat;
+
+// Shown when user enables a cheat that has options for a value.
+class OptionsDialog : public QDialog
+{
+    Q_OBJECT
+
+public:
+    explicit OptionsDialog(const std::map<uint16_t, QString> &values,
+                           const Cheat &cheat, QWidget *parent = nullptr);
+};
+
+
+#endif // CHEATDIALOG_H

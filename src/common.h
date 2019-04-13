@@ -103,7 +103,7 @@ void readRomFile(QByteArray &romData,
         const QString &romFileName,
         const QString &zipFileName = "");
 
-const char *mapRomFile(QFile &file);
+const char *mapFile(QFile &file);
 
 #define TR(s) QObject::tr(s)
 
