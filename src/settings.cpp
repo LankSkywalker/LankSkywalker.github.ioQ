@@ -83,7 +83,7 @@ QString getCurrentVideoPlugin(QString game)
     QString plugin;
     QString defaultName = "mupen64plus-video-glide64mk2";
     if (game != "") {
-        plugin = SETTINGS.value(game + "/video", defaultName).toString();
+        plugin = SETTINGS.value(game + "/video", "").toString();
     }
     if (plugin == "") {
         plugin = SETTINGS.value("Plugins/video", defaultName).toString();
