@@ -115,7 +115,6 @@ private:
     int currentControllerIndex = 0;
     std::vector<Controller> controllers;
     std::vector<Button> buttons;
-    bool pausedByDialog;
 };
 
 
