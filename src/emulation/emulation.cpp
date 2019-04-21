@@ -106,8 +106,8 @@ static bool runRom(void *romData, int length, QString filename)
         return false;
     }
 
-    // Set this setting here just because the default in this UI is
-    // different from the default in the emulator and the user can
+    // Set this setting here just because the default value in this UI
+    // is different from the default in the emulator and the user can
     // start a game before going to settings where these settings are
     // normally saved so we need to do it here.
     m64p_handle configCore;
