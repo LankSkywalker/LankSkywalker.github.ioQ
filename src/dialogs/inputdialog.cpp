@@ -91,18 +91,12 @@ InputDialog::InputDialog(const QString &name, QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::InputDialog)
     , pluginName(name)
-    , pausedByDialog(false)
 {
     ui->setupUi(this);
 
-    int state;
-    CoreDoCommand(M64CMD_CORE_STATE_QUERY, M64CORE_EMU_STATE, &state);
-    if (state == M64EMU_STOPPED) {
+    extern Emulation emulation;
+    if (!emulation.isExecuting()) {
         loadUnloadPlugin(name.toUtf8().data());
-    } else {
-        state = M64EMU_PAUSED;
-        CoreDoCommand(M64CMD_CORE_STATE_SET, M64CORE_EMU_STATE, &state);
-        pausedByDialog = true;
     }
 
     getButtons();
@@ -558,11 +552,9 @@ void InputDialog::accept()
     for (int i = 0; i < 4; i++) {
         saveController(i);
     }
-    if (pausedByDialog) {
-        extern Emulation emulation;
+    extern Emulation emulation;
+    if (emulation.isExecuting()) {
         emulation.restartInputPlugin();
-        int state = M64EMU_RUNNING;
-        CoreDoCommand(M64CMD_CORE_STATE_SET, M64CORE_EMU_STATE, &state);
     }
     close();
 }
@@ -570,10 +562,6 @@ void InputDialog::accept()
 
 void InputDialog::reject()
 {
-    if (pausedByDialog) {
-        int state = M64EMU_RUNNING;
-        CoreDoCommand(M64CMD_CORE_STATE_SET, M64CORE_EMU_STATE, &state);
-    }
     QDialog::reject();
 }
 
