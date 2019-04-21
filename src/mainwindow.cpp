@@ -580,7 +580,7 @@ void MainWindow::createMenu()
     connect(aboutAction, SIGNAL(triggered()), this, SLOT(openAboutGui()));
 
 
-    // Create list of actions that are enabled only when emulator is not running
+    // List of actions that are enabled only when emulator is not running
     menuEnable << startAction
                << openAction
                << refreshAction
@@ -591,7 +591,7 @@ void MainWindow::createMenu()
                << configureGameAction
                << editorAction;
 
-    // Create list of actions that are disabled when emulator is not running
+    // List of actions that are disabled when emulator is not running
     menuDisable << stopAction
                 << resumeAction
                 << pauseAction
@@ -600,7 +600,7 @@ void MainWindow::createMenu()
                 << saveStateAction
                 << loadStateAction;
 
-    // Create list of actions that are only active when a ROM is selected
+    // List of actions that are only active when a ROM is selected
     menuRomSelected << startAction
                     << deleteAction
                     << downloadAction
