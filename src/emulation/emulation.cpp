@@ -106,6 +106,15 @@ static bool runRom(void *romData, int length, QString filename)
         return false;
     }
 
+    // Set this setting here just because the default in this UI is
+    // different from the default in the emulator and the user can
+    // start a game before going to settings where these settings are
+    // normally saved so we need to do it here.
+    m64p_handle configCore;
+    ConfigOpenSection("Core", &configCore);
+    int osdValue = SETTINGS.value("Graphics/osd", "").toString() == "true";
+    ConfigSetParameter(configCore, "OnScreenDisplay", M64TYPE_BOOL, &osdValue);
+
     Emulation::activeCheats.clear();
 
     // This is where the game actually runs.
