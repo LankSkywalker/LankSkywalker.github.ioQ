@@ -41,6 +41,8 @@
 #include <QLineEdit>
 #include <QLabel>
 
+#include <assert.h>
+
 
 static QString camelSpaced(const QString &s)
 {
