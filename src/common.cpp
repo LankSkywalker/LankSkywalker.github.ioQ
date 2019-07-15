@@ -58,6 +58,8 @@
 #include <QDesktopServices>
 #endif
 
+#include <assert.h>
+
 
 void setTheme()
 {
